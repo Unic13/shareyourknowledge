@@ -1,4 +1,4 @@
-.view-shell{display:grid;grid-template-columns:220px 280px 1fr;gap:0;height:calc(100vh - 72px)}
+.view-shell{display:grid;grid-template-columns:220px 280px 1fr;gap:0;height:calc(100vh - 72px - 42px)}
 @media (max-width:900px){.view-shell{grid-template-columns:1fr;height:auto}}
 
 .view-subjects{background:#fff;border-right:1px solid #e5e7eb;overflow-y:auto;padding:14px 10px}

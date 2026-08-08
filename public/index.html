@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNIC Academic — Knowledge Sharing</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+<style>
+  body{min-height:100vh;display:flex;flex-direction:column}
+  .hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px}
+  .hero-logo{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:20px;box-shadow:0 8px 24px rgba(124,58,237,.35);margin-bottom:18px}
+  .hero-title{font-size:32px;font-weight:800;color:#111;margin-bottom:6px}
+  .hero-sub{font-size:15px;color:#6b7280;margin-bottom:2px}
+  .hero-tagline{font-size:12px;font-weight:700;letter-spacing:.08em;color:#a78bfa;text-transform:uppercase;margin-bottom:36px}
+  .hero-cards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:680px}
+  .hero-card{width:270px;background:#fff;border:1.5px solid #e5e7eb;border-radius:18px;padding:28px 24px;text-align:left;text-decoration:none;color:inherit;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .hero-card:hover{border-color:#c4b5fd;box-shadow:0 8px 24px rgba(124,58,237,.12);transform:translateY(-2px)}
+  .hero-card-icon{font-size:28px;margin-bottom:12px}
+  .hero-card-title{font-size:16px;font-weight:800;color:#111;margin-bottom:6px}
+  .hero-card-desc{font-size:12.5px;color:#6b7280;line-height:1.6;margin-bottom:14px}
+  .hero-card-cta{font-size:12.5px;font-weight:700;color:#7c3aed;display:flex;align-items:center;gap:4px}
+  .hero-stats{display:flex;gap:28px;margin-top:36px;flex-wrap:wrap;justify-content:center}
+  .hero-stat{text-align:center}
+  .hero-stat-value{font-size:22px;font-weight:800;color:#111}
+  .hero-stat-label{font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em}
+
+  .process{padding:50px 20px 40px;background:#fafafb;border-top:1px solid #f3f4f6}
+  .process-inner{max-width:900px;margin:0 auto}
+  .process-title{text-align:center;font-size:22px;font-weight:800;color:#111;margin-bottom:6px}
+  .process-sub{text-align:center;font-size:13px;color:#9ca3af;margin-bottom:36px}
+  .process-cols{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+  @media (max-width:720px){.process-cols{grid-template-columns:1fr}}
+  .process-col-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;color:#374151;margin-bottom:18px}
+  .process-col-title .tag{font-size:10px;font-weight:800;padding:2px 9px;border-radius:20px;color:#fff;text-transform:uppercase;letter-spacing:.03em}
+  .process-steps{list-style:none;margin:0;padding:0}
+  .process-step{display:flex;gap:14px;padding:0 0 22px;position:relative}
+  .process-step:not(:last-child)::before{content:'';position:absolute;left:15px;top:32px;bottom:0;width:2px;background:#e5e7eb}
+  .process-step-num{flex-shrink:0;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;z-index:1}
+  .process-step-title{font-size:13.5px;font-weight:700;color:#111;margin-bottom:3px}
+  .process-step-desc{font-size:12px;color:#6b7280;line-height:1.55}
+  footer{text-align:center;padding:18px;font-size:11.5px;color:#9ca3af;border-top:1px solid #f3f4f6}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-logo">UN</div>
+  <div class="hero-title">UNIC Academic</div>
+  <div class="hero-sub">Knowledge Sharing</div>
+  <div class="hero-tagline">Learn • Create • Share</div>
+
+  <div class="hero-cards">
+    <a class="hero-card" href="view.html">
+      <div class="hero-card-icon">📖</div>
+      <div class="hero-card-title">Start Learning</div>
+      <div class="hero-card-desc">Browse subjects, read chapters, practice questions, and try the SQL playground — no account needed.</div>
+      <div class="hero-card-cta">Browse content →</div>
+    </a>
+    <a class="hero-card" href="login.html">
+      <div class="hero-card-icon">✏️</div>
+      <div class="hero-card-title">Create &amp; Manage</div>
+      <div class="hero-card-desc">Sign in as an editor or admin to build chapters, questions, and manage subjects.</div>
+      <div class="hero-card-cta">Admin login →</div>
+    </a>
+  </div>
+
+  <div class="hero-stats" id="hero-stats"></div>
+</div>
+
+<div class="process">
+  <div class="process-inner">
+    <div class="process-title">How it works</div>
+    <div class="process-sub">Two simple paths — pick the one that fits you</div>
+
+    <div class="process-cols">
+      <div>
+        <div class="process-col-title"><span class="tag" style="background:#6C3FF5">Learn</span> For students</div>
+        <ol class="process-steps">
+          <li class="process-step">
+            <div class="process-step-num" style="background:#6C3FF5">1</div>
+            <div><div class="process-step-title">Pick a subject</div><div class="process-step-desc">No account needed — browse straight in from the home page.</div></div>
+          </li>
+          <li class="process-step">
+            <div class="process-step-num" style="background:#6C3FF5">2</div>
+            <div><div class="process-step-title">Read the chapter</div><div class="process-step-desc">Concepts, formulas, examples, videos, and the SQL playground where relevant.</div></div>
+          </li>
+          <li class="process-step">
+            <div class="process-step-num" style="background:#6C3FF5">3</div>
+            <div><div class="process-step-title">Practice questions</div><div class="process-step-desc">Answer MCQs, MSQs, and numeric questions with instant explanations.</div></div>
+          </li>
+          <li class="process-step">
+            <div class="process-step-num" style="background:#6C3FF5">4</div>
+            <div><div class="process-step-title">Leave feedback</div><div class="process-step-desc">Rate the subject and tell contributors what to improve.</div></div>
+          </li>
+        </ol>
+      </div>
+
+      <div>
+        <div class="process-col-title"><span class="tag" style="background:#4f46e5">Create</span> For editors &amp; admins</div>
+        <ol class="process-steps">
+          <li class="process-step">
+            <div class="process-step-num" style="background:#4f46e5">1</div>
+            <div><div class="process-step-title">Sign in</div><div class="process-step-desc">Editors, admins, and super admins each get access scoped to their role.</div></div>
+          </li>
+          <li class="process-step">
+            <div class="process-step-num" style="background:#4f46e5">2</div>
+            <div><div class="process-step-title">Get assigned a subject</div><div class="process-step-desc">Editors only see and edit the subjects an admin has mapped to them.</div></div>
+          </li>
+          <li class="process-step">
+            <div class="process-step-num" style="background:#4f46e5">3</div>
+            <div><div class="process-step-title">Build or import content</div><div class="process-step-desc">Use the chapter editor directly, or download the template and upload a filled-in JSON file.</div></div>
+          </li>
+          <li class="process-step">
+            <div class="process-step-num" style="background:#4f46e5">4</div>
+            <div><div class="process-step-title">Save — it's live</div><div class="process-step-desc">Every save is logged, so changes are always traceable back to who made them.</div></div>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>UNIC Academic — built for learners and contributors alike.</footer>
+
+<div class="site-disclaimer">
+  Some content on this site may be AI-assisted and can sometimes be inaccurate. ·
+  <a href="legal.html">Disclaimer &amp; Terms</a>
+</div>
+
+<script>
+  // A light, public-only touch of life on the landing page — just the
+  // subject count from the same public endpoint view.html uses.
+  fetch('/api/content').then(r => r.json()).then(res => {
+    const subjects = res.subjects || [];
+    if (!subjects.length) return;
+    document.getElementById('hero-stats').innerHTML = `
+      <div class="hero-stat"><div class="hero-stat-value">${subjects.length}</div><div class="hero-stat-label">Subjects</div></div>
+    `;
+  }).catch(() => {});
+</script>
+
+</body>
+</html>
