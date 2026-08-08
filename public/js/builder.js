@@ -224,8 +224,9 @@ function renderBuilderEditor() {
       </div>
     </div>
 
+    ${isSql ? `
     <div class="editor-section">
-      <div class="editor-section-title">🛢️ SQL Playground ${isSql ? '' : '(optional)'}</div>
+      <div class="editor-section-title">🛢️ SQL Playground</div>
       <div class="b-field">
         <label>Schema (DDL + seed INSERTs run before the learner's own queries)</label>
         <textarea rows="6" style="font-family:monospace" oninput="updatePlaygroundField('schema', this.value)" placeholder="CREATE TABLE Student (...);">${escHtml(pg.schema || '')}</textarea>
@@ -236,7 +237,7 @@ function renderBuilderEditor() {
         <button class="b-btn b-btn-outline b-btn-sm" onclick="addPlaygroundQuery()">+ Add Sample Query</button>
       </div>
       <div class="b-field-hint">Saved as <code>chapter.playground = {"schema": "...", "sampleQueries": [...]}</code>, ready for an in-app SQL practice sandbox.</div>
-    </div>
+    </div>` : ''}
 
     <div class="editor-section">
       <div class="editor-section-title"><span>Practice Questions (${(chapter.questions || []).length})</span></div>
@@ -571,6 +572,65 @@ function downloadSubjectJson() {
 }
 
 window.addEventListener('beforeunload', (e) => { if (builder.dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+// ── Find Chapter search — maps a chapter id / title back to its subject +
+// unit, across every subject the current user can see. Fetches each
+// subject's full JSON once (lazily, on first search) and caches it, so
+// typing further just filters in memory. ──
+let chapterSearchDebounce = null;
+function onChapterSearchInput(val) {
+  clearTimeout(chapterSearchDebounce);
+  chapterSearchDebounce = setTimeout(() => runChapterSearch(val.trim()), 250);
+}
+
+async function runChapterSearch(query) {
+  const resultsEl = document.getElementById('chapter-search-results');
+  if (!query) { resultsEl.innerHTML = ''; return; }
+  resultsEl.innerHTML = '<div class="b-field-hint">Searching…</div>';
+
+  builder.searchCache = builder.searchCache || {};
+  const toFetch = builder.subjects.filter(s => !builder.searchCache[s.code]);
+  if (toFetch.length) {
+    await Promise.all(toFetch.map(async (s) => {
+      const res = await Api.get('/api/content', { code: s.code });
+      builder.searchCache[s.code] = res.data || { units: [] };
+    }));
+  }
+
+  const q = query.toLowerCase();
+  const matches = [];
+  builder.subjects.forEach(s => {
+    const data = builder.searchCache[s.code] || { units: [] };
+    (data.units || []).forEach(unit => {
+      (unit.chapters || []).forEach(ch => {
+        if ((ch.title || '').toLowerCase().includes(q) || (ch.id || '').toLowerCase().includes(q)) {
+          matches.push({
+            code: s.code, subjectName: s.subject,
+            unitId: unit.id, chapterId: ch.id, chapterTitle: ch.title,
+            qCount: (ch.questions || []).length,
+          });
+        }
+      });
+    });
+  });
+
+  if (!matches.length) { resultsEl.innerHTML = '<div class="b-field-hint">No chapters matched.</div>'; return; }
+
+  resultsEl.innerHTML = matches.slice(0, 30).map(m => `
+    <div class="search-result-row" onclick="jumpToSearchResult('${m.code}','${m.unitId}','${m.chapterId}')">
+      <span class="badge badge-blue">${escHtml(m.code)}</span>
+      <span class="search-result-title">${escHtml(m.chapterTitle)} <span class="search-result-subject">— ${escHtml(m.subjectName)}</span></span>
+      <span class="search-result-id">${escHtml(m.chapterId)}</span>
+    </div>`).join('');
+}
+
+async function jumpToSearchResult(code, unitId, chapterId) {
+  document.getElementById('chapter-search-results').innerHTML = '<div class="b-field-hint">Opening…</div>';
+  await loadSubjectIntoBuilder(code);
+  selectChapterInBuilder(unitId, chapterId);
+  document.getElementById('chapter-search-input').value = '';
+  document.getElementById('chapter-search-results').innerHTML = '';
+}
 
 // ── Import from JSON (for people authoring offline in their own editor) ──
 // Accepted shapes, in order of preference:

@@ -55,7 +55,7 @@ const DataModule = (() => {
     const page = filteredData.slice(start, start + PAGE_SIZE);
     const totalPages = Math.ceil(filteredData.length / PAGE_SIZE);
 
-    let html = '<div style="overflow-x:auto"><table><thead><tr>';
+    let html = '<div class="table-scroll"><table><thead><tr>';
     keys.forEach(k => html += `<th>${k}</th>`);
     html += '</tr></thead><tbody>';
     page.forEach(row => {
@@ -65,6 +65,7 @@ const DataModule = (() => {
         let cell;
         if (k === 'is_correct' || k === 'isCorrect') cell = v ? '<span class="badge badge-green">✓ Correct</span>' : '<span class="badge badge-red">✗ Wrong</span>';
         else if (k === 'subject') cell = `<span class="badge badge-blue">${v}</span>`;
+        else if (isTimestampKey(k) && v) cell = formatIST(v);
         else if (typeof v === 'object' && v !== null) cell = JSON.stringify(v);
         else cell = String(v ?? '');
         html += `<td>${cell}</td>`;

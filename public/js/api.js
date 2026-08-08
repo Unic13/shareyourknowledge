@@ -27,3 +27,20 @@ const Api = (() => {
     del: (url, body) => send(url, 'DELETE', body),
   };
 })();
+
+// Formats any timestamp as Indian time (Asia/Kolkata), down to the second —
+// no milliseconds/microseconds, no raw UTC "Z" strings in the UI.
+// e.g. "08 Aug 2026, 02:34:10 pm"
+function formatIST(value) {
+  if (!value) return '';
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return String(value);
+  return d.toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true,
+  }).replace(',', ',');
+}
+function isTimestampKey(key) {
+  return /(_at|At)$/.test(key);
+}

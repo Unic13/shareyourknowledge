@@ -65,7 +65,7 @@ const FeedbackModule = (() => {
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
             ${f.subject ? `<span class="badge badge-blue">${esc(f.subject)}</span>` : '<span class="badge" style="background:#f3f4f6;color:#9ca3af">general</span>'}
             <span style="color:#f59e0b;font-size:13px">${stars(f.rating)}</span>
-            <span style="margin-left:auto;font-size:11px;color:#9ca3af">${new Date(f.created_at).toLocaleString()}</span>
+            <span style="margin-left:auto;font-size:11px;color:#9ca3af">${formatIST(f.created_at)}</span>
           </div>
           ${f.message ? `<div style="font-size:12.5px;color:#374151">${esc(f.message)}</div>` : '<div style="font-size:12px;color:#9ca3af">(no written comment)</div>'}
         </div>`;

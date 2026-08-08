@@ -59,7 +59,7 @@ const UsersModule = (() => {
   function renderUsersTable() {
     const el = document.getElementById('users-table');
     if (!users.length) { el.innerHTML = '<div class="empty-table"><div class="big">👥</div><p>No team members yet</p></div>'; return; }
-    let html = '<div style="overflow-x:auto"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Subjects</th><th>Status</th><th></th></tr></thead><tbody>';
+    let html = '<div class="table-scroll"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Subjects</th><th>Status</th><th></th></tr></thead><tbody>';
     users.forEach(u => {
       const roleClass = u.role === 'super_admin' ? 'badge-purple' : u.role === 'admin' ? 'badge-blue' : 'badge-green';
       const subs = (u.subjects || []).map(s => `<span class="badge badge-blue" style="margin:2px" title="${s.can_edit ? 'can edit' : 'view only'}${s.can_publish ? ', can publish' : ''}">${esc(s.code)}</span>`).join(' ') || '<span style="color:#9ca3af">—</span>';
