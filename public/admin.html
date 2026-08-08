@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNIC Academic — Knowledge Sharing</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<header>
+  <div class="logo">UN</div>
+  <div>
+    <div class="brand">UNIC Academic</div>
+    <div class="sub-brand">Knowledge Sharing</div>
+    <div class="brand-tagline">Learn • Create • Share</div>
+  </div>
+  <div class="header-right">
+    <a href="view.html" target="_blank" class="btn-logout" style="text-decoration:none">👁 View Live Content</a>
+    <span class="role-badge" id="role-badge"></span>
+    <span class="user-name" id="user-name"></span>
+    <button class="btn-logout" id="btn-logout">Log out</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="stat-regs">—</div><div class="stat-label">Registrations</div></div>
+    <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="stat-attempts">—</div><div class="stat-label">Attempts</div></div>
+    <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-value" id="stat-accuracy">—</div><div class="stat-label">Accuracy</div></div>
+    <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-value" id="stat-subjects">—</div><div class="stat-label">Subjects</div></div>
+  </div>
+
+  <div class="section-tabs">
+    <button class="section-tab active" id="sec-tab-builder" onclick="switchSection('builder')">✏️ Question Builder</button>
+    <button class="section-tab" id="sec-tab-data" onclick="switchSection('data')">📊 Data</button>
+    <button class="section-tab" id="sec-tab-stats" onclick="switchSection('stats')">📈 Statistics</button>
+    <button class="section-tab" id="sec-tab-feedback" onclick="switchSection('feedback')">💬 Feedback</button>
+    <button class="section-tab" id="sec-tab-users" onclick="switchSection('users')">👥 Team &amp; Access</button>
+  </div>
+
+  <!-- ═══ QUESTION BUILDER ═══ -->
+  <div class="section-panel active" id="section-builder">
+    <div class="builder-col">
+      <div class="builder-col-header">
+        <span class="builder-col-title">Subject</span>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="b-btn b-btn-outline b-btn-sm" onclick="downloadTemplateJson()">⬇ Download Template</button>
+          <button class="b-btn b-btn-outline b-btn-sm" onclick="openImportJson()">⬆ Import JSON</button>
+        </div>
+      </div>
+      <div class="subj-pill-row" id="builder-subject-pills"></div>
+      <div class="lock-note" id="builder-lock-note"></div>
+    </div>
+
+    <div class="builder-grid" style="display:grid;grid-template-columns:400px 1fr;gap:18px;align-items:start">
+      <div class="builder-col">
+        <div class="builder-col-header"><span class="builder-col-title" id="builder-tree-subject-label">Units &amp; Chapters</span></div>
+        <div class="builder-col-body" id="builder-tree">
+          <div class="editor-empty"><div class="big">📚</div><p style="font-size:12px">Select a subject</p></div>
+        </div>
+      </div>
+
+      <div class="builder-col">
+        <div class="builder-col-header"><span class="builder-col-title" id="builder-editor-label">Editor</span></div>
+        <div id="builder-editor">
+          <div class="editor-empty"><div class="big">👈</div><p style="font-size:12px">Select a chapter to edit its concept &amp; questions</p></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:14px 20px;border-top:1px solid #f3f4f6;flex-wrap:wrap">
+          <button class="b-btn b-btn-primary" id="btn-save-subject" onclick="saveSubjectContent()">💾 Save Subject to Database</button>
+          <button class="b-btn b-btn-outline" onclick="downloadSubjectJson()">⬇ Download JSON</button>
+          <span class="builder-status" id="builder-status" style="margin-left:auto;font-size:11.5px;color:#9ca3af"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DATA ═══ -->
+  <div class="section-panel" id="section-data">
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-registrations" onclick="DataModule.switchTab('registrations',this)">Registrations</button>
+      <button class="tab-btn" id="tab-attempts" onclick="DataModule.switchTab('attempts',this)">Attempts</button>
+    </div>
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <input class="search-input" type="text" id="search-input" placeholder="Search…" oninput="DataModule.filterTable()">
+        <button class="export-btn" onclick="DataModule.exportCSV()">⬇ Export CSV</button>
+      </div>
+      <div id="table-container"><div class="empty-table"><div class="big">⏳</div><p>Loading…</p></div></div>
+      <div class="pagination" id="pagination" style="display:none">
+        <span id="page-info">Page 1</span>
+        <div class="page-btns">
+          <button class="page-btn" id="btn-prev-page" onclick="DataModule.changePage(-1)" disabled>← Prev</button>
+          <button class="page-btn" id="btn-next-page" onclick="DataModule.changePage(1)">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STATISTICS ═══ -->
+  <div class="section-panel" id="section-stats">
+    <div id="stats-container"><div class="empty-table"><div class="big">⏳</div><p>Loading…</p></div></div>
+  </div>
+
+  <!-- ═══ FEEDBACK ═══ -->
+  <div class="section-panel" id="section-feedback">
+    <div id="feedback-container"><div class="empty-table"><div class="big">⏳</div><p>Loading…</p></div></div>
+  </div>
+
+  <!-- ═══ TEAM & ACCESS / PROFILE ═══ -->
+  <div class="section-panel" id="section-users"></div>
+
+</div>
+
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/data.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/feedback.js"></script>
+<script src="js/users.js"></script>
+<script src="js/builder.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

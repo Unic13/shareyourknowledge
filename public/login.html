@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNIC Academic — Knowledge Sharing</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="auth-screen">
+  <div id="login-panel">
+    <div class="login-stripe"></div>
+    <div class="login-body">
+      <div class="login-icon">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+      </div>
+      <div class="login-title">Admin Login</div>
+      <div class="login-sub">UNIC Academic — Knowledge Sharing</div>
+      <div class="brand-tagline" style="text-align:center;margin-bottom:20px">Learn • Create • Share</div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="you@unicacademic.com" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter') doLogin()">
+      </div>
+      <div class="errmsg" id="login-err"></div>
+      <button class="btn-login" id="login-btn" onclick="doLogin()">Sign In</button>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script>
+    // Already logged in? skip straight to the dashboard.
+    if (Auth.getSession()) location.href = 'admin.html';
+
+    async function doLogin() {
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errEl = document.getElementById('login-err');
+      const btn = document.getElementById('login-btn');
+      errEl.textContent = '';
+      if (!email || !password) { errEl.textContent = 'Enter your email and password'; return; }
+
+      btn.disabled = true; btn.textContent = 'Signing in…';
+      try {
+        const res = await fetch('/api/users', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'login', email, password }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          errEl.textContent = data.error || 'Invalid email or password';
+        } else {
+          Auth.setSession(data.user, data.subjects);
+          location.href = 'admin.html';
+          return;
+        }
+      } catch (e) {
+        errEl.textContent = 'Could not reach the server';
+      }
+      btn.disabled = false; btn.textContent = 'Sign In';
+    }
+  </script>
+</body>
+</html>

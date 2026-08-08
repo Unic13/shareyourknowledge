@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UNIC Academic — Knowledge Sharing</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="css/view.css">
+</head>
+<body>
+
+<header>
+  <div class="logo">UN</div>
+  <div>
+    <div class="brand">UNIC Academic</div>
+    <div class="sub-brand">Knowledge Sharing</div>
+    <div class="brand-tagline">Learn • Create • Share</div>
+  </div>
+  <div class="header-right">
+    <a href="login.html" class="btn-logout" style="text-decoration:none">Admin Login →</a>
+  </div>
+</header>
+
+<div class="view-shell">
+
+  <!-- Subject rail -->
+  <div class="view-subjects" id="view-subjects">
+    <div class="empty-table"><div class="big">⏳</div><p style="font-size:12px">Loading subjects…</p></div>
+  </div>
+
+  <!-- Unit/chapter nav -->
+  <div class="view-nav" id="view-nav">
+    <div class="editor-empty"><div class="big">👈</div><p style="font-size:12px">Pick a subject</p></div>
+  </div>
+
+  <!-- Content -->
+  <div class="view-content" id="view-content">
+    <div class="editor-empty"><div class="big">📖</div><p style="font-size:12px">Select a chapter to start reading</p></div>
+  </div>
+
+</div>
+
+<script src="js/view.js"></script>
+</body>
+</html>
