@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UNIC Academic — Knowledge Sharing</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
@@ -47,6 +50,7 @@
       <div class="builder-col-header">
         <span class="builder-col-title">Subject</span>
         <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="b-btn b-btn-primary b-btn-sm" onclick="openNewSubjectPrompt()">+ New Subject</button>
           <button class="b-btn b-btn-outline b-btn-sm" onclick="downloadTemplateJson()">⬇ Download Template</button>
           <button class="b-btn b-btn-outline b-btn-sm" onclick="openImportJson()">⬆ Import JSON</button>
         </div>
@@ -72,7 +76,10 @@
       </div>
 
       <div class="builder-col">
-        <div class="builder-col-header"><span class="builder-col-title" id="builder-editor-label">Editor</span></div>
+        <div class="builder-col-header">
+          <span class="builder-col-title" id="builder-editor-label">Editor</span>
+          <button class="b-btn b-btn-outline b-btn-sm" onclick="showJsonPreview()">👁 Preview</button>
+        </div>
         <div id="builder-editor">
           <div class="editor-empty"><div class="big">👈</div><p style="font-size:12px">Select a chapter to edit its concept &amp; questions</p></div>
         </div>
@@ -126,6 +133,90 @@
   Some content on this platform may be AI-assisted and can sometimes be inaccurate. ·
   <a href="legal.html">Disclaimer &amp; Terms</a>
 </div>
+
+<!-- Live Preview / Raw JSON modal -->
+<div id="json-modal-overlay" onclick="if(event.target===this) closeJsonPreview()">
+  <div class="json-modal">
+    <div class="json-modal-head">
+      <span class="json-modal-title" id="json-modal-title">Preview</span>
+      <button class="json-modal-close" onclick="closeJsonPreview()">✕</button>
+    </div>
+    <div class="pv-tabs">
+      <button class="pv-tab active" id="pv-tab-preview" onclick="switchPvTab('preview')">🔍 Live Preview</button>
+      <button class="pv-tab" id="pv-tab-json" onclick="switchPvTab('json')">{ } Raw JSON</button>
+    </div>
+    <div class="json-modal-body">
+      <div class="pv-pane active" id="pv-pane-preview"></div>
+      <div class="pv-pane" id="pv-pane-json"><pre id="json-modal-content"></pre></div>
+    </div>
+    <div class="json-modal-foot">
+      <button class="b-btn b-btn-primary" onclick="copyJsonPreview()">📋 Copy JSON</button>
+      <button class="b-btn b-btn-outline" onclick="closeJsonPreview()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Subject modal -->
+<div id="subject-modal-overlay" onclick="if(event.target===this) closeNewSubjectModal()">
+  <div class="form-modal">
+    <div class="form-modal-head"><span>New Subject</span><button class="json-modal-close" onclick="closeNewSubjectModal()">✕</button></div>
+    <div class="form-modal-body">
+      <div class="b-field"><label>Subject Name</label><input type="text" id="ns-name" placeholder="e.g. Computer Science"></div>
+      <div class="b-field"><label>Short Code</label><input type="text" id="ns-code" placeholder="e.g. CS" style="text-transform:uppercase"></div>
+      <div class="b-field"><label>Color</label><input type="color" id="ns-color" value="#9333EA" style="height:40px;padding:4px"></div>
+      <div class="errmsg" id="ns-err"></div>
+    </div>
+    <div class="form-modal-foot">
+      <button class="b-btn b-btn-primary" onclick="submitNewSubject()">Create Subject</button>
+      <button class="b-btn b-btn-outline" onclick="closeNewSubjectModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- New / Edit User modal -->
+<div id="user-modal-overlay" onclick="if(event.target===this) UsersModule.closeModal()">
+  <div class="form-modal">
+    <div class="form-modal-head"><span id="user-modal-title">New Team Member</span><button class="json-modal-close" onclick="UsersModule.closeModal()">✕</button></div>
+    <div class="form-modal-body">
+      <div class="b-field"><label>Full Name</label><input type="text" id="um-name"></div>
+      <div class="b-field"><label>Email</label><input type="email" id="um-email"></div>
+      <div class="b-field"><label id="um-password-label">Password</label><input type="text" id="um-password" placeholder="Leave blank to keep current, when editing"></div>
+      <div class="b-field"><label>Role</label>
+        <select id="um-role">
+          <option value="editor">Editor</option>
+          <option value="admin">Admin</option>
+          <option value="super_admin">Super Admin</option>
+        </select>
+      </div>
+      <div class="b-field" id="um-active-field" style="display:none">
+        <label><input type="checkbox" id="um-active" style="width:auto;margin-right:6px" checked> Account active</label>
+      </div>
+      <div class="errmsg" id="um-err"></div>
+    </div>
+    <div class="form-modal-foot">
+      <button class="b-btn b-btn-primary" id="um-submit-btn" onclick="UsersModule.submitModal()">Create</button>
+      <button class="b-btn b-btn-outline" onclick="UsersModule.closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Map Subject modal -->
+<div id="map-modal-overlay" onclick="if(event.target===this) UsersModule.closeMapModal()">
+  <div class="form-modal">
+    <div class="form-modal-head"><span id="map-modal-title">Map Subject</span><button class="json-modal-close" onclick="UsersModule.closeMapModal()">✕</button></div>
+    <div class="form-modal-body">
+      <div class="b-field"><label>Subject</label><select id="mm-subject"></select></div>
+      <div class="b-field"><label><input type="checkbox" id="mm-edit" style="width:auto;margin-right:6px" checked> Can edit</label></div>
+      <div class="b-field"><label><input type="checkbox" id="mm-publish" style="width:auto;margin-right:6px"> Can publish</label></div>
+      <div class="errmsg" id="mm-err"></div>
+    </div>
+    <div class="form-modal-foot">
+      <button class="b-btn b-btn-primary" onclick="UsersModule.submitMapModal()">Save Mapping</button>
+      <button class="b-btn b-btn-outline" onclick="UsersModule.closeMapModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 
 <script src="js/auth.js"></script>
 <script src="js/api.js"></script>

@@ -10,7 +10,7 @@ const QTYPE_COLORS = { MCQ: '#6C3FF5', MSQ: '#0891b2', NAT: '#d97706' };
 const BTYPE_COLORS = {
   heading: '#4f46e5', paragraph: '#6b7280', note: '#7c3aed', formula: '#0891b2',
   list: '#d97706', table: '#059669', syntax: '#dc2626', image: '#db2777',
-  exercise: '#f59e0b', steps: '#6C3FF5', video: '#dc2626'
+  exercise: '#f59e0b', steps: '#6C3FF5', video: '#dc2626', example: '#0ea5e9'
 };
 
 let builder = {
@@ -219,7 +219,7 @@ function renderBuilderEditor() {
         <label>Content Blocks</label>
         <div id="ed-body-list"></div>
         <div class="badge-type-row" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">
-          ${['heading','paragraph','list','table','note','formula','syntax','image','video','steps','exercise'].map(t => `<button class="b-btn b-btn-outline b-btn-sm" onclick="addBodyItem('${t}')">+ ${t}</button>`).join('')}
+          ${['heading','paragraph','list','table','note','formula','syntax','image','video','steps','exercise','example'].map(t => `<button class="b-btn b-btn-outline b-btn-sm" onclick="addBodyItem('${t}')">+ ${t}</button>`).join('')}
         </div>
       </div>
     </div>
@@ -307,6 +307,7 @@ function bodyItemSummary(item) {
   if (item.type === 'image') return item.title || item.image || item.pdf || '(empty image/pdf)';
   if (item.type === 'video') return item.title || item.url || '(no video URL)';
   if (item.type === 'steps' || item.type === 'exercise') return item.title || (item.steps || []).filter(Boolean).join(' → ') || `(empty ${item.type})`;
+  if (item.type === 'example') return item.title || item.before || '(empty example)';
   return item.text || '(empty)';
 }
 function addBodyItem(type) {
@@ -319,6 +320,7 @@ function addBodyItem(type) {
   else if (type === 'image') item = { type: 'image', title: '', image: '', pdf: '' };
   else if (type === 'video') item = { type: 'video', title: '', url: '', start: '' };
   else if (type === 'steps' || type === 'exercise') item = { type, title: '', steps: [''], image: '' };
+  else if (type === 'example') item = { type: 'example', title: '', before: '', steps: [''], formula: '', after: '', image: '' };
   else item = { type, text: '' };
   chapter.concept.body.push(item);
   builder.openBodyIndex = chapter.concept.body.length - 1;
@@ -371,8 +373,8 @@ function renderBodyItemEditor(item, i, container) {
     return;
   }
   if (item.type === 'list') {
-    let rows = (item.items || []).map((li, li_i) => `<div class="b-list-item"><input type="text" value="${escAttr(li)}" oninput="updateListItemText(${i},${li_i},this.value)"><button class="b-icon-btn danger" onclick="removeListItemAt(${i},${li_i})">✕</button></div>`).join('');
-    container.innerHTML = `<div class="b-field"><label>List Items</label>${rows}<button class="b-btn b-btn-outline b-btn-sm" onclick="addListItemAt(${i})">+ Add Item</button></div>`;
+    let rows = (item.items || []).map((li, li_i) => `<div class="b-list-item"><input type="text" value="${escAttr(li)}" oninput="updateListItemText(${i},${li_i},this.value)" onpaste="handleListItemPaste(${i},${li_i},event)"><button class="b-icon-btn danger" onclick="removeListItemAt(${i},${li_i})">✕</button></div>`).join('');
+    container.innerHTML = `<div class="b-field"><label>List Items</label>${rows}<button class="b-btn b-btn-outline b-btn-sm" onclick="addListItemAt(${i})">+ Add Item</button><div class="b-field-hint">Tip: paste multiple lines into any item box to add them all as separate items at once.</div></div>`;
     return;
   }
   if (item.type === 'table') { container.innerHTML = tableEditorHtml(item, i); return; }
@@ -395,9 +397,22 @@ function renderBodyItemEditor(item, i, container) {
     return;
   }
   if (item.type === 'steps' || item.type === 'exercise') {
-    let rows = (item.steps || []).map((s, si) => `<div class="b-list-item"><textarea rows="1" oninput="updateStepText(${i},${si},this.value)">${escHtml(s)}</textarea><button class="b-icon-btn danger" onclick="removeStepAt(${i},${si})">✕</button></div>`).join('');
+    let rows = (item.steps || []).map((s, si) => `<div class="b-list-item"><textarea rows="1" oninput="updateStepText(${i},${si},this.value)" onpaste="handleStepPaste(${i},${si},event)">${escHtml(s)}</textarea><button class="b-icon-btn danger" onclick="removeStepAt(${i},${si})">✕</button></div>`).join('');
     container.innerHTML = `<div class="b-field"><label>Title</label><input type="text" value="${escAttr(item.title || '')}" oninput="updateImageField(${i},'title',this.value)"></div>
-      <div class="b-field"><label>Items</label>${rows}<button class="b-btn b-btn-outline b-btn-sm" onclick="addStepAt(${i})">+ Add</button></div>`;
+      <div class="b-field"><label>Items</label>${rows}<button class="b-btn b-btn-outline b-btn-sm" onclick="addStepAt(${i})">+ Add</button><div class="b-field-hint">Tip: paste multiple lines into any step box to add them all at once.</div></div>`;
+    return;
+  }
+  if (item.type === 'example') {
+    let rows = (item.steps || []).map((s, si) => `<div class="b-list-item"><textarea rows="1" oninput="updateStepText(${i},${si},this.value)" onpaste="handleStepPaste(${i},${si},event)">${escHtml(s)}</textarea><button class="b-icon-btn danger" onclick="removeStepAt(${i},${si})">✕</button></div>`).join('');
+    container.innerHTML = `<div class="b-field"><label>Title</label><input type="text" value="${escAttr(item.title || '')}" oninput="updateImageField(${i},'title',this.value)" placeholder="e.g. AVERAGEIF() Example"></div>
+      <div class="b-field"><label>Before (the problem / setup)</label><textarea rows="2" oninput="updateImageField(${i},'before',this.value)" placeholder="e.g. Find the average marks of students belonging to Physics.">${escHtml(item.before || '')}</textarea></div>
+      <div class="b-field"><label>Steps</label>${rows}<button class="b-btn b-btn-outline b-btn-sm" onclick="addStepAt(${i})">+ Add Step</button><div class="b-field-hint">Tip: paste multiple lines into any step box to add them all at once.</div></div>
+      <div class="b-field"><label>Formula (optional)</label><input type="text" style="font-family:monospace" value="${escAttr(item.formula || '')}" oninput="updateImageField(${i},'formula',this.value)" placeholder='=AVERAGEIF(B2:B20,"Physics",D2:D20)'></div>
+      <div class="b-field"><label>After (the result)</label><input type="text" value="${escAttr(item.after || '')}" oninput="updateImageField(${i},'after',this.value)" placeholder="e.g. Average marks of Physics students"></div>
+      <div class="b-field"><label>Image (optional)</label>
+        <input type="text" value="${escAttr(item.image || '')}" oninput="updateImageField(${i},'image',this.value)">
+        <div class="b-upload-row" style="margin-top:8px"><input type="file" accept="image/*" onchange="handleImageUpload(${i},this)"></div>
+      </div>`;
     return;
   }
 }
@@ -405,32 +420,110 @@ function updateBodyText(i, val) { getActiveChapterObj().concept.body[i].text = v
 function addListItemAt(i) { const item = getActiveChapterObj().concept.body[i]; item.items = item.items || []; item.items.push(''); renderBodyItemEditor(item, i, document.getElementById(`bbody-${i}`)); markDirty(); }
 function updateListItemText(i, li, val) { getActiveChapterObj().concept.body[i].items[li] = val; refreshBodyItemSummary(i); markDirty(); }
 function removeListItemAt(i, li) { const item = getActiveChapterObj().concept.body[i]; item.items.splice(li, 1); renderBodyItemEditor(item, i, document.getElementById(`bbody-${i}`)); markDirty(); }
+// Pasting several lines into one list-item box adds them all as separate
+// items at once, instead of forcing one-at-a-time entry.
+function handleListItemPaste(i, li, event) {
+  const text = (event.clipboardData || window.clipboardData).getData('text');
+  const lines = (text || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+  if (lines.length < 2) return; // single line: let the normal paste happen
+  event.preventDefault();
+  const item = getActiveChapterObj().concept.body[i];
+  item.items = item.items || [];
+  item.items.splice(li, 1, ...lines);
+  renderBodyItemEditor(item, i, document.getElementById(`bbody-${i}`));
+  refreshBodyItemSummary(i);
+  markDirty();
+}
 function addStepAt(i) { const item = getActiveChapterObj().concept.body[i]; item.steps = item.steps || []; item.steps.push(''); renderBodyItemEditor(item, i, document.getElementById(`bbody-${i}`)); markDirty(); }
 function updateStepText(i, si, val) { getActiveChapterObj().concept.body[i].steps[si] = val; markDirty(); }
 function removeStepAt(i, si) { const item = getActiveChapterObj().concept.body[i]; item.steps.splice(si, 1); renderBodyItemEditor(item, i, document.getElementById(`bbody-${i}`)); markDirty(); }
+function handleStepPaste(i, si, event) {
+  const text = (event.clipboardData || window.clipboardData).getData('text');
+  const lines = (text || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+  if (lines.length < 2) return;
+  event.preventDefault();
+  const item = getActiveChapterObj().concept.body[i];
+  item.steps = item.steps || [];
+  item.steps.splice(si, 1, ...lines);
+  renderBodyItemEditor(item, i, document.getElementById(`bbody-${i}`));
+  markDirty();
+}
 function tableEditorHtml(item, i) {
   const headers = item.headers || []; const rows = item.rows || [];
   let html = '<div class="b-field"><label>Table</label><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><tr>';
-  headers.forEach((h, ci) => { html += `<td><input type="text" value="${escAttr(h)}" oninput="updateTableHeader(${i},${ci},this.value)"></td>`; });
-  html += `<td><button class="b-icon-btn" onclick="addTableCol(${i})">+col</button></td></tr>`;
+  headers.forEach((h, ci) => {
+    html += `<td><input type="text" value="${escAttr(h)}" oninput="updateTableHeader(${i},${ci},this.value)"></td>`;
+  });
+  html += `<td><button class="b-icon-btn" onclick="addTableCol(${i})" title="Add column">+col</button></td></tr><tr>`;
+  headers.forEach((_, ci) => {
+    html += `<td style="text-align:center"><button class="b-icon-btn danger b-btn-sm" onclick="removeTableCol(${i},${ci})" title="Remove this column" ${headers.length <= 1 ? 'disabled' : ''}>✕ col</button></td>`;
+  });
+  html += `<td></td></tr>`;
   rows.forEach((r, ri) => {
     html += '<tr>';
     headers.forEach((_, ci) => { html += `<td><input type="text" value="${escAttr(r[ci] || '')}" oninput="updateTableCell(${i},${ri},${ci},this.value)"></td>`; });
-    html += `<td><button class="b-icon-btn danger" onclick="removeTableRow(${i},${ri})">✕</button></td></tr>`;
+    html += `<td><button class="b-icon-btn danger" onclick="removeTableRow(${i},${ri})" title="Remove row">✕</button></td></tr>`;
   });
-  html += `</table></div><button class="b-btn b-btn-outline b-btn-sm" style="margin-top:6px" onclick="addTableRow(${i})">+ Add Row</button></div>`;
+  html += '</table></div>';
+  html += `<button class="b-btn b-btn-outline b-btn-sm" style="margin-top:6px" onclick="addTableRow(${i})">+ Add Row</button>`;
+  html += `
+    <details style="margin-top:10px">
+      <summary style="cursor:pointer;font-size:11.5px;font-weight:700;color:#6b7280">📋 Paste table data (from Excel/Sheets, tab-separated — or comma-separated)</summary>
+      <div style="margin-top:8px">
+        <textarea id="table-paste-${i}" rows="4" style="font-family:monospace;font-size:12px" placeholder="Header 1\tHeader 2\tHeader 3&#10;Row1 A\tRow1 B\tRow1 C&#10;Row2 A\tRow2 B\tRow2 C"></textarea>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="b-btn b-btn-primary b-btn-sm" onclick="parseTablePaste(${i}, true)">Replace table with pasted data</button>
+          <button class="b-btn b-btn-outline b-btn-sm" onclick="parseTablePaste(${i}, false)">Append as new rows</button>
+        </div>
+        <div class="b-field-hint">First line becomes the header row when replacing. Paste straight from a spreadsheet — tabs are detected automatically, commas work too.</div>
+      </div>
+    </details></div>`;
   return html;
+}
+function splitTableLine(line) {
+  return line.includes('\t') ? line.split('\t') : line.split(',');
+}
+function parseTablePaste(i, replace) {
+  const textarea = document.getElementById(`table-paste-${i}`);
+  const raw = (textarea?.value || '').trim();
+  if (!raw) return;
+  const lines = raw.split(/\r?\n/).filter(l => l.trim().length);
+  if (!lines.length) return;
+  const item = getActiveChapterObj().concept.body[i];
+
+  if (replace) {
+    item.headers = splitTableLine(lines[0]).map(s => s.trim());
+    item.rows = lines.slice(1).map(l => splitTableLine(l).map(s => s.trim()));
+  } else {
+    item.headers = item.headers || [];
+    const width = item.headers.length || splitTableLine(lines[0]).length;
+    item.rows = item.rows || [];
+    lines.forEach(l => {
+      const cells = splitTableLine(l).map(s => s.trim());
+      while (cells.length < width) cells.push('');
+      item.rows.push(cells.slice(0, width));
+    });
+  }
+  rerenderTableEditor(i);
 }
 function rerenderTableEditor(i) {
   const item = getActiveChapterObj().concept.body[i];
   const container = document.getElementById(`bbody-${i}`);
   if (container) container.innerHTML = tableEditorHtml(item, i);
+  refreshBodyItemSummary(i);
   markDirty();
 }
 function addTableCol(i) { const item = getActiveChapterObj().concept.body[i]; item.headers.push(`Column ${item.headers.length + 1}`); (item.rows || []).forEach(r => r.push('')); rerenderTableEditor(i); }
+function removeTableCol(i, ci) {
+  const item = getActiveChapterObj().concept.body[i];
+  if (item.headers.length <= 1) return;
+  item.headers.splice(ci, 1);
+  (item.rows || []).forEach(r => r.splice(ci, 1));
+  rerenderTableEditor(i);
+}
 function addTableRow(i) { const item = getActiveChapterObj().concept.body[i]; item.rows = item.rows || []; item.rows.push((item.headers || []).map(() => '')); rerenderTableEditor(i); }
 function removeTableRow(i, ri) { getActiveChapterObj().concept.body[i].rows.splice(ri, 1); rerenderTableEditor(i); }
-function updateTableHeader(i, ci, val) { getActiveChapterObj().concept.body[i].headers[ci] = val; markDirty(); }
+function updateTableHeader(i, ci, val) { getActiveChapterObj().concept.body[i].headers[ci] = val; refreshBodyItemSummary(i); markDirty(); }
 function updateTableCell(i, ri, ci, val) { getActiveChapterObj().concept.body[i].rows[ri][ci] = val; markDirty(); }
 function updateSyntaxField(i, field, val) { getActiveChapterObj().concept.body[i][field] = val; refreshBodyItemSummary(i); markDirty(); }
 function updateImageField(i, field, val) { getActiveChapterObj().concept.body[i][field] = val; refreshBodyItemSummary(i); markDirty(); }
@@ -493,12 +586,15 @@ function renderQuestionEditor(q, container) {
     (q.options || []).forEach((opt, i) => {
       const checked = (q.answer || []).includes(i);
       const inputType = q.type === 'MCQ' ? 'radio' : 'checkbox';
-      optsHtml += `<div class="b-opt-row" style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+      const optImg = q.optionImages[i] || '';
+      optsHtml += `<div class="b-opt-row" style="display:flex;align-items:center;gap:8px;margin-bottom:${optImg ? '2px' : '7px'}">
         <span style="width:22px;height:22px;border-radius:6px;background:#f3f4f6;color:#6b7280;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center">${String.fromCharCode(65 + i)}</span>
-        <input type="text" style="flex:1" value="${escAttr(opt)}" oninput="updateOptionText('${q.id}',${i},this.value)">
-        <input type="${inputType}" name="correct-${q.id}" ${checked ? 'checked' : ''} onchange="toggleOptionCorrect('${q.id}',${i},this.checked)">
-        <button class="b-icon-btn danger" onclick="removeOption('${q.id}',${i})">✕</button>
-      </div>`;
+        <input type="text" style="flex:1" value="${escAttr(opt)}" oninput="updateOptionText('${q.id}',${i},this.value)" placeholder="Option ${String.fromCharCode(65 + i)}">
+        <input type="${inputType}" name="correct-${q.id}" ${checked ? 'checked' : ''} onchange="toggleOptionCorrect('${q.id}',${i},this.checked)" title="Mark as correct">
+        <label class="b-icon-btn" title="Add/replace option image" style="cursor:pointer">🖼<input type="file" accept="image/*" style="display:none" onchange="handleOptionImageUpload('${q.id}',${i},this)"></label>
+        <button class="b-icon-btn danger" onclick="removeOption('${q.id}',${i})" title="Remove option">✕</button>
+      </div>
+      ${optImg ? `<div style="display:flex;align-items:center;gap:8px;margin:-3px 0 10px 30px"><img src="${escAttr(optImg)}" style="max-width:110px;max-height:70px;border-radius:6px;border:1px solid #e5e7eb;object-fit:cover" onerror="this.style.display='none'"><button class="b-icon-btn danger b-btn-sm" onclick="clearOptionImage('${q.id}',${i})">Remove image</button></div>` : ''}`;
     });
   }
   let natHtml = '';
@@ -512,7 +608,15 @@ function renderQuestionEditor(q, container) {
   container.innerHTML = `
     <div class="b-field"><label>Question Text</label><textarea rows="2" oninput="updateQuestionField('${q.id}','question',this.value)">${escHtml(q.question)}</textarea></div>
     <div class="b-field"><label><input type="checkbox" ${q.latex ? 'checked' : ''} onchange="updateQuestionField('${q.id}','latex',this.checked)" style="width:auto;margin-right:6px"> Enable LaTeX</label></div>
-    ${q.type !== 'NAT' ? `<div class="b-field"><label>Options</label>${optsHtml}<button class="b-btn b-btn-outline b-btn-sm" onclick="addOption('${q.id}')">+ Add Option</button></div>` : natHtml}
+    <div class="b-field">
+      <label>Question Image (optional)</label>
+      <input type="text" id="qimg-url-${q.id}" value="${escAttr(q.image || '')}" oninput="updateQuestionField('${q.id}','image',this.value)" placeholder="/data/imagepdf/qimg1.jpeg or paste a URL">
+      <div class="b-upload-row">
+        <input type="file" accept="image/*" onchange="handleQuestionImageUpload('${q.id}',this)">
+        ${q.image ? `<img src="${escAttr(q.image)}" class="b-thumb" style="max-width:160px;max-height:110px;border-radius:8px;border:1px solid #e5e7eb;object-fit:cover" onerror="this.style.display='none'">` : ''}
+      </div>
+    </div>
+    ${q.type !== 'NAT' ? `<div class="b-field"><label>Options ${q.type === 'MCQ' ? '(select the one correct radio)' : '(check all correct boxes)'}</label>${optsHtml}<button class="b-btn b-btn-outline b-btn-sm" onclick="addOption('${q.id}')">+ Add Option</button></div>` : natHtml}
     <div class="b-field"><label>Explanation</label><textarea rows="2" oninput="updateQuestionField('${q.id}','explanation',this.value)">${escHtml(q.explanation)}</textarea></div>`;
 }
 function updateQuestionField(qid, field, val) {
@@ -541,6 +645,36 @@ function removeOption(qid, idx) {
   q.answer = (q.answer || []).filter(a => a !== idx).map(a => a > idx ? a - 1 : a);
   renderQuestionEditor(q, document.getElementById(`qbody-${qid}`)); markDirty();
 }
+
+// ── Question / option image uploads (base64-embedded, same pattern as concept-block images) ──
+async function handleQuestionImageUpload(qid, inputEl) {
+  const file = inputEl.files[0]; if (!file) return;
+  const q = findQuestion(qid); if (!q) return;
+  try {
+    const dataUrl = await fileToBase64(file);
+    q.image = dataUrl;
+    renderQuestionEditor(q, document.getElementById(`qbody-${qid}`));
+    markDirty();
+  } catch { alert('Could not read that image file.'); }
+}
+async function handleOptionImageUpload(qid, idx, inputEl) {
+  const file = inputEl.files[0]; if (!file) return;
+  const q = findQuestion(qid); if (!q) return;
+  try {
+    const dataUrl = await fileToBase64(file);
+    q.optionImages = q.optionImages || (q.options || []).map(() => '');
+    q.optionImages[idx] = dataUrl;
+    renderQuestionEditor(q, document.getElementById(`qbody-${qid}`));
+    markDirty();
+  } catch { alert('Could not read that image file.'); }
+}
+function clearOptionImage(qid, idx) {
+  const q = findQuestion(qid); if (!q || !q.optionImages) return;
+  q.optionImages[idx] = '';
+  renderQuestionEditor(q, document.getElementById(`qbody-${qid}`));
+  markDirty();
+}
+
 
 // ── Save / Export ──
 async function saveSubjectContent() {
@@ -572,6 +706,158 @@ function downloadSubjectJson() {
 }
 
 window.addEventListener('beforeunload', (e) => { if (builder.dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+// ── New Subject modal ──
+function openNewSubjectPrompt() {
+  document.getElementById('ns-name').value = '';
+  document.getElementById('ns-code').value = '';
+  document.getElementById('ns-color').value = '#9333EA';
+  document.getElementById('ns-err').textContent = '';
+  document.getElementById('subject-modal-overlay').classList.add('open');
+}
+function closeNewSubjectModal() {
+  document.getElementById('subject-modal-overlay').classList.remove('open');
+}
+function submitNewSubject() {
+  const name = document.getElementById('ns-name').value.trim();
+  let code = document.getElementById('ns-code').value.trim().toUpperCase();
+  const color = document.getElementById('ns-color').value || '#9333EA';
+  const errEl = document.getElementById('ns-err');
+  errEl.textContent = '';
+
+  if (!name) { errEl.textContent = 'Subject name is required.'; return; }
+  if (!code) code = name.slice(0, 3).toUpperCase();
+  if (builder.subjects.find(s => s.code === code)) { errEl.textContent = `A subject with code "${code}" already exists.`; return; }
+
+  const newSubject = { code, subject: name, color };
+  builder.subjects.push(newSubject);
+  builder.activeCode = code;
+  builder.activeData = { subject: name, code, color, units: [] };
+  builder.activeUnitId = null; builder.activeChapterId = null; builder.openBodyIndex = null;
+
+  renderSubjectPills();
+  document.getElementById('builder-tree-subject-label').textContent = `${name} — Units & Chapters`;
+  document.getElementById('btn-save-subject').disabled = false;
+  document.getElementById('builder-lock-note').textContent = '';
+  renderBuilderTree();
+  renderBuilderEditor();
+  markDirty();
+  setBuilderStatus('New subject created — add a unit to get started, then Save.', '');
+  closeNewSubjectModal();
+}
+
+// ── Live Preview / Raw JSON modal ──
+function pvBodyItemHtml(item) {
+  const esc = escHtml;
+  switch (item.type) {
+    case 'heading': return `<div style="font-size:16px;font-weight:800;color:#4f46e5;margin:18px 0 8px">${esc(item.text || '')}</div>`;
+    case 'paragraph': return `<div style="font-size:13.5px;line-height:1.7;color:#374151;margin-bottom:10px">${esc(item.text || '')}</div>`;
+    case 'note': return `<div style="background:#faf5ff;border-left:3px solid #7c3aed;padding:10px 14px;border-radius:8px;font-size:12.5px;color:#6b21a8;margin-bottom:12px">💡 ${esc(item.text || '')}</div>`;
+    case 'formula': return `<div style="background:#1e1e2e;color:#cdd6f4;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;text-align:center">${esc(item.text || '')}</div>`;
+    case 'syntax': return `<div style="background:#1e1e2e;color:#a6e3a1;font-family:monospace;padding:12px 14px;border-radius:8px;font-size:12px;white-space:pre-wrap;margin-bottom:12px">${esc(item.code || '')}</div>`;
+    case 'list': return `<ul style="margin:0 0 12px 20px;font-size:13px;color:#374151;line-height:1.8">${(item.items || []).map(li => `<li>${esc(li)}</li>`).join('')}</ul>`;
+    case 'table': {
+      const headers = item.headers || [], rows = item.rows || [];
+      let h = `<div style="overflow-x:auto;margin-bottom:12px"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><tr>${headers.map(x => `<th style="border:1px solid #e5e7eb;padding:6px 10px;background:#f9fafb">${esc(x)}</th>`).join('')}</tr>`;
+      rows.forEach(r => { h += `<tr>${headers.map((_, ci) => `<td style="border:1px solid #e5e7eb;padding:6px 10px">${esc(r[ci] || '')}</td>`).join('')}</tr>`; });
+      return h + '</table></div>';
+    }
+    case 'image': {
+      let h = '';
+      if (item.image) h += `<div style="margin-bottom:12px"><img src="${escAttr(item.image)}" style="max-width:100%;border-radius:8px;border:1px solid #e5e7eb" onerror="this.parentElement.innerHTML='⚠️ Image failed to load'"></div>`;
+      if (item.pdf) h += `<a href="${escAttr(item.pdf)}" target="_blank" style="display:inline-block;padding:8px 14px;border-radius:8px;background:#f3f4f6;color:#374151;font-size:12px;text-decoration:none;margin-bottom:12px">📄 ${esc(item.title || 'View PDF')}</a>`;
+      return h;
+    }
+    case 'video': {
+      const m = (item.url || '').match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+      if (!m) return item.url ? `<a href="${escAttr(item.url)}" target="_blank" style="display:inline-block;margin-bottom:12px">▶ ${esc(item.title || 'Watch video')}</a>` : '';
+      return `<div style="position:relative;width:100%;padding-top:56.25%;border-radius:10px;overflow:hidden;margin-bottom:12px"><iframe src="https://www.youtube.com/embed/${m[1]}?rel=0" style="position:absolute;inset:0;width:100%;height:100%;border:none" allowfullscreen></iframe></div>`;
+    }
+    case 'exercise': return `<div style="border-radius:10px;border:1.5px solid #fde68a;background:#fffbeb;margin-bottom:12px;padding:12px 14px"><strong style="color:#92400e;font-size:12px">✏️ ${esc(item.title || 'Practice')}</strong><ol style="margin:8px 0 0 18px">${(item.steps || []).map(s => `<li style="margin-bottom:4px;font-size:13px">${esc(s)}</li>`).join('')}</ol></div>`;
+    case 'example': return `<div style="border-radius:10px;border:1.5px solid #bae6fd;background:#f0f9ff;margin-bottom:12px;padding:12px 14px">
+      ${item.title ? `<strong style="color:#0369a1;font-size:13px">${esc(item.title)}</strong>` : ''}
+      ${item.before ? `<div style="font-size:12.5px;margin-top:6px"><strong>Input:</strong> ${esc(item.before)}</div>` : ''}
+      ${(item.steps || []).length ? `<ol style="margin:8px 0 0 18px">${(item.steps || []).map(s => `<li style="margin-bottom:4px;font-size:12.5px">${esc(s)}</li>`).join('')}</ol>` : ''}
+      ${item.formula ? `<div style="background:#1e1e2e;color:#a6e3a1;font-family:monospace;padding:8px 10px;border-radius:6px;font-size:12px;margin-top:8px">${esc(item.formula)}</div>` : ''}
+      ${item.after ? `<div style="font-size:12.5px;margin-top:8px"><strong>Result:</strong> ${esc(item.after)}</div>` : ''}
+    </div>`;
+    case 'steps': return `<div style="margin-bottom:12px">${item.title ? `<div style="font-weight:700;margin-bottom:6px;font-size:13.5px">${esc(item.title)}</div>` : ''}<ol style="margin:0 0 0 18px">${(item.steps || []).map(s => `<li style="margin-bottom:4px;font-size:13px">${esc(s)}</li>`).join('')}</ol></div>`;
+    default: return '';
+  }
+}
+function renderChapterPreviewHtml(chapter) {
+  const concept = normalizeConcept(chapter.concept, chapter.title);
+  let html = `<div style="font-size:18px;font-weight:800;margin-bottom:14px">${escHtml(concept.title)}</div>`;
+  (concept.body || []).forEach(item => { html += pvBodyItemHtml(item); });
+  if (!(concept.body || []).length) html += '<div style="color:#9ca3af;font-size:13px">No concept content yet.</div>';
+
+  const pg = chapter.playground;
+  if (pg && (pg.schema || (pg.sampleQueries || []).length)) {
+    html += `<div style="margin-top:16px;padding:14px;border-radius:10px;border:1.5px solid #99f6e4;background:#f0fdfa"><strong style="color:#0f766e;font-size:12.5px">🛢️ SQL Playground</strong>`;
+    if (pg.schema) html += `<pre style="margin-top:8px;background:#1e1e2e;color:#a6e3a1;padding:10px;border-radius:8px;font-size:11.5px;overflow-x:auto">${escHtml(pg.schema)}</pre>`;
+    html += '</div>';
+  }
+
+  const questions = chapter.questions || [];
+  if (questions.length) {
+    html += `<div style="font-size:15px;font-weight:800;margin:18px 0 8px">Practice Questions (${questions.length})</div>`;
+    questions.forEach((q, qi) => {
+      html += `<div style="border:1px solid #e5e7eb;border-radius:10px;padding:12px 14px;margin-bottom:10px"><div style="font-size:11px;color:#9ca3af;margin-bottom:6px">Q${qi + 1} · ${q.type}</div>${q.image ? `<img src="${escAttr(q.image)}" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid #e5e7eb;display:block;margin-bottom:8px;object-fit:contain" onerror="this.style.display='none'">` : ''}<div style="font-size:13.5px;margin-bottom:8px">${escHtml(q.question || '(empty)')}</div>`;
+      if (q.type === 'NAT') {
+        html += `<div style="font-size:12.5px;color:#16a34a">Answer: ${q.answer ?? 0}${q.tolerance ? ` (± ${q.tolerance})` : ''}</div>`;
+      } else {
+        (q.options || []).forEach((opt, oi) => {
+          const isCorrect = (q.answer || []).includes(oi);
+          const optImg = (q.optionImages || [])[oi];
+          html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:7px;margin-bottom:4px;font-size:12.5px;${isCorrect ? 'background:#f0fdf4;color:#15803d;font-weight:600' : 'background:#f9fafb'}">${optImg ? `<img src="${escAttr(optImg)}" style="max-width:60px;max-height:40px;border-radius:5px;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'">` : ''}<span>${String.fromCharCode(65 + oi)}. ${escHtml(opt)}${isCorrect ? ' ✓' : ''}</span></div>`;
+        });
+      }
+      if (q.explanation) html += `<div style="font-size:12px;color:#6b7280;background:#f9fafb;border-radius:8px;padding:8px 10px;margin-top:8px">💡 ${escHtml(q.explanation)}</div>`;
+      html += '</div>';
+    });
+  }
+  return html;
+}
+function jsonForDisplay(value) {
+  if (Array.isArray(value)) return value.map(jsonForDisplay);
+  if (value && typeof value === 'object') { const out = {}; for (const k in value) out[k] = jsonForDisplay(value[k]); return out; }
+  if (typeof value === 'string' && value.startsWith('data:')) return `[uploaded file — ${value.length.toLocaleString()} chars, hidden from preview]`;
+  return value;
+}
+function showJsonPreview() {
+  if (!builder.activeData) { alert('Select or create a subject first.'); return; }
+  document.getElementById('json-modal-title').textContent = `${builder.activeData.subject} (${builder.activeData.code})`;
+  document.getElementById('json-modal-content').textContent = JSON.stringify(jsonForDisplay(builder.activeData), null, 2);
+
+  const chapter = getActiveChapterObj();
+  document.getElementById('pv-pane-preview').innerHTML = chapter
+    ? `<div class="pv-app">${renderChapterPreviewHtml(chapter)}</div>`
+    : '<div class="editor-empty"><div class="big">👈</div><p style="font-size:12px">Select a chapter on the left to preview it here</p></div>';
+
+  switchPvTab('preview');
+  document.getElementById('json-modal-overlay').classList.add('open');
+
+  if (chapter && window.renderMathInElement) {
+    try {
+      renderMathInElement(document.getElementById('pv-pane-preview'), {
+        delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }],
+        throwOnError: false,
+      });
+    } catch (e) {}
+  }
+}
+function switchPvTab(tab) {
+  document.getElementById('pv-tab-preview').classList.toggle('active', tab === 'preview');
+  document.getElementById('pv-tab-json').classList.toggle('active', tab === 'json');
+  document.getElementById('pv-pane-preview').classList.toggle('active', tab === 'preview');
+  document.getElementById('pv-pane-json').classList.toggle('active', tab === 'json');
+}
+function closeJsonPreview() { document.getElementById('json-modal-overlay').classList.remove('open'); }
+function copyJsonPreview() {
+  const text = document.getElementById('json-modal-content').textContent;
+  navigator.clipboard.writeText(text).then(() => setBuilderStatus('✓ Copied JSON to clipboard', 'success'))
+    .catch(() => alert('Could not copy automatically — please select and copy manually.'));
+}
 
 // ── Find Chapter search — maps a chapter id / title back to its subject +
 // unit, across every subject the current user can see. Fetches each
