@@ -34,13 +34,13 @@ const GET_ATTEMPTS = `
       where: { subject: { _in: $subjects } }
       order_by: { created_at: desc }
       limit: 5000
-    ) { id user_id subject chapter_id question_type question_id is_correct created_at }
+    ) { id user_email subject chapter_id chapter_title question_id is_correct created_at }
   }
 `;
 const GET_ATTEMPTS_ALL = `
   query GetAttemptsAll {
     attempts(order_by: { created_at: desc }, limit: 5000) {
-      id user_id subject chapter_id question_id is_correct created_at
+      id user_email subject chapter_id chapter_title question_id is_correct created_at
     }
   }
 `;

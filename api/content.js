@@ -14,17 +14,18 @@
 const { hasuraRequest } = require('../lib/hasura');
 const ADMIN_KEY = process.env.ADMIN_KEY; // optional legacy bypass, safe to leave unset
 
-const GET_ONE = `query GetSubjectContent($code: String!) {
-  subject_content(where: { code: { _eq: $code } }, limit: 1) {
-    id
-    code
-    subject
-    color
-    data
-    updated_at
+const GET_ONE = `
+  query GetSubjectContent($code: String!) {
+    subject_content(where: { code: { _eq: $code } }, limit: 1) {
+      id
+      code
+      subject
+      color
+      data
+      updated_at
+    }
   }
-}`;
-
+`;
 const GET_ALL = `
   query GetAllSubjectContent {
     subject_content(order_by: { code: asc }) {
@@ -173,7 +174,7 @@ module.exports = async (req, res) => {
       const code = req.query?.code;
       if (code) {
         const data = await hasuraRequest(GET_ONE, { code: code.toUpperCase() });
-        const row = data.subject_content[0];
+        const row = data.subject_content[0] || null;
         if (!row) return res.status(404).json({ error: 'Subject not found' });
         return res.status(200).json(row);
       }
