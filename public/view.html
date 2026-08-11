@@ -1290,7 +1290,7 @@ async function loadSubjectRoot(code) {
   let loaded = subjectRootCache[code];
   if (!loaded) {
     try {
-      loaded = await fetchJSON(`api/content11?code=${code}`, SUBJECTS[code].file);
+      loaded = await fetchJSON(`api/content?code=${code}`, SUBJECTS[code].file);
     } catch {
       document.getElementById('question-wrap').innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><p>Failed to load subject data</p></div>';
       return;
@@ -2464,7 +2464,7 @@ async function runGlobalSearch(query) {
   await Promise.all(codes.map(async (code) => {
     if (subjectRootCache[code] !== undefined) return;
     try {
-      subjectRootCache[code] = await fetchJSON(`api/content11?code=${code}`, SUBJECTS[code]?.file);
+      subjectRootCache[code] = await fetchJSON(`api/content?code=${code}`, SUBJECTS[code]?.file);
     } catch {
       subjectRootCache[code] = null;
     }
