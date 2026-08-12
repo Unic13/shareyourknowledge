@@ -10,7 +10,7 @@ const { hasuraRequest } = require('../lib/hasura');
 
 const GET_ATTEMPTS_FOR_USER = `
   query GetAttemptsForUser($userId: String!) {
-    attempts(where: { email: { _eq: $userId } }, order_by: { created_at: desc }, limit: 5000) {
+    attempts(where: { user_id: { _eq: $userId } }, order_by: { created_at: desc }, limit: 5000) {
       subject
       is_correct
       created_at
