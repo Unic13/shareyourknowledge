@@ -2831,7 +2831,7 @@ function renderDashboardHTML() {
   if (!state.userData) {
     wrap.innerHTML = `
       <div class="fade-in">
-        <div class="home-hero"><h1>📊 ${t('yourDashboard')}</h1><p>${t('dashboardSub')}</p></div>
+        <div class="home-hero"><h1>📊 Your Dashboard</h1></div>
         <div class="dash-guest-note">
           You're browsing as a guest, so there's no saved practice history to show yet.
           <button class="back-link" style="margin:8px 0 0" onclick="document.getElementById('modal-overlay').classList.remove('hidden')">→ Register or log in to start tracking your stats</button>
@@ -2902,7 +2902,7 @@ function renderDashboardHTML() {
 
   wrap.innerHTML = `
     <div class="fade-in">
-      <div class="home-hero"><h1>📊 ${t('yourDashboard')}</h1><p>Hi ${escapeHtml(state.userData.name || 'there')} — here's how your practice is going</p></div>
+      <div class="home-hero"><h1>📊 Your Dashboard</h1><p>Hi ${escapeHtml(state.userData.name || 'there')} — here's how your practice is going</p></div>
       ${statCardsHTML}
       <div class="dash-section">
         <div class="dash-section-title">Accuracy by Subject</div>
