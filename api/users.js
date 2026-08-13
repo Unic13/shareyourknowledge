@@ -56,7 +56,7 @@ const GET_ALL_MAPPINGS_RAW = `
 // in JS instead of relying on named relationships.
 const GET_ALL_MAPPINGS_FLAT = `
   query GetAllMappingsFlat {
-    admin_subjects { id admin_id subject_id can_edit can_publish assigned_at }
+    admin_subjects { id admin_id subject_id can_edit can_publish variant_title assigned_at }
     subject_content { id code subject color }
     admin_users { id name email }
   }
@@ -82,9 +82,9 @@ const UPSERT_MAPPING = `
       object: $object
       on_conflict: {
         constraint: admin_subjects_admin_id_subject_id_key
-        update_columns: [can_edit, can_publish]
+        update_columns: [can_edit, can_publish, variant_title]
       }
-    ) { id admin_id subject_id can_edit can_publish }
+    ) { id admin_id subject_id can_edit can_publish variant_title }
   }
 `;
 const DELETE_MAPPING = `
@@ -97,7 +97,7 @@ async function getEditorScope(adminId) {
   const { admin_subjects } = await hasuraRequest(
     `query Scope($adminId: bigint!) {
        admin_subjects(where: { admin_id: { _eq: $adminId } }) {
-         id subject_id can_edit can_publish
+         id subject_id can_edit can_publish variant_title
        }
      }`,
     { adminId }
@@ -117,6 +117,7 @@ async function getEditorScope(adminId) {
     color: byId[m.subject_id]?.color,
     can_edit: m.can_edit,
     can_publish: m.can_publish,
+    variant_title: m.variant_title,
   }));
 }
 
@@ -185,16 +186,17 @@ module.exports = async (req, res) => {
           color: subjectsById[m.subject_id]?.color,
           can_edit: m.can_edit,
           can_publish: m.can_publish,
+          variant_title: m.variant_title,
         }));
         if (adminId) mappings = mappings.filter((m) => String(m.admin_id) === String(adminId));
         return res.status(200).json({ mappings });
       }
 
       if (req.method === 'POST') {
-        const { adminId, subjectId, canEdit = true, canPublish = false } = body;
+        const { adminId, subjectId, canEdit = true, canPublish = false, variantTitle } = body;
         if (!adminId || !subjectId) return res.status(400).json({ error: 'adminId and subjectId required' });
         const result = await hasuraRequest(UPSERT_MAPPING, {
-          object: { admin_id: adminId, subject_id: subjectId, can_edit: !!canEdit, can_publish: !!canPublish },
+          object: { admin_id: adminId, subject_id: subjectId, can_edit: !!canEdit, can_publish: !!canPublish, variant_title: variantTitle || null },
         });
         return res.status(200).json({ success: true, mapping: result.insert_admin_subjects_one });
       }

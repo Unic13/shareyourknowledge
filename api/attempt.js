@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
     }
     const result = await hasuraRequest(INSERT_ATTEMPT, {
       object: {
-        user_id: userId,
+        user_email: userId,
         subject,
         chapter_id: chapterId || null,
         question_id: questionId || null,
