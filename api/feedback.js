@@ -31,6 +31,7 @@ const GET_FEEDBACK_STATS = `
       rating
       message
       created_at
+      chapter_id
     }
   }
 `;
@@ -94,13 +95,13 @@ module.exports = async (req, res) => {
   try {
     if (req.method === 'POST') {
       const body = parseBody(req);
-      const { userId = 'guest', subject = null, rating, message = '' } = body || {};
+      const { userId = 'guest', subject = null, rating, message = '', chapter_id = null } = body || {};
       const r = Number(rating);
       if (!r || r < 1 || r > 5) {
         return res.status(400).json({ error: 'rating must be a number 1-5' });
       }
       const data = await hasuraRequest(INSERT_FEEDBACK, {
-        object: { user_id: userId, subject, rating: r, message: message.slice(0, 2000) },
+        object: { user_id: userId, subject, rating: r, message: message.slice(0, 2000), chapter_id = chapterId },
       });
       return res.status(200).json({ success: true, id: data.insert_feedback_one.id });
     }
