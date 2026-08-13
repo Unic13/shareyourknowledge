@@ -2410,7 +2410,7 @@ function renderChapterFeedbackHTML(chapterId) {
       <div class="feedback-form">
         <div class="feedback-stars">${starsHTML}</div>
         <textarea class="feedback-textarea" id="chapter-feedback-message-${chapterId}" placeholder="Anything confusing, wrong, or worth adding? (optional)"></textarea>
-        <button style="max-width:200px" onclick="submitChapterFeedback('${chapterId}')">Submit Feedback</button>
+        <button class="btn btn-primary" style="max-width:200px;color:#222;" onclick="submitChapterFeedback('${chapterId}')">Submit Feedback</button>
         <div class="feedback-msg" id="chapter-feedback-msg-${chapterId}"></div>
       </div>
     </div>`;
@@ -2436,6 +2436,7 @@ async function submitChapterFeedback(chapterId) {
       subject: state.activeSubject || null,
       rating,
       message: textEl ? textEl.value.trim() : '',
+      chapter_id:chapterId,
     });
     if (res && res.success) {
       state.chapterFeedbackSubmitted[chapterId] = true;
@@ -2867,7 +2868,7 @@ function renderDashboardHTML() {
   if (!state.userData) {
     wrap.innerHTML = `
       <div class="fade-in">
-        <div class="home-hero"><h1>📊 ${t('yourDashboard')}</h1><p>${t('dashboardSub')}</p></div>
+        <div class="home-hero"><h1>📊 Your Dashboard</h1></div>
         <div class="dash-guest-note">
           You're browsing as a guest, so there's no saved practice history to show yet.
           <button class="back-link" style="margin:8px 0 0" onclick="document.getElementById('modal-overlay').classList.remove('hidden')">→ Register or log in to start tracking your stats</button>
@@ -2878,7 +2879,7 @@ function renderDashboardHTML() {
   }
 
   if (!state.dashboardStats) {
-    wrap.innerHTML = `<div class="fade-in"><div class="home-hero"><h1>📊 ${t('yourDashboard')}</h1></div><div id="loader"><div class="spinner"></div></div></div>`;
+    wrap.innerHTML = `<div class="fade-in"><div class="home-hero"><h1>📊 Your Dashboard</h1></div><div id="loader"><div class="spinner"></div></div></div>`;
     return;
   }
 
@@ -2938,7 +2939,7 @@ function renderDashboardHTML() {
 
   wrap.innerHTML = `
     <div class="fade-in">
-      <div class="home-hero"><h1>📊 ${t('yourDashboard')}</h1><p>Hi ${escapeHtml(state.userData.name || 'there')} — here's how your practice is going</p></div>
+      <div class="home-hero"><h1>📊 Your Dashboard</h1><p>Hi ${escapeHtml(state.userData.name || 'there')} — here's how your practice is going</p></div>
       ${statCardsHTML}
       <div class="dash-section">
         <div class="dash-section-title">Accuracy by Subject</div>
@@ -2970,7 +2971,7 @@ function renderFeedbackSectionHTML() {
       <div class="feedback-form">
         <div class="feedback-stars">${starsHTML}</div>
         <textarea class="feedback-textarea" id="feedback-message" placeholder="What's working well? What should we improve?"></textarea>
-        <button style="max-width:200px" onclick="submitFeedback()">Submit Feedback</button>
+        <button class="btn btn-primary" style="max-width:200px;color:#222;" onclick="submitFeedback()">Submit Feedback</button>
         <div class="feedback-msg" id="feedback-msg"></div>
       </div>
     </div>`;
@@ -2994,7 +2995,7 @@ async function submitFeedback() {
       userId: state.userData ? (state.userData.email || state.userData.name) : 'guest',
       subject: state.activeSubject || null,
       rating: state.feedbackRating,
-      message: textEl.value.trim(),
+      message: textEl.value.trim(),       
     });
     if (res && res.success) {
       msgEl.textContent = 'Thanks — your feedback was submitted!';
