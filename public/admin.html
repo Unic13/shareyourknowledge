@@ -20,6 +20,7 @@
     <div class="brand-tagline">Learn • Create • Share</div>
   </div>
   <div class="header-right">
+    <a href="admin-guide.html" class="btn-logout" style="text-decoration:none" id="guide-link">📘 Guide</a>
     <a href="view.html" target="_blank" class="btn-logout" style="text-decoration:none">👁 View Live Content</a>
     <span class="role-badge" id="role-badge"></span>
     <span class="user-name" id="user-name"></span>
@@ -41,6 +42,7 @@
     <button class="section-tab" id="sec-tab-data" onclick="switchSection('data')">📊 Data</button>
     <button class="section-tab" id="sec-tab-stats" onclick="switchSection('stats')">📈 Statistics</button>
     <button class="section-tab" id="sec-tab-feedback" onclick="switchSection('feedback')">💬 Feedback</button>
+    <button class="section-tab" id="sec-tab-subjectmap" onclick="switchSection('subjectmap')">🗂️ Subject Map</button>
     <button class="section-tab" id="sec-tab-users" onclick="switchSection('users')">👥 Team &amp; Access</button>
   </div>
 
@@ -70,6 +72,7 @@
     <div class="builder-grid">
       <div class="builder-col">
         <div class="builder-col-header"><span class="builder-col-title" id="builder-tree-subject-label">Units &amp; Chapters</span></div>
+        <div id="builder-variant-pills"></div>
         <div class="builder-col-body" id="builder-tree">
           <div class="editor-empty"><div class="big">📚</div><p style="font-size:12px">Select a subject</p></div>
         </div>
@@ -124,6 +127,11 @@
     <div id="feedback-container"><div class="empty-table"><div class="big">⏳</div><p>Loading…</p></div></div>
   </div>
 
+  <!-- ═══ SUBJECT MAP ═══ -->
+  <div class="section-panel" id="section-subjectmap">
+    <div id="subjectmap-container"><div class="empty-table"><div class="big">⏳</div><p>Loading…</p></div></div>
+  </div>
+
   <!-- ═══ TEAM & ACCESS / PROFILE ═══ -->
   <div class="section-panel" id="section-users"></div>
 
@@ -161,9 +169,33 @@
   <div class="form-modal">
     <div class="form-modal-head"><span>New Subject</span><button class="json-modal-close" onclick="closeNewSubjectModal()">✕</button></div>
     <div class="form-modal-body">
-      <div class="b-field"><label>Subject Name</label><input type="text" id="ns-name" placeholder="e.g. Computer Science"></div>
-      <div class="b-field"><label>Short Code</label><input type="text" id="ns-code" placeholder="e.g. CS" style="text-transform:uppercase"></div>
-      <div class="b-field"><label>Color</label><input type="color" id="ns-color" value="#9333EA" style="height:40px;padding:4px"></div>
+      <div class="b-field">
+        <label>Subject Name</label>
+        <input type="text" id="ns-name" list="ns-name-list" placeholder="Type or pick a subject…" oninput="onNewSubjectNameInput()">
+        <datalist id="ns-name-list">
+          <option value="Physics"><option value="Chemistry"><option value="Mathematics"><option value="Biology">
+          <option value="SQL"><option value="Excel"><option value="Python"><option value="R Program">
+          <option value="Math Aptitude"><option value="English"><option value="Tamil"><option value="Hindi">
+          <option value="Computer Science"><option value="General Knowledge">
+        </datalist>
+        <div class="b-field-hint">Start typing to search, or type a new subject name that isn't listed.</div>
+      </div>
+      <div class="b-field">
+        <label>Sub-topic / Version Name (optional)</label>
+        <input type="text" id="ns-subtopic" placeholder="e.g. Class 6 — Prepared by Muthu">
+        <div class="b-field-hint">Fill this in if this subject will have multiple versions (different teachers/classes). Leave blank for a simple single-version subject.</div>
+      </div>
+      <div class="b-field-row">
+        <div class="b-field">
+          <label>Subject Code</label>
+          <input type="text" id="ns-code" placeholder="Auto-generated" style="text-transform:uppercase" oninput="ns_codeEdited = true">
+        </div>
+        <div class="b-field">
+          <label>Color</label>
+          <input type="color" id="ns-color" value="#9333EA" style="height:40px;padding:4px">
+        </div>
+      </div>
+      <div class="b-field-hint">Code auto-fills as "PH0001"-style (first letters of the name + next free number) — edit it if you'd rather set your own.</div>
       <div class="errmsg" id="ns-err"></div>
     </div>
     <div class="form-modal-foot">
@@ -205,7 +237,17 @@
   <div class="form-modal">
     <div class="form-modal-head"><span id="map-modal-title">Map Subject</span><button class="json-modal-close" onclick="UsersModule.closeMapModal()">✕</button></div>
     <div class="form-modal-body">
-      <div class="b-field"><label>Subject</label><select id="mm-subject"></select></div>
+      <div class="b-field">
+        <label>Subject</label>
+        <input type="text" id="mm-subject-input" list="mm-subject-list" placeholder="Search subject by name or code…" oninput="UsersModule.onMapSubjectInput()">
+        <datalist id="mm-subject-list"></datalist>
+        <div id="mm-already-mapped" class="b-field-hint"></div>
+      </div>
+      <div class="b-field">
+        <label>Sub-topic / Version (optional)</label>
+        <input type="text" id="mm-variant" placeholder="e.g. Class 6 — Prepared by Muthu">
+        <div class="b-field-hint">Informational note only — shown on the Subject Map page, doesn't restrict access to a specific version.</div>
+      </div>
       <div class="b-field"><label><input type="checkbox" id="mm-edit" style="width:auto;margin-right:6px" checked> Can edit</label></div>
       <div class="b-field"><label><input type="checkbox" id="mm-publish" style="width:auto;margin-right:6px"> Can publish</label></div>
       <div class="errmsg" id="mm-err"></div>
@@ -223,6 +265,7 @@
 <script src="js/data.js"></script>
 <script src="js/stats.js"></script>
 <script src="js/feedback.js"></script>
+<script src="js/subjectmap.js"></script>
 <script src="js/users.js"></script>
 <script src="js/builder.js"></script>
 <script src="js/main.js"></script>

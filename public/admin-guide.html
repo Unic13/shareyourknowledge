@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Guide — UNIC Academic</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+<style>
+  .gd-wrap{max-width:820px;margin:0 auto;padding:32px 20px 60px}
+  .gd-hero{margin-bottom:28px}
+  .gd-hero h1{font-size:26px;font-weight:800;color:#111;margin-bottom:6px}
+  .gd-hero p{font-size:13.5px;color:#9ca3af}
+  .gd-toc{background:#faf5ff;border:1.5px solid #e9d5ff;border-radius:14px;padding:18px 22px;margin-bottom:28px}
+  .gd-toc-title{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#7c3aed;margin-bottom:10px}
+  .gd-toc a{display:block;font-size:13px;color:#6b21a8;text-decoration:none;padding:3px 0}
+  .gd-toc a:hover{text-decoration:underline}
+  .gd-section{margin-bottom:30px;scroll-margin-top:20px}
+  .gd-section-title{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800;color:#111;margin-bottom:10px}
+  .gd-badge{font-size:10px;font-weight:800;padding:2px 9px;border-radius:20px;color:#fff;text-transform:uppercase}
+  .gd-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px 20px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .gd-card h4{font-size:13.5px;font-weight:700;color:#111;margin-bottom:5px}
+  .gd-card p{font-size:12.5px;color:#6b7280;line-height:1.7;margin:0}
+  .gd-note{background:#fffbeb;border:1.5px solid #fde68a;border-radius:12px;padding:12px 16px;font-size:12.5px;color:#92400e;line-height:1.7;margin:12px 0}
+  #gate-msg{max-width:420px;margin:80px auto;text-align:center}
+</style>
+</head>
+<body>
+
+<div id="gate-msg" style="display:none">
+  <h2 style="margin-bottom:10px">Admins only</h2>
+  <p style="color:#9ca3af;margin-bottom:16px">This guide is only visible to logged-in admins and super admins.</p>
+  <a href="login.html" class="btn-login" style="display:inline-block;text-decoration:none;padding:12px 24px">Go to Login →</a>
+</div>
+
+<div id="gd-content" style="display:none">
+<header>
+  <a href="admin.html" style="text-decoration:none;display:flex;align-items:center;gap:12px;color:inherit">
+    <div class="logo">UN</div>
+    <div>
+      <div class="brand">UNIC Academic</div>
+      <div class="sub-brand">Admin Guide</div>
+    </div>
+  </a>
+  <div class="header-right">
+    <a href="admin.html" class="btn-logout" style="text-decoration:none">← Back to Admin Panel</a>
+  </div>
+</header>
+
+<div class="gd-wrap">
+  <div class="gd-hero">
+    <h1>How the Admin Panel Works</h1>
+    <p>A one-page reference for everything editors and admins can do.</p>
+  </div>
+
+  <div class="gd-toc">
+    <div class="gd-toc-title">On this page</div>
+    <a href="#roles">1. Roles &amp; permissions</a>
+    <a href="#builder">2. Question Builder</a>
+    <a href="#variants">3. Multiple versions of a subject</a>
+    <a href="#import">4. JSON template &amp; import</a>
+    <a href="#team">5. Team &amp; editor requests</a>
+    <a href="#data">6. Data, Statistics &amp; Feedback</a>
+    <a href="#publish">7. What "Save" actually does</a>
+    <a href="#other">8. Other pages on this site</a>
+  </div>
+
+  <div class="gd-section" id="roles">
+    <div class="gd-section-title">1. Roles &amp; permissions</div>
+    <div class="gd-card"><h4><span class="gd-badge" style="background:#6d28d9">super_admin</span></h4><p>Full control — manage any user including other admins, map subjects to editors, edit/save any subject, see all data.</p></div>
+    <div class="gd-card"><h4><span class="gd-badge" style="background:#1d4ed8">admin</span></h4><p>Create/edit/delete editor accounts, map subjects, edit/save any subject, review editor requests, see all data. Cannot manage other admins/super_admins.</p></div>
+    <div class="gd-card"><h4><span class="gd-badge" style="background:#15803d">editor</span></h4><p>Only sees the subjects an admin has mapped to them, and can only edit ones marked "can edit". Everything (Data, Statistics, Feedback) is scoped to those subjects.</p></div>
+  </div>
+
+  <div class="gd-section" id="builder">
+    <div class="gd-section-title">2. Question Builder</div>
+    <div class="gd-card"><h4>Subject → Unit → Chapter</h4><p>Every subject has units, each unit has chapters. Each chapter has a Concept (theory content) and a set of Practice Questions.</p></div>
+    <div class="gd-card"><h4>Content blocks</h4><p>Heading, Paragraph, List, Table, Note, Formula, Syntax/Code, Image, Video, Steps, Exercise, and Example (worked example with before/steps/formula/after) — mix and reorder freely with the ↑↓ arrows.</p></div>
+    <div class="gd-card"><h4>Questions</h4><p>MCQ (one correct), MSQ (multiple correct), NAT (numeric answer with tolerance). Each question and each option can have its own image.</p></div>
+    <div class="gd-card"><h4>SQL Playground</h4><p>Only shows up for the SQL subject — a schema + sample queries per chapter, which learners can run for real in the browser (no server involved, uses sql.js/WASM).</p></div>
+    <div class="gd-card"><h4>🔍 Find Chapter</h4><p>Search across every subject you can see by chapter title or ID — useful once you have a lot of content.</p></div>
+    <div class="gd-card"><h4>👁 Preview</h4><p>Shows exactly what a chapter will look like to a learner (Live Preview) or the raw JSON that gets saved (Raw JSON tab) — check this before saving.</p></div>
+  </div>
+
+  <div class="gd-section" id="variants">
+    <div class="gd-section-title">3. Multiple versions of a subject</div>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:10px">If the same subject needs more than one version — e.g. "Class 6 Physics — Prepared by Muthu" vs "...by Karthi" — click <strong>"+ Add another version of this subject"</strong> above the unit tree. This moves your current content into a first named version, then lets you add more. Each version has its own independent units/chapters. Learners pick a version on a card screen before seeing chapters, in <code>view.html</code>.</p>
+    <div class="gd-note">This uses the same "categories" shape the learner app already understands — no separate setup needed on the learner side.</div>
+  </div>
+
+  <div class="gd-section" id="import">
+    <div class="gd-section-title">4. JSON template &amp; import</div>
+    <div class="gd-card"><h4>⬇ Download Template</h4><p>Gives a filled-in example JSON matching the exact shape the builder expects — useful for writing content offline in your own editor.</p></div>
+    <div class="gd-card"><h4>⬆ Import JSON</h4><p>Upload a file shaped like the template — either a full new subject, or just units to append into whatever subject you have open. IDs are regenerated automatically so two people's files never collide.</p></div>
+  </div>
+
+  <div class="gd-section" id="team">
+    <div class="gd-section-title">5. Team &amp; editor requests</div>
+    <div class="gd-card"><h4>📋 Editor Requests</h4><p>Anyone can request to become an editor from the public <a href="become-editor.html" target="_blank">become-editor.html</a> form. Approving a request opens the "New Team Member" form pre-filled — just set a password and role.</p></div>
+    <div class="gd-card"><h4>Map subjects</h4><p>Click "Map subjects" next to an editor to assign them a subject with can-edit / can-publish flags, or remove an existing mapping.</p></div>
+  </div>
+
+  <div class="gd-section" id="data">
+    <div class="gd-section-title">6. Data, Statistics &amp; Feedback</div>
+    <p style="font-size:13px;color:#6b7280;line-height:1.7">
+      <strong>Data</strong> — raw registrations/attempts tables. <strong>Statistics</strong> — per-subject and per-chapter accuracy bars, click a subject to drill in.
+      <strong>Feedback</strong> — star ratings + comments learners leave (both per-chapter and on the dashboard), with a per-subject breakdown for admins.
+      All three are scoped to an editor's mapped subjects automatically.
+    </p>
+  </div>
+
+  <div class="gd-section" id="publish">
+    <div class="gd-section-title">7. What "Save" actually does</div>
+    <p style="font-size:13px;color:#6b7280;line-height:1.7">
+      Clicking <strong>💾 Save Subject to Database</strong> writes straight to the live <code>subject_content</code> row — learners see it immediately in <code>view.html</code>, there's no draft/staging step yet.
+      Every save also writes an audit row to <code>subject_update_logs</code> (who, when, before/after) — there's no UI for that history yet, query the table directly if you need to check or roll back a change.
+    </p>
+  </div>
+
+  <div class="gd-section" id="other">
+    <div class="gd-section-title">8. Other pages on this site</div>
+    <div class="gd-card"><h4>index.html</h4><p>Public landing page — links to Browse, Careers, Become an Editor, and Admin Login.</p></div>
+    <div class="gd-card"><h4>view.html</h4><p>The learner app — subjects, chapters, practice questions, SQL playground, notes drawer, dashboard, EN/TA/HI language switcher.</p></div>
+    <div class="gd-card"><h4>career.html</h4><p>Static entrance-exam / admission-procedure / employment-news reference page.</p></div>
+    <div class="gd-card"><h4>legal.html</h4><p>Disclaimer &amp; Terms draft — has not been reviewed by a lawyer, treat as a starting point only.</p></div>
+  </div>
+</div>
+</div>
+
+<script src="js/auth.js"></script>
+<script>
+  const session = Auth.getSession();
+  if (session && Auth.isAdminOrAbove(session)) {
+    document.getElementById('gd-content').style.display = 'block';
+  } else {
+    document.getElementById('gate-msg').style.display = 'block';
+  }
+</script>
+</body>
+</html>

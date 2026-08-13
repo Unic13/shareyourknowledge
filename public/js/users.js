@@ -1,7 +1,7 @@
 // js/users.js
 const UsersModule = (() => {
   let session, users = [], allSubjects = [], userSearch = '';
-  let editingUserId = null, mappingAdminId = null;
+  let editingUserId = null, mappingAdminId = null, pendingApprovalRequestId = null, allMappingsCache = [];
 
   function init(s) {
     session = s;
@@ -42,6 +42,12 @@ const UsersModule = (() => {
     wrap.innerHTML = `
       <div class="builder-col">
         <div class="builder-col-header">
+          <span class="builder-col-title">📋 Editor Requests</span>
+        </div>
+        <div id="editor-requests-table" style="padding:10px"><div class="empty-table"><div class="big">⏳</div><p>Loading…</p></div></div>
+      </div>
+      <div class="builder-col">
+        <div class="builder-col-header">
           <span class="builder-col-title">Team Members</span>
           <button class="b-btn b-btn-primary b-btn-sm" onclick="UsersModule.openCreate()">+ New Team Member</button>
         </div>
@@ -58,6 +64,7 @@ const UsersModule = (() => {
     users = uRes.users || [];
     allSubjects = subRes.subjects || [];
     renderUsersTable();
+    loadEditorRequests();
   }
 
   function setSearch(val) {
@@ -96,9 +103,54 @@ const UsersModule = (() => {
     el.innerHTML = html;
   }
 
+  // ── Editor requests (public form submissions, awaiting review) ──
+  async function loadEditorRequests() {
+    const el = document.getElementById('editor-requests-table');
+    const res = await Api.get('/api/editor-requests', { status: 'pending' });
+    const requests = res.requests || [];
+    if (!requests.length) {
+      el.innerHTML = '<div class="empty-table"><div class="big">📭</div><p>No pending requests</p></div>';
+      return;
+    }
+    let html = '<div class="table-scroll"><table><thead><tr><th>Name</th><th>Email</th><th>Subjects</th><th>Message</th><th>Requested</th><th></th></tr></thead><tbody>';
+    requests.forEach(r => {
+      html += `<tr>
+        <td>${esc(r.name)}</td>
+        <td>${esc(r.email)}</td>
+        <td>${esc(r.subjects_interested || '—')}</td>
+        <td style="max-width:220px;white-space:normal">${esc((r.message || '').slice(0, 140))}</td>
+        <td>${formatIST(r.created_at)}</td>
+        <td style="white-space:nowrap">
+          <button class="b-btn b-btn-primary b-btn-sm" onclick="UsersModule.approveRequest(${r.id}, '${esc(r.name)}', '${esc(r.email)}')">Approve</button>
+          <button class="b-btn b-btn-danger b-btn-sm" onclick="UsersModule.rejectRequest(${r.id})">Reject</button>
+        </td>
+      </tr>`;
+    });
+    html += '</tbody></table></div>';
+    el.innerHTML = html;
+  }
+
+  function approveRequest(id, name, email) {
+    // Opens the normal "New Team Member" modal, prefilled — approving is
+    // just "create this person as an editor", same path as any other hire.
+    openCreate();
+    document.getElementById('um-name').value = name;
+    document.getElementById('um-email').value = email;
+    document.getElementById('um-role').value = 'editor';
+    pendingApprovalRequestId = id;
+  }
+
+  async function rejectRequest(id) {
+    if (!confirm('Reject this editor request?')) return;
+    const res = await Api.put('/api/editor-requests', { id, status: 'rejected' });
+    if (res.success) loadEditorRequests();
+    else alert(res.error || 'Could not update the request');
+  }
+
   // ── Create / Edit user modal ──
   function openCreate() {
     editingUserId = null;
+    pendingApprovalRequestId = null;
     document.getElementById('user-modal-title').textContent = 'New Team Member';
     document.getElementById('um-name').value = '';
     document.getElementById('um-email').value = '';
@@ -158,7 +210,13 @@ const UsersModule = (() => {
     }
     btn.disabled = false;
 
-    if (res.success) { closeModal(); renderAdminView(); }
+    if (res.success) {
+      if (pendingApprovalRequestId && !editingUserId) {
+        await Api.put('/api/editor-requests', { id: pendingApprovalRequestId, status: 'approved' });
+        pendingApprovalRequestId = null;
+      }
+      closeModal(); renderAdminView();
+    }
     else errEl.textContent = res.error || 'Something went wrong — please try again.';
   }
 
@@ -177,6 +235,9 @@ const UsersModule = (() => {
     mappingAdminId = adminId;
     document.getElementById('map-modal-title').textContent = `Map Subjects — ${u.name}`;
     document.getElementById('mm-err').textContent = '';
+    document.getElementById('mm-subject-input').value = '';
+    document.getElementById('mm-variant').value = '';
+    document.getElementById('mm-already-mapped').textContent = '';
     document.getElementById('mm-edit').checked = true;
     document.getElementById('mm-publish').checked = false;
 
@@ -190,23 +251,41 @@ const UsersModule = (() => {
     existingBlock.innerHTML = '<div class="b-field-hint">Loading current mappings…</div>';
     document.getElementById('map-modal-overlay').classList.add('open');
 
-    const mapRes = await Api.get('/api/users', { resource: 'mappings', adminId });
+    // Pull EVERY mapping (not just this admin's) so we can warn if a
+    // subject is already assigned to a different editor.
+    const [mapRes, allMapRes] = await Promise.all([
+      Api.get('/api/users', { resource: 'mappings', adminId }),
+      Api.get('/api/users', { resource: 'mappings' }),
+    ]);
     const mappings = mapRes.mappings || [];
+    allMappingsCache = allMapRes.mappings || [];
 
-    const select = document.getElementById('mm-subject');
-    select.innerHTML = allSubjects.length
-      ? allSubjects.map(s => `<option value="${s.code}">${esc(s.subject)} (${s.code})${mappings.find(m => m.code === s.code) ? ' — already mapped' : ''}</option>`).join('')
-      : '<option value="">No subjects exist yet — save one from the Question Builder first</option>';
+    const list = document.getElementById('mm-subject-list');
+    list.innerHTML = allSubjects.length
+      ? allSubjects.map(s => `<option value="${esc(s.subject)} (${s.code})">`).join('')
+      : '';
+    if (!allSubjects.length) document.getElementById('mm-already-mapped').textContent = 'No subjects exist yet — save one from the Question Builder first.';
 
     existingBlock.innerHTML = mappings.length
       ? '<div class="b-field-hint" style="margin-bottom:6px">Currently mapped:</div>' +
         mappings.map(m => `
           <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f3f4f6">
             <span class="badge badge-blue">${esc(m.code)}</span>
-            <span style="flex:1;font-size:12.5px">${esc(m.subject)}</span>
+            <span style="flex:1;font-size:12.5px">${esc(m.subject)}${m.variant_title ? ` <span style="color:#9ca3af">— ${esc(m.variant_title)}</span>` : ''}</span>
             <span class="badge ${m.can_edit ? 'badge-green' : 'badge-red'}">${m.can_edit ? 'edit' : 'view'}</span>
             <button class="b-btn b-btn-danger b-btn-sm" onclick="UsersModule.removeMapping(${m.id})">Remove</button>
           </div>`).join('') + '<div class="b-field-hint" style="margin:10px 0 4px">Add another:</div>'
+      : '';
+  }
+
+  function onMapSubjectInput() {
+    const val = document.getElementById('mm-subject-input').value.trim();
+    const hintEl = document.getElementById('mm-already-mapped');
+    const subject = allSubjects.find(s => `${s.subject} (${s.code})` === val);
+    if (!subject) { hintEl.textContent = ''; return; }
+    const others = allMappingsCache.filter(m => m.code === subject.code && String(m.admin_id) !== String(mappingAdminId));
+    hintEl.textContent = others.length
+      ? `Already mapped to: ${others.map(m => m.admin_name || m.admin_email).join(', ')}`
       : '';
   }
 
@@ -219,14 +298,15 @@ const UsersModule = (() => {
   async function submitMapModal() {
     const errEl = document.getElementById('mm-err');
     errEl.textContent = '';
-    const code = document.getElementById('mm-subject').value;
-    if (!code) { errEl.textContent = 'Pick a subject.'; return; }
-    const subject = allSubjects.find(s => s.code === code);
-    if (!subject || !subject.id) { errEl.textContent = 'Could not resolve that subject — try reopening this dialog.'; return; }
+    const val = document.getElementById('mm-subject-input').value.trim();
+    const variantTitle = document.getElementById('mm-variant').value.trim();
+    const subject = allSubjects.find(s => `${s.subject} (${s.code})` === val);
+    if (!subject) { errEl.textContent = 'Pick a subject from the list (start typing to search).'; return; }
+    if (!subject.id) { errEl.textContent = 'Could not resolve that subject — try reopening this dialog.'; return; }
 
     const canEdit = document.getElementById('mm-edit').checked;
     const canPublish = document.getElementById('mm-publish').checked;
-    const res = await Api.post('/api/users', { resource: 'mapping', adminId: mappingAdminId, subjectId: subject.id, canEdit, canPublish });
+    const res = await Api.post('/api/users', { resource: 'mapping', adminId: mappingAdminId, subjectId: subject.id, canEdit, canPublish, variantTitle: variantTitle || null });
     if (res.success) { closeMapModal(); renderAdminView(); }
     else errEl.textContent = res.error || 'Could not save mapping.';
   }
@@ -241,5 +321,5 @@ const UsersModule = (() => {
 
   function esc(s) { return String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
-  return { init, openCreate, openEdit, closeModal, submitModal, remove, setSearch, openMapModal, closeMapModal, submitMapModal, removeMapping };
+  return { init, openCreate, openEdit, closeModal, submitModal, remove, setSearch, openMapModal, closeMapModal, submitMapModal, removeMapping, approveRequest, rejectRequest, onMapSubjectInput };
 })();

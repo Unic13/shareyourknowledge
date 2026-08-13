@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Become a Subject Editor — UNIC Academic</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+<style>
+  .ef-wrap{max-width:560px;margin:0 auto;padding:40px 20px 60px}
+  .ef-card{background:#fff;border-radius:20px;border:1px solid #e5e7eb;box-shadow:0 4px 20px rgba(0,0,0,.06);overflow:hidden}
+  .ef-stripe{height:5px;background:linear-gradient(90deg,#7c3aed,#6366f1)}
+  .ef-body{padding:32px}
+  .ef-icon{width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 4px 14px rgba(124,58,237,.3);font-size:22px}
+  .ef-title{font-size:20px;font-weight:800;color:#111;text-align:center;margin-bottom:6px}
+  .ef-sub{font-size:13px;color:#9ca3af;text-align:center;margin-bottom:24px;line-height:1.6}
+  .ef-success{text-align:center;padding:20px 0}
+  .ef-success .big{font-size:44px;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" style="text-decoration:none;display:flex;align-items:center;gap:12px;color:inherit">
+    <div class="logo">UN</div>
+    <div>
+      <div class="brand">UNIC Academic</div>
+      <div class="sub-brand">Knowledge Sharing</div>
+    </div>
+  </a>
+  <div class="header-right">
+    <a href="index.html" class="btn-logout" style="text-decoration:none">← Home</a>
+  </div>
+</header>
+
+<div class="ef-wrap">
+  <div class="ef-card">
+    <div class="ef-stripe"></div>
+    <div class="ef-body" id="ef-form-body">
+      <div class="ef-icon">✏️</div>
+      <div class="ef-title">Become a Subject Editor</div>
+      <div class="ef-sub">
+        Want to write or maintain a subject on UNIC Academic — a class you teach, a topic you know well?
+        Tell us a bit about yourself and an admin will follow up.
+      </div>
+
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="er-name" placeholder="e.g. Muthu Raj">
+      </div>
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" id="er-email" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label>Phone (optional)</label>
+        <input type="tel" id="er-phone" placeholder="9655168622">
+      </div>
+      <div class="field">
+        <label>Subject(s) you'd like to contribute</label>
+        <input type="text" id="er-subjects" placeholder="e.g. Class 6 Physics, SQL basics">
+      </div>
+      <div class="field">
+        <label>A little about you (optional)</label>
+        <textarea id="er-message" rows="4" placeholder="Teaching experience, background, or anything relevant…" style="width:100%;padding:12px 14px;border-radius:11px;border:1.5px solid #e5e7eb;background:#f9fafb;font-size:13px;font-family:inherit;resize:vertical"></textarea>
+      </div>
+
+      <div class="errmsg" id="er-err"></div>
+      <button class="btn-login" id="er-submit">Submit Request</button>
+    </div>
+  </div>
+</div>
+
+<div class="site-disclaimer">
+  Submitting this form doesn't create an account — an admin reviews requests and sets up editor access. ·
+  <a href="legal.html">Disclaimer &amp; Terms</a>
+</div>
+
+<script>
+document.getElementById('er-submit').addEventListener('click', submitRequest);
+
+async function submitRequest() {
+  const name = document.getElementById('er-name').value.trim();
+  const email = document.getElementById('er-email').value.trim();
+  const phone = document.getElementById('er-phone').value.trim();
+  const subjectsInterested = document.getElementById('er-subjects').value.trim();
+  const message = document.getElementById('er-message').value.trim();
+  const errEl = document.getElementById('er-err');
+  const btn = document.getElementById('er-submit');
+  errEl.textContent = '';
+
+  if (!name) { errEl.textContent = 'Please enter your name.'; return; }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Please enter a valid email.'; return; }
+
+  btn.disabled = true; btn.textContent = 'Submitting…';
+  try {
+    const res = await fetch('/api/editor-requests', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, phone, subjectsInterested, message }),
+    }).then(r => r.json());
+
+    if (res.success) {
+      document.getElementById('ef-form-body').innerHTML = `
+        <div class="ef-success">
+          <div class="big">✅</div>
+          <div class="ef-title">Request sent!</div>
+          <div class="ef-sub">Thanks, ${escapeHtml(name)} — an admin will review your request and reach out at ${escapeHtml(email)}.</div>
+          <a href="index.html" class="btn-login" style="display:inline-block;text-decoration:none;width:auto;padding:12px 24px">← Back to Home</a>
+        </div>`;
+    } else {
+      errEl.textContent = res.error || 'Could not submit — please try again.';
+      btn.disabled = false; btn.textContent = 'Submit Request';
+    }
+  } catch {
+    errEl.textContent = 'Network error — please try again.';
+    btn.disabled = false; btn.textContent = 'Submit Request';
+  }
+}
+function escapeHtml(s) { return String(s ?? '').replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
+</script>
+</body>
+</html>

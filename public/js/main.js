@@ -15,6 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Editors get a read-only "My Profile" version of this tab instead of
   // full team management.
   document.getElementById('sec-tab-users').textContent = Auth.isAdminOrAbove(session) ? '👥 Team & Access' : '👤 My Profile';
+  if (!Auth.isAdminOrAbove(session)) {
+    document.getElementById('guide-link').style.display = 'none';
+    document.getElementById('sec-tab-subjectmap').style.display = 'none';
+  }
 
   loadTopStats();
   switchSection('builder'); // builder is the most common landing spot
@@ -41,7 +45,7 @@ async function loadTopStats() {
 }
 
 function switchSection(name) {
-  ['builder', 'data', 'stats', 'feedback', 'users'].forEach(s => {
+  ['builder', 'data', 'stats', 'feedback', 'subjectmap', 'users'].forEach(s => {
     const tab = document.getElementById('sec-tab-' + s);
     const panel = document.getElementById('section-' + s);
     if (!tab || !panel) return;
@@ -50,4 +54,5 @@ function switchSection(name) {
   });
   if (name === 'stats') StatsModule.init(session);
   if (name === 'feedback') FeedbackModule.init(session);
+  if (name === 'subjectmap') SubjectMapModule.init(session);
 }

@@ -851,7 +851,6 @@ table.sql-result-table tbody tr:nth-child(even){background:#f8fafc}
       <input type="text" id="global-search-input" placeholder="🔍 Search topics…" oninput="onGlobalSearchInput(this.value)" onfocus="onGlobalSearchInput(this.value)">
       <div class="global-search-dropdown" id="global-search-results"></div>
     </div>
-    <nav id="subject-tabs"></nav>
     <select id="lang-select" title="Language">
       <option value="en">EN</option>
       <option value="ta">தமிழ்</option>
@@ -1164,6 +1163,7 @@ async function init() {
 // ══════════════════════════════════════════
 function buildSubjectTabs() {
   const nav = document.getElementById('subject-tabs');
+  if (!nav) return; // subject tabs bar was removed from the header — navigation now happens via home cards / global search / sidebar
   nav.innerHTML = '';
   (state.config.subjects || Object.keys(SUBJECTS)).forEach(code => {
     const s = SUBJECTS[code];
@@ -1747,6 +1747,18 @@ function renderConceptBody(body = []) {
             </ul>
           `;
 
+        case "summary":
+          return `
+            <div class="concept-note" style="border-left-color:#0d9488;background:#f0fdfa">
+              <div style="font-size:11px;font-weight:800;color:#0d9488;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">📌 Summary</div>
+              <ul class="concept-list" style="margin-bottom:0">
+                ${(item.items || [])
+                  .map((i) => `<li>${formatText(i)}</li>`)
+                  .join("")}
+              </ul>
+            </div>
+          `;
+
         case "note":
           return `
             <div class="concept-note">
@@ -2107,6 +2119,9 @@ function renderSingleQuestionCard(q, absoluteIndex, color) {
   if (q.type === 'MSQ') typeHintHTML = '<span class="q-type-hint">Select all correct answers</span>';
   else if (q.type === 'NAT') typeHintHTML = '<span class="q-type-hint">Type a number or a word</span>';
 
+  const mediaHTML = (q.image || q.pdf) ? `<div class="q-media">${renderImageBlock(q.image)}${renderPdfBlock(q.pdf)}</div>` : '';
+  const imageAbove = (q.imagePosition || 'above') === 'above';
+
   return `
     <div class="q-card fade-in">
       <div class="q-card-header" style="background:${hex2rgba(color,.06)}">
@@ -2114,10 +2129,11 @@ function renderSingleQuestionCard(q, absoluteIndex, color) {
         ${typeHintHTML}
         <span class="q-num">Q${absoluteIndex+1}</span>
       </div>
+      ${imageAbove ? mediaHTML : ''}
       <div class="q-body">
         <div class="q-text q-question">${q.question}</div>
       </div>
-      ${(q.image || q.pdf) ? `<div class="q-media">${renderImageBlock(q.image)}${renderPdfBlock(q.pdf)}</div>` : ''}
+      ${imageAbove ? '' : mediaHTML}
       ${bodyHTML}
       ${exHTML}
       ${actionHTML}
@@ -2394,7 +2410,7 @@ function renderChapterFeedbackHTML(chapterId) {
       <div class="feedback-form">
         <div class="feedback-stars">${starsHTML}</div>
         <textarea class="feedback-textarea" id="chapter-feedback-message-${chapterId}" placeholder="Anything confusing, wrong, or worth adding? (optional)"></textarea>
-        <button class="btn btn-primary" style="max-width:200px;color:#222;" onclick="submitChapterFeedback('${chapterId}')">Submit Feedback</button>
+        <button style="max-width:200px" onclick="submitChapterFeedback('${chapterId}')">Submit Feedback</button>
         <div class="feedback-msg" id="chapter-feedback-msg-${chapterId}"></div>
       </div>
     </div>`;
@@ -2420,7 +2436,6 @@ async function submitChapterFeedback(chapterId) {
       subject: state.activeSubject || null,
       rating,
       message: textEl ? textEl.value.trim() : '',
-      chapter: chapterId,
     });
     if (res && res.success) {
       state.chapterFeedbackSubmitted[chapterId] = true;
@@ -2807,7 +2822,13 @@ async function showDashboard() {
     try {
       const res = await ajax(`api/user-stats?userId=${encodeURIComponent(userId)}`);
       if (res && res.success) state.dashboardStats = res.data;
-    } catch { /* leave dashboardStats as-is; UI shows a friendly fallback */ }
+    } catch { /* handled below — falls back to an empty dashboard instead of spinning forever */ }
+    // The fetch above can fail (offline, backend not configured, bad
+    // response) — without this, the spinner in renderDashboardHTML()'s
+    // `if (!state.dashboardStats)` branch would never clear, which looks
+    // exactly like "the Dashboard button doesn't work." Fall back to a
+    // safe empty shape so the page always finishes loading.
+    if (!state.dashboardStats) state.dashboardStats = buildEmptyDashboardStats();
   }
 
   try {
@@ -2816,6 +2837,21 @@ async function showDashboard() {
   } catch { /* fine — feedback stats are optional */ }
 
   renderDashboardHTML();
+}
+
+function buildEmptyDashboardStats() {
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push({ date: d.toISOString().slice(0, 10), attempts: 0, correct: 0, minutesPracticed: 0 });
+  }
+  return {
+    totals: { attempts: 0, correct: 0, wrong: 0, accuracy: 0 },
+    weekTotals: { attempts: 0, minutesPracticed: 0 },
+    bySubject: [],
+    last7Days: days,
+  };
 }
 
 function subjectLabelFor(code) {
@@ -2831,7 +2867,7 @@ function renderDashboardHTML() {
   if (!state.userData) {
     wrap.innerHTML = `
       <div class="fade-in">
-        <div class="home-hero"><h1>📊 Your Dashboard</h1></div>
+        <div class="home-hero"><h1>📊 ${t('yourDashboard')}</h1><p>${t('dashboardSub')}</p></div>
         <div class="dash-guest-note">
           You're browsing as a guest, so there's no saved practice history to show yet.
           <button class="back-link" style="margin:8px 0 0" onclick="document.getElementById('modal-overlay').classList.remove('hidden')">→ Register or log in to start tracking your stats</button>
@@ -2842,7 +2878,7 @@ function renderDashboardHTML() {
   }
 
   if (!state.dashboardStats) {
-    wrap.innerHTML = `<div class="fade-in"><div class="home-hero"><h1>📊 Your Dashboard</h1></div><div id="loader"><div class="spinner"></div></div></div>`;
+    wrap.innerHTML = `<div class="fade-in"><div class="home-hero"><h1>📊 ${t('yourDashboard')}</h1></div><div id="loader"><div class="spinner"></div></div></div>`;
     return;
   }
 
@@ -2902,7 +2938,7 @@ function renderDashboardHTML() {
 
   wrap.innerHTML = `
     <div class="fade-in">
-      <div class="home-hero"><h1>📊 Your Dashboard</h1><p>Hi ${escapeHtml(state.userData.name || 'there')} — here's how your practice is going</p></div>
+      <div class="home-hero"><h1>📊 ${t('yourDashboard')}</h1><p>Hi ${escapeHtml(state.userData.name || 'there')} — here's how your practice is going</p></div>
       ${statCardsHTML}
       <div class="dash-section">
         <div class="dash-section-title">Accuracy by Subject</div>
@@ -2934,7 +2970,7 @@ function renderFeedbackSectionHTML() {
       <div class="feedback-form">
         <div class="feedback-stars">${starsHTML}</div>
         <textarea class="feedback-textarea" id="feedback-message" placeholder="What's working well? What should we improve?"></textarea>
-        <button class="btn btn-primary" style="max-width:200px;color:#222;" onclick="submitFeedback()">Submit Feedback</button>
+        <button style="max-width:200px" onclick="submitFeedback()">Submit Feedback</button>
         <div class="feedback-msg" id="feedback-msg"></div>
       </div>
     </div>`;

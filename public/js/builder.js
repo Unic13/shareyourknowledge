@@ -10,7 +10,7 @@ const QTYPE_COLORS = { MCQ: '#6C3FF5', MSQ: '#0891b2', NAT: '#d97706' };
 const BTYPE_COLORS = {
   heading: '#4f46e5', paragraph: '#6b7280', note: '#7c3aed', formula: '#0891b2',
   list: '#d97706', table: '#059669', syntax: '#dc2626', image: '#db2777',
-  exercise: '#f59e0b', steps: '#6C3FF5', video: '#dc2626', example: '#0ea5e9'
+  exercise: '#f59e0b', steps: '#6C3FF5', video: '#dc2626', example: '#0ea5e9', summary: '#0d9488'
 };
 
 let builder = {
@@ -18,6 +18,7 @@ let builder = {
   subjects: [],
   activeCode: null,
   activeData: null,
+  activeVariantId: null, // for subjects with multiple named variants (e.g. "Class 6 — by Muthu" vs "by Karthi")
   activeUnitId: null,
   activeChapterId: null,
   openQuestionId: null,
@@ -70,6 +71,7 @@ function renderSubjectPills() {
 
 async function loadSubjectIntoBuilder(code) {
   builder.activeCode = code;
+  builder.activeVariantId = null;
   builder.activeUnitId = null;
   builder.activeChapterId = null;
   builder.openBodyIndex = null;
@@ -88,8 +90,108 @@ async function loadSubjectIntoBuilder(code) {
   document.getElementById('btn-save-subject').disabled = !canEdit;
   document.getElementById('builder-lock-note').textContent = canEdit ? '' : '👁 View only — you are not permitted to edit this subject.';
 
+  if (isVariantMode() && builder.activeData.categories.length) {
+    builder.activeVariantId = builder.activeData.categories[0].id;
+  }
+
+  renderVariantPills();
   renderBuilderTree();
   renderBuilderEditor();
+}
+
+// ── Variants — multiple named versions of the same subject, e.g. "Class 6
+// Physics — Prepared by Muthu" vs "...by Karthi". Each variant has its own
+// independent units/chapters, all stored in one subject_content.data blob
+// as { ..., categories: [{id, title, subtitle, icon, units:[...]}, ...] }.
+// This is the same "categories" shape the learner app (view.html) already
+// knows how to browse — no frontend changes needed there.
+function isVariantMode() {
+  return Array.isArray(builder.activeData?.categories);
+}
+function getActiveVariant() {
+  if (!isVariantMode()) return null;
+  return builder.activeData.categories.find(c => c.id === builder.activeVariantId) || null;
+}
+// Returns the object whose `.units` array should be edited right now —
+// either the whole subject (flat/simple mode) or the selected variant
+// (variant mode). Returns null if in variant mode with nothing selected.
+function getUnitsContainer() {
+  if (!builder.activeData) return null;
+  if (isVariantMode()) {
+    const variant = getActiveVariant();
+    if (!variant) return null;
+    variant.units = variant.units || [];
+    return variant;
+  }
+  builder.activeData.units = builder.activeData.units || [];
+  return builder.activeData;
+}
+
+function renderVariantPills() {
+  const wrap = document.getElementById('builder-variant-pills');
+  if (!wrap) return;
+  if (!builder.activeData) { wrap.innerHTML = ''; return; }
+
+  if (!isVariantMode()) {
+    const hasContent = (builder.activeData.units || []).length > 0;
+    wrap.innerHTML = `<div style="padding:10px 16px 4px"><button class="b-btn b-btn-outline b-btn-sm" onclick="enableVariantMode()">+ Add another version of this subject (e.g. by a different teacher/class)</button>${hasContent ? `<div class="b-field-hint" style="margin-top:6px">Doing this moves your current units/chapters into a first named version — nothing is lost.</div>` : ''}</div>`;
+    return;
+  }
+
+  let html = '<div class="subj-pill-row" style="padding:10px 16px 4px">';
+  builder.activeData.categories.forEach(cat => {
+    const active = cat.id === builder.activeVariantId;
+    html += `<button class="subj-pill${active ? ' active' : ''}" style="${active ? `background:${builder.activeData.color};border-color:transparent` : ''}" onclick="selectVariant('${cat.id}')">${escHtml(cat.title)}</button>`;
+  });
+  html += `<button class="b-btn b-btn-outline b-btn-sm" onclick="addVariant()">+ Add Version</button>`;
+  if (getActiveVariant()) {
+    html += `<button class="b-btn b-btn-outline b-btn-sm" onclick="renameVariant()">✎ Rename</button>`;
+    html += `<button class="b-btn b-btn-danger b-btn-sm" onclick="deleteVariant()">🗑 Delete Version</button>`;
+  }
+  html += '</div>';
+  wrap.innerHTML = html;
+}
+
+function enableVariantMode() {
+  if (!builder.activeData) return;
+  const firstName = prompt('Name this first version (e.g. "Class 6 — Prepared by Muthu"):', builder.activeData.subject);
+  if (!firstName || !firstName.trim()) return;
+  const firstCategory = { id: uid('cat'), title: firstName.trim(), subtitle: '', icon: '📘', units: builder.activeData.units || [] };
+  builder.activeData.categories = [firstCategory];
+  delete builder.activeData.units;
+  builder.activeVariantId = firstCategory.id;
+  builder.activeUnitId = null; builder.activeChapterId = null;
+  renderVariantPills(); renderBuilderTree(); renderBuilderEditor(); markDirty();
+  setBuilderStatus('Enabled multiple versions — add another with "+ Add Version".', '');
+}
+function addVariant() {
+  const title = prompt('Name for this version (e.g. "Class 6 — Prepared by Karthi"):');
+  if (!title || !title.trim()) return;
+  const cat = { id: uid('cat'), title: title.trim(), subtitle: '', icon: '📘', units: [] };
+  builder.activeData.categories.push(cat);
+  builder.activeVariantId = cat.id;
+  builder.activeUnitId = null; builder.activeChapterId = null;
+  renderVariantPills(); renderBuilderTree(); renderBuilderEditor(); markDirty();
+}
+function renameVariant() {
+  const cat = getActiveVariant(); if (!cat) return;
+  const title = prompt('Rename this version:', cat.title);
+  if (!title || !title.trim()) return;
+  cat.title = title.trim();
+  renderVariantPills(); markDirty();
+}
+function deleteVariant() {
+  const cat = getActiveVariant(); if (!cat) return;
+  if (!confirm(`Delete "${cat.title}" and everything in it? This can't be undone.`)) return;
+  builder.activeData.categories = builder.activeData.categories.filter(c => c.id !== cat.id);
+  builder.activeVariantId = builder.activeData.categories[0]?.id || null;
+  builder.activeUnitId = null; builder.activeChapterId = null;
+  renderVariantPills(); renderBuilderTree(); renderBuilderEditor(); markDirty();
+}
+function selectVariant(id) {
+  builder.activeVariantId = id;
+  builder.activeUnitId = null; builder.activeChapterId = null; builder.openBodyIndex = null;
+  renderVariantPills(); renderBuilderTree(); renderBuilderEditor();
 }
 
 // ── TREE ──
@@ -97,9 +199,14 @@ function renderBuilderTree() {
   const wrap = document.getElementById('builder-tree');
   const data = builder.activeData;
   if (!data) { wrap.innerHTML = '<div class="editor-empty"><div class="big">📚</div><p style="font-size:12px">Select a subject</p></div>'; return; }
+  if (isVariantMode() && !getActiveVariant()) {
+    wrap.innerHTML = '<div class="editor-empty"><div class="big">🗂️</div><p style="font-size:12px">Select or add a version above</p></div>';
+    return;
+  }
+  const container = getUnitsContainer();
 
   let html = '';
-  (data.units || []).forEach(unit => {
+  (container.units || []).forEach(unit => {
     html += `<div class="b-unit">
       <div class="b-unit-row">
         <span class="b-unit-title" title="${escAttr(unit.title)}">${escHtml(unit.title)}</span>
@@ -123,29 +230,33 @@ function renderBuilderTree() {
 }
 
 function addUnit() {
+  const container = getUnitsContainer(); if (!container) return;
   const title = prompt('Unit title:');
   if (!title || !title.trim()) return;
-  builder.activeData.units = builder.activeData.units || [];
-  builder.activeData.units.push({ id: uid('u'), title: title.trim(), chapters: [] });
+  container.units = container.units || [];
+  container.units.push({ id: uid('u'), title: title.trim(), chapters: [] });
   renderBuilderTree(); markDirty();
 }
 function renameUnit(unitId) {
-  const unit = builder.activeData.units.find(u => u.id === unitId);
+  const container = getUnitsContainer(); if (!container) return;
+  const unit = container.units.find(u => u.id === unitId);
   if (!unit) return;
   const title = prompt('Rename unit:', unit.title);
   if (!title || !title.trim()) return;
   unit.title = title.trim(); renderBuilderTree(); markDirty();
 }
 function deleteUnit(unitId) {
+  const container = getUnitsContainer(); if (!container) return;
   if (!confirm('Delete this unit and all its chapters/questions?')) return;
-  builder.activeData.units = builder.activeData.units.filter(u => u.id !== unitId);
+  container.units = container.units.filter(u => u.id !== unitId);
   if (builder.activeUnitId === unitId) { builder.activeUnitId = null; builder.activeChapterId = null; renderBuilderEditor(); }
   renderBuilderTree(); markDirty();
 }
 function addChapter(unitId) {
+  const container = getUnitsContainer(); if (!container) return;
   const title = prompt('Chapter title:');
   if (!title || !title.trim()) return;
-  const unit = builder.activeData.units.find(u => u.id === unitId);
+  const unit = container.units.find(u => u.id === unitId);
   if (!unit) return;
   const chapter = {
     id: uid('c'), title: title.trim(),
@@ -160,8 +271,9 @@ function addChapter(unitId) {
   markDirty();
 }
 function deleteChapter(unitId, chapterId) {
+  const container = getUnitsContainer(); if (!container) return;
   if (!confirm('Delete this chapter and all its questions?')) return;
-  const unit = builder.activeData.units.find(u => u.id === unitId);
+  const unit = container.units.find(u => u.id === unitId);
   if (!unit) return;
   unit.chapters = unit.chapters.filter(c => c.id !== chapterId);
   if (builder.activeChapterId === chapterId) { builder.activeChapterId = null; renderBuilderEditor(); }
@@ -173,7 +285,8 @@ function selectChapterInBuilder(unitId, chapterId) {
   renderBuilderTree(); renderBuilderEditor();
 }
 function getActiveChapterObj() {
-  const unit = builder.activeData?.units?.find(u => u.id === builder.activeUnitId);
+  const container = getUnitsContainer();
+  const unit = container?.units?.find(u => u.id === builder.activeUnitId);
   return unit?.chapters?.find(c => c.id === builder.activeChapterId) || null;
 }
 
@@ -219,7 +332,7 @@ function renderBuilderEditor() {
         <label>Content Blocks</label>
         <div id="ed-body-list"></div>
         <div class="badge-type-row" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">
-          ${['heading','paragraph','list','table','note','formula','syntax','image','video','steps','exercise','example'].map(t => `<button class="b-btn b-btn-outline b-btn-sm" onclick="addBodyItem('${t}')">+ ${t}</button>`).join('')}
+          ${['heading','paragraph','list','summary','table','note','formula','syntax','image','video','steps','exercise','example'].map(t => `<button class="b-btn b-btn-outline b-btn-sm" onclick="addBodyItem('${t}')">+ ${t}</button>`).join('')}
         </div>
       </div>
     </div>
@@ -301,7 +414,7 @@ function removePlaygroundQuery(i) {
 
 // ── Content blocks (condensed but functionally complete) ──
 function bodyItemSummary(item) {
-  if (item.type === 'list') return (item.items || []).filter(Boolean).join(', ') || '(empty list)';
+  if (item.type === 'list' || item.type === 'summary') return (item.items || []).filter(Boolean).join(', ') || `(empty ${item.type})`;
   if (item.type === 'table') return (item.headers || []).join(' | ') || '(empty table)';
   if (item.type === 'syntax') return item.code || '(empty code)';
   if (item.type === 'image') return item.title || item.image || item.pdf || '(empty image/pdf)';
@@ -315,6 +428,7 @@ function addBodyItem(type) {
   chapter.concept.body = chapter.concept.body || [];
   let item;
   if (type === 'list') item = { type: 'list', items: [''] };
+  else if (type === 'summary') item = { type: 'summary', items: [''] };
   else if (type === 'table') item = { type: 'table', headers: ['Column 1', 'Column 2'], rows: [['', '']] };
   else if (type === 'syntax') item = { type: 'syntax', language: 'text', code: '' };
   else if (type === 'image') item = { type: 'image', title: '', image: '', pdf: '' };
@@ -372,9 +486,9 @@ function renderBodyItemEditor(item, i, container) {
     container.innerHTML = `<div class="b-field"><label>Text</label><textarea rows="${item.type === 'heading' ? 1 : 3}" oninput="updateBodyText(${i}, this.value)">${escHtml(item.text || '')}</textarea></div>`;
     return;
   }
-  if (item.type === 'list') {
+  if (item.type === 'list' || item.type === 'summary') {
     let rows = (item.items || []).map((li, li_i) => `<div class="b-list-item"><input type="text" value="${escAttr(li)}" oninput="updateListItemText(${i},${li_i},this.value)" onpaste="handleListItemPaste(${i},${li_i},event)"><button class="b-icon-btn danger" onclick="removeListItemAt(${i},${li_i})">✕</button></div>`).join('');
-    container.innerHTML = `<div class="b-field"><label>List Items</label>${rows}<button class="b-btn b-btn-outline b-btn-sm" onclick="addListItemAt(${i})">+ Add Item</button><div class="b-field-hint">Tip: paste multiple lines into any item box to add them all as separate items at once.</div></div>`;
+    container.innerHTML = `<div class="b-field"><label>${item.type === 'summary' ? 'Summary Points' : 'List Items'}</label>${rows}<button class="b-btn b-btn-outline b-btn-sm" onclick="addListItemAt(${i})">+ Add Item</button><div class="b-field-hint">Tip: paste multiple lines into any item box to add them all as separate items at once.</div></div>`;
     return;
   }
   if (item.type === 'table') { container.innerHTML = tableEditorHtml(item, i); return; }
@@ -613,8 +727,12 @@ function renderQuestionEditor(q, container) {
       <input type="text" id="qimg-url-${q.id}" value="${escAttr(q.image || '')}" oninput="updateQuestionField('${q.id}','image',this.value)" placeholder="/data/imagepdf/qimg1.jpeg or paste a URL">
       <div class="b-upload-row">
         <input type="file" accept="image/*" onchange="handleQuestionImageUpload('${q.id}',this)">
-        ${q.image ? `<img src="${escAttr(q.image)}" class="b-thumb" style="max-width:160px;max-height:110px;border-radius:8px;border:1px solid #e5e7eb;object-fit:cover" onerror="this.style.display='none'">` : ''}
+        ${q.image ? `<img src="${escAttr(q.image)}" class="b-thumb" style="max-width:160px;max-height:110px;border-radius:8px;border:1px solid #e5e7eb;object-fit:cover" onerror="this.style.display='none'"><button class="b-icon-btn danger b-btn-sm" onclick="clearQuestionImage('${q.id}')">Remove image</button>` : ''}
       </div>
+      ${q.image ? `<div class="b-field" style="margin-top:8px"><label>Image position</label><select onchange="updateQuestionField('${q.id}','imagePosition',this.value)">
+        <option value="above" ${(q.imagePosition || 'above') === 'above' ? 'selected' : ''}>Above the question text</option>
+        <option value="below" ${q.imagePosition === 'below' ? 'selected' : ''}>Below the question text</option>
+      </select></div>` : ''}
     </div>
     ${q.type !== 'NAT' ? `<div class="b-field"><label>Options ${q.type === 'MCQ' ? '(select the one correct radio)' : '(check all correct boxes)'}</label>${optsHtml}<button class="b-btn b-btn-outline b-btn-sm" onclick="addOption('${q.id}')">+ Add Option</button></div>` : natHtml}
     <div class="b-field"><label>Explanation</label><textarea rows="2" oninput="updateQuestionField('${q.id}','explanation',this.value)">${escHtml(q.explanation)}</textarea></div>`;
@@ -656,6 +774,12 @@ async function handleQuestionImageUpload(qid, inputEl) {
     renderQuestionEditor(q, document.getElementById(`qbody-${qid}`));
     markDirty();
   } catch { alert('Could not read that image file.'); }
+}
+function clearQuestionImage(qid) {
+  const q = findQuestion(qid); if (!q) return;
+  q.image = '';
+  renderQuestionEditor(q, document.getElementById(`qbody-${qid}`));
+  markDirty();
 }
 async function handleOptionImageUpload(qid, idx, inputEl) {
   const file = inputEl.files[0]; if (!file) return;
@@ -708,37 +832,65 @@ function downloadSubjectJson() {
 window.addEventListener('beforeunload', (e) => { if (builder.dirty) { e.preventDefault(); e.returnValue = ''; } });
 
 // ── New Subject modal ──
+let ns_codeEdited = false;
 function openNewSubjectPrompt() {
   document.getElementById('ns-name').value = '';
+  document.getElementById('ns-subtopic').value = '';
   document.getElementById('ns-code').value = '';
   document.getElementById('ns-color').value = '#9333EA';
   document.getElementById('ns-err').textContent = '';
+  ns_codeEdited = false;
   document.getElementById('subject-modal-overlay').classList.add('open');
 }
 function closeNewSubjectModal() {
   document.getElementById('subject-modal-overlay').classList.remove('open');
 }
+// Suggests "PH0001"-style codes: first 2 letters of the name (uppercase),
+// then the next free 4-digit number among subjects sharing that prefix.
+function suggestSubjectCode(name) {
+  const letters = (name || '').replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 2) || 'SB';
+  let n = 1, code;
+  const existing = new Set(builder.subjects.map(s => s.code));
+  do {
+    code = letters + String(n).padStart(4, '0');
+    n++;
+  } while (existing.has(code));
+  return code;
+}
+function onNewSubjectNameInput() {
+  if (ns_codeEdited) return; // don't clobber a code the admin already typed themselves
+  document.getElementById('ns-code').value = suggestSubjectCode(document.getElementById('ns-name').value);
+}
 function submitNewSubject() {
   const name = document.getElementById('ns-name').value.trim();
+  const subtopic = document.getElementById('ns-subtopic').value.trim();
   let code = document.getElementById('ns-code').value.trim().toUpperCase();
   const color = document.getElementById('ns-color').value || '#9333EA';
   const errEl = document.getElementById('ns-err');
   errEl.textContent = '';
 
   if (!name) { errEl.textContent = 'Subject name is required.'; return; }
-  if (!code) code = name.slice(0, 3).toUpperCase();
+  if (!code) code = suggestSubjectCode(name);
   if (builder.subjects.find(s => s.code === code)) { errEl.textContent = `A subject with code "${code}" already exists.`; return; }
 
   const newSubject = { code, subject: name, color };
   builder.subjects.push(newSubject);
   builder.activeCode = code;
-  builder.activeData = { subject: name, code, color, units: [] };
+  if (subtopic) {
+    const firstCategory = { id: uid('cat'), title: subtopic, subtitle: '', icon: '📘', units: [] };
+    builder.activeData = { subject: name, code, color, categories: [firstCategory] };
+    builder.activeVariantId = firstCategory.id;
+  } else {
+    builder.activeData = { subject: name, code, color, units: [] };
+    builder.activeVariantId = null;
+  }
   builder.activeUnitId = null; builder.activeChapterId = null; builder.openBodyIndex = null;
 
   renderSubjectPills();
   document.getElementById('builder-tree-subject-label').textContent = `${name} — Units & Chapters`;
   document.getElementById('btn-save-subject').disabled = false;
   document.getElementById('builder-lock-note').textContent = '';
+  renderVariantPills();
   renderBuilderTree();
   renderBuilderEditor();
   markDirty();
@@ -756,6 +908,7 @@ function pvBodyItemHtml(item) {
     case 'formula': return `<div style="background:#1e1e2e;color:#cdd6f4;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;text-align:center">${esc(item.text || '')}</div>`;
     case 'syntax': return `<div style="background:#1e1e2e;color:#a6e3a1;font-family:monospace;padding:12px 14px;border-radius:8px;font-size:12px;white-space:pre-wrap;margin-bottom:12px">${esc(item.code || '')}</div>`;
     case 'list': return `<ul style="margin:0 0 12px 20px;font-size:13px;color:#374151;line-height:1.8">${(item.items || []).map(li => `<li>${esc(li)}</li>`).join('')}</ul>`;
+    case 'summary': return `<div style="background:#f0fdfa;border:1.5px solid #99f6e4;border-radius:10px;padding:12px 16px;margin-bottom:12px"><div style="font-size:11px;font-weight:800;color:#0d9488;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">📌 Summary</div><ul style="margin:0 0 0 18px;font-size:13px;color:#374151;line-height:1.8">${(item.items || []).map(li => `<li>${esc(li)}</li>`).join('')}</ul></div>`;
     case 'table': {
       const headers = item.headers || [], rows = item.rows || [];
       let h = `<div style="overflow-x:auto;margin-bottom:12px"><table style="width:100%;border-collapse:collapse;font-size:12.5px"><tr>${headers.map(x => `<th style="border:1px solid #e5e7eb;padding:6px 10px;background:#f9fafb">${esc(x)}</th>`).join('')}</tr>`;
@@ -802,7 +955,9 @@ function renderChapterPreviewHtml(chapter) {
   if (questions.length) {
     html += `<div style="font-size:15px;font-weight:800;margin:18px 0 8px">Practice Questions (${questions.length})</div>`;
     questions.forEach((q, qi) => {
-      html += `<div style="border:1px solid #e5e7eb;border-radius:10px;padding:12px 14px;margin-bottom:10px"><div style="font-size:11px;color:#9ca3af;margin-bottom:6px">Q${qi + 1} · ${q.type}</div>${q.image ? `<img src="${escAttr(q.image)}" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid #e5e7eb;display:block;margin-bottom:8px;object-fit:contain" onerror="this.style.display='none'">` : ''}<div style="font-size:13.5px;margin-bottom:8px">${escHtml(q.question || '(empty)')}</div>`;
+      const qImgHtml = q.image ? `<img src="${escAttr(q.image)}" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid #e5e7eb;display:block;margin:8px 0;object-fit:contain" onerror="this.style.display='none'">` : '';
+      const qImgAbove = (q.imagePosition || 'above') === 'above';
+      html += `<div style="border:1px solid #e5e7eb;border-radius:10px;padding:12px 14px;margin-bottom:10px"><div style="font-size:11px;color:#9ca3af;margin-bottom:6px">Q${qi + 1} · ${q.type}</div>${qImgAbove ? qImgHtml : ''}<div style="font-size:13.5px;margin-bottom:8px">${escHtml(q.question || '(empty)')}</div>${qImgAbove ? '' : qImgHtml}`;
       if (q.type === 'NAT') {
         html += `<div style="font-size:12.5px;color:#16a34a">Answer: ${q.answer ?? 0}${q.tolerance ? ` (± ${q.tolerance})` : ''}</div>`;
       } else {
@@ -1012,13 +1167,16 @@ function createSubjectFromImport(meta, units) {
   document.getElementById('builder-tree-subject-label').textContent = `${meta.subject} — Units & Chapters`;
   document.getElementById('btn-save-subject').disabled = false;
   document.getElementById('builder-lock-note').textContent = '';
+  renderVariantPills();
   appendUnitsToActiveSubject(units);
 }
 
 function appendUnitsToActiveSubject(rawUnits) {
   const normalized = normalizeImportedUnits(rawUnits);
-  builder.activeData.units = builder.activeData.units || [];
-  builder.activeData.units.push(...normalized);
+  const container = getUnitsContainer();
+  if (!container) { alert('Select or add a version first (this subject has multiple versions).'); return; }
+  container.units = container.units || [];
+  container.units.push(...normalized);
   renderBuilderTree();
   renderBuilderEditor();
   markDirty();

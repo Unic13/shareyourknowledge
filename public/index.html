@@ -39,10 +39,33 @@
   .process-step-num{flex-shrink:0;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;z-index:1}
   .process-step-title{font-size:13.5px;font-weight:700;color:#111;margin-bottom:3px}
   .process-step-desc{font-size:12px;color:#6b7280;line-height:1.55}
-  footer{text-align:center;padding:18px;font-size:11.5px;color:#9ca3af;border-top:1px solid #f3f4f6}
+  footer{padding:0;font-size:11.5px;color:#9ca3af;border-top:1px solid #f3f4f6;background:#fafafb}
+  .site-footer{max-width:1000px;margin:0 auto;padding:36px 20px 20px;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:28px}
+  @media(max-width:640px){.site-footer{grid-template-columns:1fr;gap:22px}}
+  .footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .footer-logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:10px;flex-shrink:0}
+  .footer-brand-name{font-weight:800;font-size:13.5px;color:#111}
+  .footer-tagline{font-size:12px;color:#9ca3af;line-height:1.6}
+  .footer-col-title{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin-bottom:10px}
+  .footer-col a{display:block;font-size:12.5px;color:#6b7280;text-decoration:none;padding:4px 0}
+  .footer-col a:hover{color:#7c3aed}
+  .footer-bottom{max-width:1000px;margin:0 auto;padding:14px 20px 18px;border-top:1px solid #f3f4f6;text-align:center;font-size:11px;color:#9ca3af}
 </style>
 </head>
 <body>
+
+<header>
+  <div class="logo">UN</div>
+  <div>
+    <div class="brand">UNIC Academic</div>
+    <div class="sub-brand">Knowledge Sharing</div>
+  </div>
+  <div class="header-right">
+    <a href="view.html" class="btn-logout" style="text-decoration:none">📖 Browse</a>
+    <a href="career.html" class="btn-logout" style="text-decoration:none">🎓 Careers</a>
+    <a href="login.html" class="btn-logout" style="text-decoration:none">Admin Login →</a>
+  </div>
+</header>
 
 <div class="hero">
   <div class="hero-logo">UN</div>
@@ -68,6 +91,12 @@
       <div class="hero-card-title">Create &amp; Manage</div>
       <div class="hero-card-desc">Sign in as an editor or admin to build chapters, questions, and manage subjects.</div>
       <div class="hero-card-cta">Admin login →</div>
+    </a>
+    <a class="hero-card" href="become-editor.html">
+      <div class="hero-card-icon">🙋</div>
+      <div class="hero-card-title">Become an Editor</div>
+      <div class="hero-card-desc">Know a subject well or teach a class? Request editor access and contribute your own content.</div>
+      <div class="hero-card-cta">Request access →</div>
     </a>
   </div>
 
@@ -127,12 +156,29 @@
   </div>
 </div>
 
-<footer>UNIC Academic — built for learners and contributors alike.</footer>
-
-<div class="site-disclaimer">
-  Some content on this site may be AI-assisted and can sometimes be inaccurate. ·
-  <a href="legal.html">Disclaimer &amp; Terms</a>
-</div>
+<footer>
+  <div class="site-footer">
+    <div>
+      <div class="footer-brand">
+        <div class="footer-logo">UN</div>
+        <div class="footer-brand-name">UNIC Academic</div>
+      </div>
+      <div class="footer-tagline">Knowledge Sharing — Learn • Create • Share.<br>Built for learners and contributors alike.</div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Learn</div>
+      <a href="view.html">Browse Subjects</a>
+      <a href="career.html">Careers &amp; Exams</a>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col-title">Contribute &amp; Manage</div>
+      <a href="become-editor.html">Become an Editor</a>
+      <a href="login.html">Admin Login</a>
+      <a href="legal.html">Disclaimer &amp; Terms</a>
+    </div>
+  </div>
+  <div class="footer-bottom">© UNIC Academic — some content may be AI-assisted and can sometimes be inaccurate.</div>
+</footer>
 
 <script>
   // A light, public-only touch of life on the landing page — just the
