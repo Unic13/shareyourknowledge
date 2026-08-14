@@ -133,8 +133,7 @@ function renderVariantPills() {
   if (!builder.activeData) { wrap.innerHTML = ''; return; }
 
   if (!isVariantMode()) {
-    const hasContent = (builder.activeData.units || []).length > 0;
-    wrap.innerHTML = `<div style="padding:10px 16px 4px"><button class="b-btn b-btn-outline b-btn-sm" onclick="enableVariantMode()">+ Add another version of this subject (e.g. by a different teacher/class)</button>${hasContent ? `<div class="b-field-hint" style="margin-top:6px">Doing this moves your current units/chapters into a first named version — nothing is lost.</div>` : ''}</div>`;
+    wrap.innerHTML = '<div class="b-field-hint" style="padding:10px 16px 4px">To add another version of this subject (e.g. by a different teacher/class), use "+ New Subject" and type this same subject name — you\'ll be prompted to name your version instead of starting over.</div>';
     return;
   }
 
@@ -152,11 +151,14 @@ function renderVariantPills() {
   wrap.innerHTML = html;
 }
 
-function enableVariantMode() {
-  if (!builder.activeData) return;
-  const firstName = prompt('Name this first version (e.g. "Class 6 — Prepared by Muthu"):', builder.activeData.subject);
-  if (!firstName || !firstName.trim()) return;
-  const firstCategory = { id: uid('cat'), title: firstName.trim(), subtitle: '', icon: '📘', units: builder.activeData.units || [] };
+// Converts a flat (single-version) subject into variant mode, moving its
+// existing units into a first named version — called automatically when
+// someone's new-subject submission collides with an existing subject name
+// (see submitNewSubject / addVariantToExistingSubject below), not via a
+// standalone button anymore.
+function convertToVariantMode(firstVersionTitle) {
+  if (!builder.activeData || isVariantMode()) return;
+  const firstCategory = { id: uid('cat'), title: firstVersionTitle, subtitle: '', icon: '📘', units: builder.activeData.units || [] };
   builder.activeData.categories = [firstCategory];
   delete builder.activeData.units;
   builder.activeVariantId = firstCategory.id;
@@ -833,13 +835,21 @@ window.addEventListener('beforeunload', (e) => { if (builder.dirty) { e.preventD
 
 // ── New Subject modal ──
 let ns_codeEdited = false;
+let ns_existingMatch = null;  // set when the typed name matches an existing subject
+let ns_nameDebounce = null;
+
 function openNewSubjectPrompt() {
   document.getElementById('ns-name').value = '';
   document.getElementById('ns-subtopic').value = '';
   document.getElementById('ns-code').value = '';
+  document.getElementById('ns-code').disabled = false;
   document.getElementById('ns-color').value = '#9333EA';
   document.getElementById('ns-err').textContent = '';
+  document.getElementById('ns-existing-info').innerHTML = '';
+  document.getElementById('ns-subtopic-required-mark').style.display = 'none';
+  document.getElementById('ns-subtopic-hint').textContent = 'Fill this in if this subject will have multiple versions (different teachers/classes). Leave blank for a simple single-version subject.';
   ns_codeEdited = false;
+  ns_existingMatch = null;
   document.getElementById('subject-modal-overlay').classList.add('open');
 }
 function closeNewSubjectModal() {
@@ -857,19 +867,88 @@ function suggestSubjectCode(name) {
   } while (existing.has(code));
   return code;
 }
+
+// Typing a subject name that matches one that already exists switches this
+// modal from "create a new subject" into "add another version of that
+// subject" — this replaces the old standalone "+ Add another version"
+// button. Multiple people contributing their own take on the same subject
+// (e.g. several teachers each writing "Physics") now just goes through
+// here by typing the same name.
 function onNewSubjectNameInput() {
-  if (ns_codeEdited) return; // don't clobber a code the admin already typed themselves
-  document.getElementById('ns-code').value = suggestSubjectCode(document.getElementById('ns-name').value);
+  const name = document.getElementById('ns-name').value.trim();
+  clearTimeout(ns_nameDebounce);
+  ns_nameDebounce = setTimeout(() => checkExistingSubjectByName(name), 200);
 }
+
+async function checkExistingSubjectByName(name) {
+  const infoEl = document.getElementById('ns-existing-info');
+  const codeField = document.getElementById('ns-code');
+  const requiredMark = document.getElementById('ns-subtopic-required-mark');
+  const hintEl = document.getElementById('ns-subtopic-hint');
+
+  const match = name ? builder.subjects.find(s => s.subject.trim().toLowerCase() === name.trim().toLowerCase()) : null;
+
+  if (!match) {
+    ns_existingMatch = null;
+    infoEl.innerHTML = '';
+    codeField.disabled = false;
+    requiredMark.style.display = 'none';
+    hintEl.textContent = 'Fill this in if this subject will have multiple versions (different teachers/classes). Leave blank for a simple single-version subject.';
+    if (!ns_codeEdited) codeField.value = suggestSubjectCode(name);
+    return;
+  }
+
+  ns_existingMatch = match;
+  codeField.value = match.code;
+  codeField.disabled = true;
+  requiredMark.style.display = 'inline';
+  hintEl.textContent = `"${match.subject}" already exists — name your version below (e.g. who prepared it) so it's added alongside the others, not overwriting them.`;
+  infoEl.innerHTML = `<div class="b-field-hint">Checking existing versions…</div>`;
+
+  let variants = [];
+  try {
+    const contentRes = await Api.get('/api/content', { code: match.code });
+    const data = contentRes.data || {};
+    variants = Array.isArray(data.categories) && data.categories.length
+      ? data.categories.map(c => c.title)
+      : (data.units && data.units.length ? ['(default version)'] : []);
+  } catch { /* fine — show what we can below */ }
+
+  let mappedByVariant = {};
+  try {
+    const mapRes = await Api.get('/api/users', { resource: 'mappings' });
+    (mapRes.mappings || []).filter(m => m.code === match.code).forEach(m => {
+      const key = m.variant_title || '(default version)';
+      (mappedByVariant[key] = mappedByVariant[key] || []).push(m.admin_name);
+    });
+  } catch { /* editors can't list all mappings — that's fine, just skip names */ }
+
+  // Only checked again after the fetches above, in case the person kept typing.
+  if (document.getElementById('ns-name').value.trim().toLowerCase() !== name.trim().toLowerCase()) return;
+
+  infoEl.innerHTML = `<div class="b-note">
+    <strong>${escHtml(match.subject)}</strong> (${match.code}) already has ${variants.length || 0} version(s):
+    ${variants.length ? `<ul>${variants.map(v => `<li>${escHtml(v)}${mappedByVariant[v] ? ' — mapped to ' + mappedByVariant[v].map(escHtml).join(', ') : ''}</li>`).join('')}</ul>` : ''}
+  </div>`;
+}
+
 function submitNewSubject() {
   const name = document.getElementById('ns-name').value.trim();
   const subtopic = document.getElementById('ns-subtopic').value.trim();
-  let code = document.getElementById('ns-code').value.trim().toUpperCase();
   const color = document.getElementById('ns-color').value || '#9333EA';
   const errEl = document.getElementById('ns-err');
   errEl.textContent = '';
 
   if (!name) { errEl.textContent = 'Subject name is required.'; return; }
+
+  if (ns_existingMatch) {
+    if (!subtopic) { errEl.textContent = `"${name}" already exists — please name your version so it doesn't overwrite existing content.`; return; }
+    closeNewSubjectModal();
+    addVariantToExistingSubject(ns_existingMatch.code, subtopic);
+    return;
+  }
+
+  let code = document.getElementById('ns-code').value.trim().toUpperCase();
   if (!code) code = suggestSubjectCode(name);
   if (builder.subjects.find(s => s.code === code)) { errEl.textContent = `A subject with code "${code}" already exists.`; return; }
 
@@ -896,6 +975,24 @@ function submitNewSubject() {
   markDirty();
   setBuilderStatus('New subject created — add a unit to get started, then Save.', '');
   closeNewSubjectModal();
+}
+
+// Loads the existing subject (same code, so it lands right in the picker),
+// converts it to variant mode if it wasn't already, and adds the new
+// sub-topic as a fresh version — this is how "same subject, multiple
+// people contributing" actually works now.
+async function addVariantToExistingSubject(code, subtopicTitle) {
+  setBuilderStatus(`Loading "${code}"…`, '');
+  await loadSubjectIntoBuilder(code);
+  if (!isVariantMode()) {
+    convertToVariantMode(builder.activeData.subject + ' (original)');
+  }
+  const cat = { id: uid('cat'), title: subtopicTitle, subtitle: '', icon: '📘', units: [] };
+  builder.activeData.categories.push(cat);
+  builder.activeVariantId = cat.id;
+  builder.activeUnitId = null; builder.activeChapterId = null;
+  renderVariantPills(); renderBuilderTree(); renderBuilderEditor(); markDirty();
+  setBuilderStatus(`Added "${subtopicTitle}" as a new version of ${builder.activeData.subject} — add units, then Save.`, 'success');
 }
 
 // ── Live Preview / Raw JSON modal ──
