@@ -57,7 +57,7 @@ const GET_ALL_MAPPINGS_RAW = `
 const GET_ALL_MAPPINGS_FLAT = `
   query GetAllMappingsFlat {
     admin_subjects { id admin_id subject_id can_edit can_publish variant_title assigned_at }
-    subject_content { id code subject color }
+    subject_content { id code subject subject_title color }
     admin_users { id name email }
   }
 `;
@@ -117,7 +117,7 @@ async function getEditorScope(adminId) {
     color: byId[m.subject_id]?.color,
     can_edit: m.can_edit,
     can_publish: m.can_publish,
-    variant_title: m.variant_title,
+    variant_title: m.subject_title,
   }));
 }
 
@@ -186,7 +186,7 @@ module.exports = async (req, res) => {
           color: subjectsById[m.subject_id]?.color,
           can_edit: m.can_edit,
           can_publish: m.can_publish,
-          variant_title: m.variant_title,
+          variant_title: m.subject_title,
         }));
         if (adminId) mappings = mappings.filter((m) => String(m.admin_id) === String(adminId));
         return res.status(200).json({ mappings });
