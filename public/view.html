@@ -1124,7 +1124,7 @@ async function init() {
   let subjects = [];
   try {
     const res = await fetch('api/content').then(r => r.json());
-    console.log(res);
+    //console.log(res);
     subjects = res.subjects || [];
   } catch { /* offline / backend not configured — falls through to an empty subject list below */ }
 
