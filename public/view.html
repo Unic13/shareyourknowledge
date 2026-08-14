@@ -901,17 +901,13 @@ table.sql-result-table tbody tr:nth-child(even){background:#f8fafc}
 //  UNIC ACADEMIC — Core App
 // ══════════════════════════════════════════
 
-const SUBJECTS = {
-  PH:  { label:'Physics',     emoji:'⚡', color:'#6C3FF5', file:'data/physics.json' },
-  CH:  { label:'Chemistry',   emoji:'🧪', color:'#E53E3E', file:'data/chemistry.json' },
-  MA:  { label:'Mathematics', emoji:'∑',  color:'#2563EB', file:'data/mathematics.json' },
-  BIO: { label:'Biology',     emoji:'🧬', color:'#16a34a', file:'data/biology.json' },
-  SQL: { label:'SQL',         emoji:'⛁', color:'#0F9D8C', file:'data/sql.json' },
-  EXCEL: { label:'EXCEL',     emoji:'𝄜', color:'#217346', file:'data/excel.json' },
-  PY:  { label:'Python',      emoji:'🐍', color:'#3776AB', file:'data/python.json' },
-  R:  { label:'R Program',    emoji:'R', color:'#1F65B7', file:'data/rprog.json' },
-  MAP:  { label:'Math Aptitude',    emoji:'📐', color:'#B7791F', file:'data/mathapti.json' },
-};
+// SUBJECTS is now built dynamically from the live database in init() below
+// — no more static config.json / hardcoded file list. Each entry ends up
+// shaped { label, color, emoji } (emoji is a cosmetic guess based on the
+// code, since the database doesn't store one).
+let SUBJECTS = {};
+const EMOJI_FALLBACKS = { PH: '⚡', CH: '🧪', MA: '∑', BIO: '🧬', SQL: '⛁', EXCEL: '𝄜', PY: '🐍', R: 'R', MAP: '📐' };
+function emojiForSubject(code) { return EMOJI_FALLBACKS[code] || '📘'; }
 const subjectRootCache = {};
 
 const LABELS = ['A','B','C','D','E'];
@@ -1121,11 +1117,27 @@ function renderLatex(el) {
 //  INIT
 // ══════════════════════════════════════════
 async function init() {
+  // Subjects are now pulled live from /api/content (the same public,
+  // unauthenticated endpoint the admin builder writes to) instead of a
+  // static data/config.json file — new subjects created in the admin
+  // panel show up here automatically, nothing to hand-edit.
+  let subjects = [];
   try {
-    state.config = await ajax('data/config.json');
-  } catch {
-    state.config = { academyName:'UNIC Academic', logoText:'UN', subjects:['PH','CH','MA','BIO','SQL','EXCEL','PY', 'R'], howDidYouFindUs:['Google','Friend','YouTube','Other'] };
-  }
+    const res = await fetch('api/content').then(r => r.json());
+    subjects = res.subjects || [];
+  } catch { /* offline / backend not configured — falls through to an empty subject list below */ }
+
+  SUBJECTS = {};
+  subjects.forEach(s => {
+    SUBJECTS[s.code] = { label: s.subject, color: s.color || '#6C3FF5', emoji: emojiForSubject(s.code) };
+  });
+
+  state.config = {
+    academyName: 'UNIC Academic',
+    logoText: 'UN',
+    subjects: Object.keys(SUBJECTS),
+    howDidYouFindUs: ['Google', 'Friend', 'YouTube', 'Teacher', 'Other'],
+  };
 
   document.title = state.config.academyName + ' — Practice Portal';
   document.querySelectorAll('#logo-box, .modal-logo').forEach(el => el.textContent = state.config.logoText || 'UN');
@@ -1136,8 +1148,6 @@ async function init() {
   (state.config.howDidYouFindUs || []).forEach(opt => {
     const o = document.createElement('option'); o.value = opt; o.textContent = opt; src.appendChild(o);
   });
-
-  buildSubjectTabs();
 
   state.lang = localStorage.getItem('unic_lang') || 'en';
   document.getElementById('lang-select').value = state.lang;
@@ -1279,8 +1289,9 @@ async function fetchJSON(remoteQuery, staticFile) {
       if (remote && remote.data && (remote.data.units || remote.data.categories)) {
         return remote.data;
       }
-    } catch { /* fall through to static file */ }
+    } catch { /* fall through to static file, if any */ }
   }
+  if (!staticFile) throw new Error('No content available for this subject');
   return ajax(staticFile);
 }
 
@@ -1290,7 +1301,7 @@ async function loadSubjectRoot(code) {
   let loaded = subjectRootCache[code];
   if (!loaded) {
     try {
-      loaded = await fetchJSON(`api/content?code=${code}`, SUBJECTS[code].file);
+      loaded = await fetchJSON(`api/content?code=${code}`, SUBJECTS[code]?.file);
     } catch {
       document.getElementById('question-wrap').innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div><p>Failed to load subject data</p></div>';
       return;
@@ -2868,7 +2879,7 @@ function renderDashboardHTML() {
   if (!state.userData) {
     wrap.innerHTML = `
       <div class="fade-in">
-        <div class="home-hero"><h1>📊 Your Dashboard</h1></div>
+        <div class="home-hero"><h1>📊 ${t('yourDashboard')}</h1><p>${t('dashboardSub')}</p></div>
         <div class="dash-guest-note">
           You're browsing as a guest, so there's no saved practice history to show yet.
           <button class="back-link" style="margin:8px 0 0" onclick="document.getElementById('modal-overlay').classList.remove('hidden')">→ Register or log in to start tracking your stats</button>
@@ -2879,7 +2890,7 @@ function renderDashboardHTML() {
   }
 
   if (!state.dashboardStats) {
-    wrap.innerHTML = `<div class="fade-in"><div class="home-hero"><h1>📊 Your Dashboard</h1></div><div id="loader"><div class="spinner"></div></div></div>`;
+    wrap.innerHTML = `<div class="fade-in"><div class="home-hero"><h1>📊 ${t('yourDashboard')}</h1></div><div id="loader"><div class="spinner"></div></div></div>`;
     return;
   }
 
@@ -2939,7 +2950,7 @@ function renderDashboardHTML() {
 
   wrap.innerHTML = `
     <div class="fade-in">
-      <div class="home-hero"><h1>📊 Your Dashboard</h1><p>Hi ${escapeHtml(state.userData.name || 'there')} — here's how your practice is going</p></div>
+      <div class="home-hero"><h1>📊 ${t('yourDashboard')}</h1><p>Hi ${escapeHtml(state.userData.name || 'there')} — here's how your practice is going</p></div>
       ${statCardsHTML}
       <div class="dash-section">
         <div class="dash-section-title">Accuracy by Subject</div>
@@ -2995,7 +3006,7 @@ async function submitFeedback() {
       userId: state.userData ? (state.userData.email || state.userData.name) : 'guest',
       subject: state.activeSubject || null,
       rating: state.feedbackRating,
-      message: textEl.value.trim(),       
+      message: textEl.value.trim(),
     });
     if (res && res.success) {
       msgEl.textContent = 'Thanks — your feedback was submitted!';
