@@ -738,6 +738,7 @@ async function saveSubjectContent() {
     const res = await Api.post('/api/content', {
       code: builder.activeData.code,
       subject: builder.activeData.subject,
+      subjectTitle: builder.activeData.subjectTitle,
       color: builder.activeData.color,
       data: builder.activeData,
     });
