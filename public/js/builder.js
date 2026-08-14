@@ -208,6 +208,11 @@ function selectChapterInBuilder(unitId, chapterId) {
   builder.openQuestionId = null; builder.openBodyIndex = null;
   renderBuilderTree(); renderBuilderEditor();
 }
+
+function getUnitsContainer() {
+  return builder.activeData || null;
+}
+
 function getActiveChapterObj() {
   const container = getUnitsContainer(); if (!container) return;
   const unit = container?.units?.find(u => u.id === builder.activeUnitId);
@@ -583,13 +588,15 @@ async function handleImageUpload(i, inputEl) {
 function addQuestion(type) {
   const chapter = getActiveChapterObj(); if (!chapter) return;
   chapter.questions = chapter.questions || [];
+  const base = { explanation: '', explanationImage: '', explanationVideo: '', explanationLink: '' };
   const q = type === 'NAT'
-    ? { id: uid('q'), type: 'NAT', latex: false, question: '', image: '', answer: 0, tolerance: 0, unit: '', explanation: '' }
-    : { id: uid('q'), type, latex: false, question: '', image: '', options: ['', '', '', ''], optionImages: ['', '', '', ''], answer: [], explanation: '' };
+    ? { id: uid('q'), type: 'NAT', latex: false, question: '', image: '', answer: 0, tolerance: 0, unit: '', ...base }
+    : { id: uid('q'), type, latex: false, question: '', image: '', options: ['', '', '', ''], optionImages: ['', '', '', ''], answer: [], ...base };
   chapter.questions.push(q);
   builder.openQuestionId = q.id;
   renderBuilderEditor(); markDirty();
 }
+
 function renderQuestionsList(chapter) {
   const wrap = document.getElementById('ed-questions-list'); wrap.innerHTML = '';
   (chapter.questions || []).forEach(q => {
@@ -659,7 +666,17 @@ function renderQuestionEditor(q, container) {
       </select></div>` : ''}
     </div>
     ${q.type !== 'NAT' ? `<div class="b-field"><label>Options ${q.type === 'MCQ' ? '(select the one correct radio)' : '(check all correct boxes)'}</label>${optsHtml}<button class="b-btn b-btn-outline b-btn-sm" onclick="addOption('${q.id}')">+ Add Option</button></div>` : natHtml}
-    <div class="b-field"><label>Explanation</label><textarea rows="2" oninput="updateQuestionField('${q.id}','explanation',this.value)">${escHtml(q.explanation)}</textarea></div>`;
+    <div class="b-field"><label>Explanation (text)</label><textarea rows="2" oninput="updateQuestionField('${q.id}','explanation',this.value)">${escHtml(q.explanation)}</textarea></div>
+<div class="b-field">
+  <label>Explanation Image (optional)</label>
+  <input type="text" value="${escAttr(q.explanationImage || '')}" oninput="updateQuestionField('${q.id}','explanationImage',this.value)">
+  <div class="b-upload-row">
+    <input type="file" accept="image/*" onchange="handleExplanationImageUpload('${q.id}',this)">
+    ${q.explanationImage ? `<img src="${escAttr(q.explanationImage)}" class="b-thumb" style="max-width:160px;max-height:110px;border-radius:8px;border:1px solid #e5e7eb;object-fit:cover" onerror="this.style.display='none'"><button class="b-icon-btn danger b-btn-sm" onclick="clearExplanationImage('${q.id}')">Remove image</button>` : ''}
+  </div>
+</div>
+<div class="b-field"><label>Explanation Video (YouTube URL, optional)</label><input type="text" value="${escAttr(q.explanationVideo || '')}" oninput="updateQuestionField('${q.id}','explanationVideo',this.value)"></div>
+<div class="b-field"><label>Explanation Link (optional)</label><input type="text" value="${escAttr(q.explanationLink || '')}" oninput="updateQuestionField('${q.id}','explanationLink',this.value)"></div>`;
 }
 function updateQuestionField(qid, field, val) {
   const q = findQuestion(qid); if (!q) return;
@@ -686,6 +703,23 @@ function removeOption(qid, idx) {
   q.options.splice(idx, 1); if (q.optionImages) q.optionImages.splice(idx, 1);
   q.answer = (q.answer || []).filter(a => a !== idx).map(a => a > idx ? a - 1 : a);
   renderQuestionEditor(q, document.getElementById(`qbody-${qid}`)); markDirty();
+}
+
+async function handleExplanationImageUpload(qid, inputEl) {
+  const file = inputEl.files[0]; if (!file) return;
+  const q = findQuestion(qid); if (!q) return;
+  try {
+    const dataUrl = await fileToBase64(file);
+    q.explanationImage = dataUrl;
+    renderQuestionEditor(q, document.getElementById(`qbody-${qid}`));
+    markDirty();
+  } catch { alert('Could not read that image file.'); }
+}
+function clearExplanationImage(qid) {
+  const q = findQuestion(qid); if (!q) return;
+  q.explanationImage = '';
+  renderQuestionEditor(q, document.getElementById(`qbody-${qid}`));
+  markDirty();
 }
 
 // ── Question / option image uploads (base64-embedded, same pattern as concept-block images) ──
@@ -735,11 +769,14 @@ async function saveSubjectContent() {
   btn.disabled = true;
   setBuilderStatus('Saving…', '');
   try {
+    const requesterId = builder.session?.user?.id ?? builder.session?.id ?? null; // ⚠ confirm shape below
     const res = await Api.post('/api/content', {
       code: builder.activeData.code,
       subject: builder.activeData.subject,
+      subjectTitle: builder.activeData.subjectTitle || '',
       color: builder.activeData.color,
       data: builder.activeData,
+      requesterId,
     });
     if (res && res.success) { builder.dirty = false; setBuilderStatus('✓ Saved to database', 'success'); }
     else setBuilderStatus('⚠ ' + (res?.error || 'Save failed'), 'error');
@@ -764,15 +801,13 @@ function openNewSubjectPrompt() {
   document.getElementById('ns-name').value = '';
   document.getElementById('ns-subtopic').value = '';
   document.getElementById('ns-code').value = '';
-  document.getElementById('ns-code').disabled = false;
   document.getElementById('ns-color').value = '#9333EA';
   document.getElementById('ns-err').textContent = '';
-  document.getElementById('ns-existing-info').innerHTML = '';
-  document.getElementById('ns-subtopic-required-mark').style.display = 'none';
-  document.getElementById('ns-subtopic-hint').textContent = 'Fill this in if this subject will have multiple versions (different teachers/classes). Leave blank for a simple single-version subject.';
-  ns_codeEdited = false;
-  ns_existingMatch = null;
   document.getElementById('subject-modal-overlay').classList.add('open');
+}
+function updateCodePreview() {
+  const name = document.getElementById('ns-name').value;
+  document.getElementById('ns-code').value = name ? suggestSubjectCode(name) : '';
 }
 function closeNewSubjectModal() {
   document.getElementById('subject-modal-overlay').classList.remove('open');
@@ -861,41 +896,25 @@ function submitNewSubject() {
   const errEl = document.getElementById('ns-err');
   errEl.textContent = '';
 
-  if (!name) { errEl.textContent = 'Subject name is required.'; return; }
+  if (!name) { errEl.textContent = 'Please select a Subject Name.'; return; }
+  if (!subtopic) { errEl.textContent = 'Subject Topic Name is required.'; return; }
 
-  if (ns_existingMatch) {
-    if (!subtopic) { errEl.textContent = `"${name}" already exists — please name your version so it doesn't overwrite existing content.`; return; }
-    closeNewSubjectModal();
-    addVariantToExistingSubject(ns_existingMatch.code, subtopic);
-    return;
-  }
-
-  let code = document.getElementById('ns-code').value.trim().toUpperCase();
-  if (!code) code = suggestSubjectCode(name);
-  if (builder.subjects.find(s => s.code === code)) { errEl.textContent = `A subject with code "${code}" already exists.`; return; }
-
-  const newSubject = { code, subject: name, color };
+  const code = suggestSubjectCode(name);
+  const newSubject = { code, subject: name, subject_title: subtopic, color };
   builder.subjects.push(newSubject);
   builder.activeCode = code;
-  if (subtopic) {
-    const firstCategory = { id: uid('cat'), title: subtopic, subtitle: '', icon: '📘', units: [] };
-    builder.activeData = { subject: name, code, color, categories: [firstCategory] };
-    builder.activeVariantId = firstCategory.id;
-  } else {
-    builder.activeData = { subject: name, code, color, units: [] };
-    builder.activeVariantId = null;
-  }
+  builder.activeData = { subject: name, code, color, subjectTitle: subtopic, units: [] };
   builder.activeUnitId = null; builder.activeChapterId = null; builder.openBodyIndex = null;
 
   renderSubjectPills();
   document.getElementById('builder-tree-subject-label').textContent = `${name} — Units & Chapters`;
   document.getElementById('btn-save-subject').disabled = false;
   document.getElementById('builder-lock-note').textContent = '';
-  renderVariantPills();
+  renderTopicInfo(newSubject);
   renderBuilderTree();
   renderBuilderEditor();
   markDirty();
-  setBuilderStatus('New subject created — add a unit to get started, then Save.', '');
+  setBuilderStatus(`New subject "${code}" created — add a unit, then Save.`, '');
   closeNewSubjectModal();
 }
 
@@ -981,12 +1000,31 @@ function renderChapterPreviewHtml(chapter) {
         html += `<div style="font-size:12.5px;color:#16a34a">Answer: ${q.answer ?? 0}${q.tolerance ? ` (± ${q.tolerance})` : ''}</div>`;
       } else {
         (q.options || []).forEach((opt, oi) => {
-          const isCorrect = (q.answer || []).includes(oi);
-          const optImg = (q.optionImages || [])[oi];
-          html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:7px;margin-bottom:4px;font-size:12.5px;${isCorrect ? 'background:#f0fdf4;color:#15803d;font-weight:600' : 'background:#f9fafb'}">${optImg ? `<img src="${escAttr(optImg)}" style="max-width:60px;max-height:40px;border-radius:5px;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'">` : ''}<span>${String.fromCharCode(65 + oi)}. ${escHtml(opt)}${isCorrect ? ' ✓' : ''}</span></div>`;
-        });
+        const isCorrect = (q.answer || []).includes(oi);
+        const optImg = (q.optionImages || [])[oi];
+        const hasText = !!(opt && opt.trim());
+        html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:7px;margin-bottom:4px;font-size:12.5px;${isCorrect ? 'background:#f0fdf4;color:#15803d;font-weight:600' : 'background:#f9fafb'}">
+          <span style="flex-shrink:0">${String.fromCharCode(65 + oi)}.</span>
+          ${hasText ? `<span>${escHtml(opt)}</span>` : ''}
+          ${optImg ? `<img src="${escAttr(optImg)}" style="max-width:60px;max-height:40px;border-radius:5px;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'">` : ''}
+          ${isCorrect ? '<span>✓</span>' : ''}
+        </div>`;
+      });
       }
-      if (q.explanation) html += `<div style="font-size:12px;color:#6b7280;background:#f9fafb;border-radius:8px;padding:8px 10px;margin-top:8px">💡 ${escHtml(q.explanation)}</div>`;
+      const hasExplanation = q.explanation || q.explanationImage || q.explanationVideo || q.explanationLink;
+      if (hasExplanation) {
+        html += `<div style="font-size:12px;color:#6b7280;background:#f9fafb;border-radius:8px;padding:8px 10px;margin-top:8px">`;
+        if (q.explanation) html += `💡 ${escHtml(q.explanation)}`;
+        if (q.explanationImage) html += `<div style="margin-top:6px"><img src="${escAttr(q.explanationImage)}" style="max-width:100%;max-height:200px;border-radius:6px;object-fit:contain" onerror="this.style.display='none'"></div>`;
+        if (q.explanationVideo) {
+          const m = (q.explanationVideo || '').match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+          html += m
+            ? `<div style="position:relative;width:100%;padding-top:56.25%;border-radius:8px;overflow:hidden;margin-top:6px"><iframe src="https://www.youtube.com/embed/${m[1]}?rel=0" style="position:absolute;inset:0;width:100%;height:100%;border:none" allowfullscreen></iframe></div>`
+            : `<div style="margin-top:6px"><a href="${escAttr(q.explanationVideo)}" target="_blank">▶ Watch video</a></div>`;
+        }
+        if (q.explanationLink) html += `<div style="margin-top:6px"><a href="${escAttr(q.explanationLink)}" target="_blank">🔗 ${escHtml(q.explanationLink)}</a></div>`;
+        html += `</div>`;
+      }
       html += '</div>';
     });
   }
@@ -1129,6 +1167,7 @@ function normalizeImportedUnits(rawUnits) {
       concept: normalizeConcept(c.concept, c.title),
       questions: (c.questions || []).map(q => ({
         latex: false, options: [], optionImages: [], answer: [],
+        explanation: '', explanationImage: '', explanationVideo: '', explanationLink: '',
         ...q, id: uid('q'),
       })),
       playground: { schema: '', sampleQueries: [], ...(c.playground || {}) },
@@ -1178,15 +1217,15 @@ function createSubjectFromImport(meta, units) {
     loadSubjectIntoBuilder(code).then(() => appendUnitsToActiveSubject(units));
     return;
   }
-  builder.subjects.push({ code, subject: meta.subject, color: meta.color || '#6C3FF5' });
+  builder.subjects.push({ code, subject: meta.subject, subject_title: meta.subject_title || '', color: meta.color || '#6C3FF5' });
   builder.activeCode = code;
-  builder.activeData = { subject: meta.subject, code, color: meta.color || '#6C3FF5', units: [] };
+  builder.activeData = { subject: meta.subject, code, color: meta.color || '#6C3FF5', subjectTitle: meta.subject_title || '', units: [] };
   builder.activeUnitId = null; builder.activeChapterId = null; builder.openBodyIndex = null;
   renderSubjectPills();
   document.getElementById('builder-tree-subject-label').textContent = `${meta.subject} — Units & Chapters`;
   document.getElementById('btn-save-subject').disabled = false;
   document.getElementById('builder-lock-note').textContent = '';
-  renderVariantPills();
+  renderTopicInfo({ subject_title: meta.subject_title || '' });
   appendUnitsToActiveSubject(units);
 }
 
@@ -1210,6 +1249,7 @@ function downloadTemplateJson() {
     code: 'NEW',
     subject: 'New Subject Name',
     color: '#6C3FF5',
+    subject_title: 'Concept of Subject',
     units: [
       {
         title: 'Unit 1: Example Unit',
