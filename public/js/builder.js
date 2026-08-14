@@ -18,7 +18,6 @@ let builder = {
   subjects: [],
   activeCode: null,
   activeData: null,
-  activeVariantId: null, // for subjects with multiple named variants (e.g. "Class 6 — by Muthu" vs "by Karthi")
   activeUnitId: null,
   activeChapterId: null,
   openQuestionId: null,
@@ -56,13 +55,17 @@ async function initBuilder(session) {
   else document.getElementById('builder-tree').innerHTML = '<div class="editor-empty"><div class="big">📭</div><p style="font-size:12px">No subjects assigned to you yet</p></div>';
 }
 
+// Each subject NAME can have several rows — one per topic — each with its
+// own unique code (e.g. Accounts → AC0001 "Journal Entries", AC0002
+// "Ledger Posting"). Pills show "Subject — Topic (CODE)" so multiple
+// topics under the same subject name are easy to tell apart.
 function renderSubjectPills() {
   const row = document.getElementById('builder-subject-pills');
   row.innerHTML = '';
   builder.subjects.forEach(s => {
     const btn = document.createElement('button');
     btn.className = 'subj-pill' + (s.code === builder.activeCode ? ' active' : '');
-    btn.textContent = `${s.subject} (${s.code})`;
+    btn.textContent = s.subject_title ? `${s.subject} — ${s.subject_title} (${s.code})` : `${s.subject} (${s.code})`;
     if (s.code === builder.activeCode) { btn.style.background = s.color; btn.style.borderColor = 'transparent'; }
     btn.onclick = () => loadSubjectIntoBuilder(s.code);
     row.appendChild(btn);
@@ -71,7 +74,6 @@ function renderSubjectPills() {
 
 async function loadSubjectIntoBuilder(code) {
   builder.activeCode = code;
-  builder.activeVariantId = null;
   builder.activeUnitId = null;
   builder.activeChapterId = null;
   builder.openBodyIndex = null;
@@ -83,117 +85,41 @@ async function loadSubjectIntoBuilder(code) {
   const res = await Api.get('/api/content', { code });
   const meta = builder.subjects.find(s => s.code === code) || { subject: code, code, color: '#6C3FF5' };
   builder.activeData = res.data || { subject: meta.subject, code: meta.code, color: meta.color, units: [] };
+  builder.activeData.subjectTitle = meta.subject_title || builder.activeData.subjectTitle || '';
 
   document.getElementById('builder-tree-subject-label').textContent = `${builder.activeData.subject} — Units & Chapters`;
+  renderTopicInfo(meta);
 
   const canEdit = Auth.canEditSubject(builder.session, code);
   document.getElementById('btn-save-subject').disabled = !canEdit;
   document.getElementById('builder-lock-note').textContent = canEdit ? '' : '👁 View only — you are not permitted to edit this subject.';
 
-  if (isVariantMode() && builder.activeData.categories.length) {
-    builder.activeVariantId = builder.activeData.categories[0].id;
-  }
-
-  renderVariantPills();
   renderBuilderTree();
   renderBuilderEditor();
 }
 
-// ── Variants — multiple named versions of the same subject, e.g. "Class 6
-// Physics — Prepared by Muthu" vs "...by Karthi". Each variant has its own
-// independent units/chapters, all stored in one subject_content.data blob
-// as { ..., categories: [{id, title, subtitle, icon, units:[...]}, ...] }.
-// This is the same "categories" shape the learner app (view.html) already
-// knows how to browse — no frontend changes needed there.
-function isVariantMode() {
-  return Array.isArray(builder.activeData?.categories);
-}
-function getActiveVariant() {
-  if (!isVariantMode()) return null;
-  return builder.activeData.categories.find(c => c.id === builder.activeVariantId) || null;
-}
-// Returns the object whose `.units` array should be edited right now —
-// either the whole subject (flat/simple mode) or the selected variant
-// (variant mode). Returns null if in variant mode with nothing selected.
-function getUnitsContainer() {
-  if (!builder.activeData) return null;
-  if (isVariantMode()) {
-    const variant = getActiveVariant();
-    if (!variant) return null;
-    variant.units = variant.units || [];
-    return variant;
-  }
-  builder.activeData.units = builder.activeData.units || [];
-  return builder.activeData;
-}
-
-function renderVariantPills() {
+// Shows which topic this row/code represents, with a rename option — this
+// replaces the old variant-pills UI (each topic is now its own row/code,
+// selected via the subject pills above, not nested inside one blob).
+function renderTopicInfo(meta) {
   const wrap = document.getElementById('builder-variant-pills');
   if (!wrap) return;
-  if (!builder.activeData) { wrap.innerHTML = ''; return; }
-
-  if (!isVariantMode()) {
-    wrap.innerHTML = '<div class="b-field-hint" style="padding:10px 16px 4px">To add another version of this subject (e.g. by a different teacher/class), use "+ New Subject" and type this same subject name — you\'ll be prompted to name your version instead of starting over.</div>';
-    return;
-  }
-
-  let html = '<div class="subj-pill-row" style="padding:10px 16px 4px">';
-  builder.activeData.categories.forEach(cat => {
-    const active = cat.id === builder.activeVariantId;
-    html += `<button class="subj-pill${active ? ' active' : ''}" style="${active ? `background:${builder.activeData.color};border-color:transparent` : ''}" onclick="selectVariant('${cat.id}')">${escHtml(cat.title)}</button>`;
-  });
-  html += `<button class="b-btn b-btn-outline b-btn-sm" onclick="addVariant()">+ Add Version</button>`;
-  if (getActiveVariant()) {
-    html += `<button class="b-btn b-btn-outline b-btn-sm" onclick="renameVariant()">✎ Rename</button>`;
-    html += `<button class="b-btn b-btn-danger b-btn-sm" onclick="deleteVariant()">🗑 Delete Version</button>`;
-  }
-  html += '</div>';
-  wrap.innerHTML = html;
+  wrap.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 16px 4px;flex-wrap:wrap">
+      <span class="b-field-hint" style="margin:0">Subject Topic: <strong style="color:#374151">${escHtml(meta.subject_title || '(untitled topic)')}</strong></span>
+      <button class="b-btn b-btn-outline b-btn-sm" onclick="renameTopic()">✎ Rename Topic</button>
+    </div>`;
 }
-
-// Converts a flat (single-version) subject into variant mode, moving its
-// existing units into a first named version — called automatically when
-// someone's new-subject submission collides with an existing subject name
-// (see submitNewSubject / addVariantToExistingSubject below), not via a
-// standalone button anymore.
-function convertToVariantMode(firstVersionTitle) {
-  if (!builder.activeData || isVariantMode()) return;
-  const firstCategory = { id: uid('cat'), title: firstVersionTitle, subtitle: '', icon: '📘', units: builder.activeData.units || [] };
-  builder.activeData.categories = [firstCategory];
-  delete builder.activeData.units;
-  builder.activeVariantId = firstCategory.id;
-  builder.activeUnitId = null; builder.activeChapterId = null;
-  renderVariantPills(); renderBuilderTree(); renderBuilderEditor(); markDirty();
-  setBuilderStatus('Enabled multiple versions — add another with "+ Add Version".', '');
-}
-function addVariant() {
-  const title = prompt('Name for this version (e.g. "Class 6 — Prepared by Karthi"):');
-  if (!title || !title.trim()) return;
-  const cat = { id: uid('cat'), title: title.trim(), subtitle: '', icon: '📘', units: [] };
-  builder.activeData.categories.push(cat);
-  builder.activeVariantId = cat.id;
-  builder.activeUnitId = null; builder.activeChapterId = null;
-  renderVariantPills(); renderBuilderTree(); renderBuilderEditor(); markDirty();
-}
-function renameVariant() {
-  const cat = getActiveVariant(); if (!cat) return;
-  const title = prompt('Rename this version:', cat.title);
-  if (!title || !title.trim()) return;
-  cat.title = title.trim();
-  renderVariantPills(); markDirty();
-}
-function deleteVariant() {
-  const cat = getActiveVariant(); if (!cat) return;
-  if (!confirm(`Delete "${cat.title}" and everything in it? This can't be undone.`)) return;
-  builder.activeData.categories = builder.activeData.categories.filter(c => c.id !== cat.id);
-  builder.activeVariantId = builder.activeData.categories[0]?.id || null;
-  builder.activeUnitId = null; builder.activeChapterId = null;
-  renderVariantPills(); renderBuilderTree(); renderBuilderEditor(); markDirty();
-}
-function selectVariant(id) {
-  builder.activeVariantId = id;
-  builder.activeUnitId = null; builder.activeChapterId = null; builder.openBodyIndex = null;
-  renderVariantPills(); renderBuilderTree(); renderBuilderEditor();
+function renameTopic() {
+  if (!builder.activeData) return;
+  const title = prompt('Rename this topic:', builder.activeData.subjectTitle || '');
+  if (title === null || !title.trim()) return;
+  builder.activeData.subjectTitle = title.trim();
+  const meta = builder.subjects.find(s => s.code === builder.activeCode);
+  if (meta) meta.subject_title = title.trim();
+  renderSubjectPills();
+  renderTopicInfo({ subject_title: title.trim() });
+  markDirty();
 }
 
 // ── TREE ──
@@ -201,14 +127,10 @@ function renderBuilderTree() {
   const wrap = document.getElementById('builder-tree');
   const data = builder.activeData;
   if (!data) { wrap.innerHTML = '<div class="editor-empty"><div class="big">📚</div><p style="font-size:12px">Select a subject</p></div>'; return; }
-  if (isVariantMode() && !getActiveVariant()) {
-    wrap.innerHTML = '<div class="editor-empty"><div class="big">🗂️</div><p style="font-size:12px">Select or add a version above</p></div>';
-    return;
-  }
-  const container = getUnitsContainer();
+  data.units = data.units || [];
 
   let html = '';
-  (container.units || []).forEach(unit => {
+  data.units.forEach(unit => {
     html += `<div class="b-unit">
       <div class="b-unit-row">
         <span class="b-unit-title" title="${escAttr(unit.title)}">${escHtml(unit.title)}</span>
