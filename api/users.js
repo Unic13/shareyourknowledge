@@ -46,7 +46,7 @@ const GET_ALL_MAPPINGS_RAW = `
   query GetAllMappings {
     admin_subjects {
       id admin_id subject_id can_edit can_publish assigned_at
-      subject: subject_content { code subject color }
+      subject: subject_content { code subject subject_title color }
       admin: admin_user { id name email }
     }
   }
