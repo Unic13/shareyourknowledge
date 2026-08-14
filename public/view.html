@@ -223,7 +223,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f4f5fb;color:#1a1a2e;m
 .exercise-item{counter-increment:ex-counter;position:relative;padding:8px 0 8px 36px;font-size:14.5px;line-height:1.7;color:#374151;border-bottom:1px dashed #fde68a}
 .exercise-item:last-child{border-bottom:none}
 .exercise-item::before{content:counter(ex-counter);position:absolute;left:0;top:7px;width:24px;height:24px;border-radius:7px;background:#f59e0b;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
-
+  
 /* Steps block — a vertical numbered walkthrough with a connecting rail */
 .concept-steps{margin:16px 0}
 .steps-title{font-size:15px;font-weight:700;color:var(--ink-blue);margin-bottom:10px}
@@ -1124,6 +1124,7 @@ async function init() {
   let subjects = [];
   try {
     const res = await fetch('api/content').then(r => r.json());
+    console.log(res);
     subjects = res.subjects || [];
   } catch { /* offline / backend not configured — falls through to an empty subject list below */ }
 
