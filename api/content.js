@@ -20,6 +20,7 @@ const GET_ONE = `
       id
       code
       subject
+      subject_title
       color
       data
       updated_at
@@ -32,7 +33,9 @@ const GET_ALL = `
       id
       code
       subject
+      subject_title
       color
+      created_by
       updated_at
     }
   }
@@ -43,7 +46,7 @@ const UPSERT = `
       object: $object
       on_conflict: {
         constraint: subject_content_code_key
-        update_columns: [subject, color, data, updated_by, updated_at]
+        update_columns: [subject, subject_title, color, data, updated_by, updated_at]
       }
     ) {
       id
@@ -55,6 +58,11 @@ const UPSERT = `
 const GET_USER = `
   query GetUser($id: bigint!) {
     admin_users_by_pk(id: $id) { id name email role active }
+  }
+`;
+const GET_USERS_BY_IDS = `
+  query GetUsersByIds($ids: [bigint!]) {
+    admin_users(where: { id: { _in: $ids } }) { id name }
   }
 `;
 const CHECK_MAPPING = `
@@ -114,7 +122,7 @@ module.exports = async (req, res) => {
   if (req.method === 'POST') {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     try {
-      const { code, subject, color, data } = body || {};
+      const { code, subject, subjectTitle, color, data } = body || {};
       if (!code || !subject || !data) {
         return res.status(400).json({ error: 'code, subject, and data are required' });
       }
@@ -133,6 +141,7 @@ module.exports = async (req, res) => {
         object: {
           code: upperCode,
           subject,
+          subject_title: subjectTitle !== undefined ? subjectTitle : (existingRow ? existingRow.subject_title : null),
           color: color || '#6C3FF5',
           data,
           updated_by: perm.requesterId || null,
@@ -179,7 +188,20 @@ module.exports = async (req, res) => {
         return res.status(200).json(row);
       }
       const data = await hasuraRequest(GET_ALL);
-      return res.status(200).json({ subjects: data.subject_content });
+      const rows = data.subject_content;
+      // Public attribution ("prepared by") for the learner home page —
+      // reuses subject_content.created_by rather than exposing the
+      // admin-only mapping list, so this stays fetchable without a login.
+      const creatorIds = [...new Set(rows.map(r => r.created_by).filter(Boolean))];
+      let namesById = {};
+      if (creatorIds.length) {
+        try {
+          const { admin_users } = await hasuraRequest(GET_USERS_BY_IDS, { ids: creatorIds });
+          namesById = Object.fromEntries(admin_users.map(u => [u.id, u.name]));
+        } catch { /* attribution is a nice-to-have, don't fail the whole list over it */ }
+      }
+      const subjects = rows.map(r => ({ ...r, created_by_name: r.created_by ? namesById[r.created_by] : null }));
+      return res.status(200).json({ subjects });
     } catch (err) {
       console.error('[CONTENT ERROR]', err.message);
       // Soft-fail so the frontend can fall back to the static JSON file
