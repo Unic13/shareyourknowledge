@@ -36,6 +36,7 @@ const GET_ALL = `
       subject_title
       color
       created_by
+      updated_by
       updated_at
     }
   }
@@ -192,7 +193,7 @@ module.exports = async (req, res) => {
       // Public attribution ("prepared by") for the learner home page —
       // reuses subject_content.created_by rather than exposing the
       // admin-only mapping list, so this stays fetchable without a login.
-      const creatorIds = [...new Set(rows.map(r => r.created_by).filter(Boolean))];
+      const creatorIds = [...new Set(rows.map(r => r.updated_by).filter(Boolean))];
       let namesById = {};
       if (creatorIds.length) {
         try {
