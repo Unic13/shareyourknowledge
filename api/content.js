@@ -141,7 +141,7 @@ module.exports = async (req, res) => {
         object: {
           code: upperCode,
           subject,
-          subject_title: subjectTitle !== undefined ? subjectTitle : (existingRow ? existingRow.subject_title : null),
+          subject_title: subjectTitle,
           color: color || '#6C3FF5',
           data,
           updated_by: perm.requesterId || null,
