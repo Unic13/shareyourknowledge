@@ -1130,7 +1130,7 @@ async function init() {
 
   SUBJECTS = {};
   subjects.forEach(s => {
-    SUBJECTS[s.code] = { label: s.subject, color: s.color || '#6C3FF5', emoji: emojiForSubject(s.code) };
+    SUBJECTS[s.code] = { label: `${s.subject} - ${s.subject_title} - ${s.code}`, color: s.color || '#6C3FF5', emoji: emojiForSubject(s.code) };
   });
 
   state.config = {
