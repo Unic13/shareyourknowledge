@@ -209,7 +209,7 @@ function selectChapterInBuilder(unitId, chapterId) {
   renderBuilderTree(); renderBuilderEditor();
 }
 function getActiveChapterObj() {
-  const container = getUnitsContainer();
+  const container = getUnitsContainer(); if (!container) return;
   const unit = container?.units?.find(u => u.id === builder.activeUnitId);
   return unit?.chapters?.find(c => c.id === builder.activeChapterId) || null;
 }
@@ -1192,7 +1192,7 @@ function createSubjectFromImport(meta, units) {
 
 function appendUnitsToActiveSubject(rawUnits) {
   const normalized = normalizeImportedUnits(rawUnits);
-  const container = getUnitsContainer();
+  const container = getUnitsContainer(); if (!container) return;
   if (!container) { alert('Select or add a version first (this subject has multiple versions).'); return; }
   container.units = container.units || [];
   container.units.push(...normalized);
