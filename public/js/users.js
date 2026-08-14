@@ -271,7 +271,7 @@ const UsersModule = (() => {
         mappings.map(m => `
           <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f3f4f6">
             <span class="badge badge-blue">${esc(m.code)}</span>
-            <span style="flex:1;font-size:12.5px">${esc(m.subject)}${m.variant_title ? ` <span style="color:#9ca3af">— ${esc(m.variant_title)}</span>` : ''}</span>
+            <span style="flex:1;font-size:12.5px">${esc(m.subject)}${m.subject_title ? ` <span style="color:#9ca3af">— ${esc(m.subject_title)}</span>` : ''}</span>
             <span class="badge ${m.can_edit ? 'badge-green' : 'badge-red'}">${m.can_edit ? 'edit' : 'view'}</span>
             <button class="b-btn b-btn-danger b-btn-sm" onclick="UsersModule.removeMapping(${m.id})">Remove</button>
           </div>`).join('') + '<div class="b-field-hint" style="margin:10px 0 4px">Add another:</div>'
