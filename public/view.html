@@ -1130,7 +1130,16 @@ async function init() {
 
   SUBJECTS = {};
   subjects.forEach(s => {
-    SUBJECTS[s.code] = { label: `${s.subject} - ${s.subject_title} - ${s.code}`, color: s.color || '#6C3FF5', emoji: emojiForSubject(s.code) };
+    //SUBJECTS[s.code] = { label: `${s.subject} - ${s.subject_title} - ${s.code}`, color: s.color || '#6C3FF5', emoji: emojiForSubject(s.code) };
+    SUBJECTS[s.code] = {
+                        label:  `${s.subject} - ${s.code}`,
+                        subject: s.subject,
+                        subject_title: s.subject_title || '',
+                        code: s.code,
+                        created_by_name: s.created_by_name || '',
+                        color: s.color || '#6C3FF5',
+                        emoji: emojiForSubject(s.code)
+                      };
   });
 
   state.config = {
@@ -1236,10 +1245,19 @@ function renderHomeHTML() {
     if (!s) return '';
     return `
       <button class="home-card" onclick="switchSubject('${code}')">
-        <div class="home-card-icon" style="background:${s.color}">${s.emoji}</div>
-        <div class="home-card-label">${s.label}</div>
-        <div class="home-card-cta" style="color:${s.color}">${t('startLearning')} →</div>
-      </button>`;
+    <div class="home-card-icon" style="background:${s.color}">${s.emoji}</div>
+
+    <div class="home-card-label">
+      <div class="subject-name">${s.subject}</div>
+      ${s.subject_title ? `<div class="subject-title">${s.subject_title}</div>` : ''}
+      <div class="subject-code">${s.code}</div>
+      ${s.created_by_name ? `<div class="created-by">Created by ${s.created_by_name}</div>` : ''}
+    </div>
+
+    <div class="home-card-cta" style="color:${s.color}">
+      ${t('startLearning')} →
+    </div>
+  </button>`;
   }).join('');
 
   wrap.innerHTML = `
