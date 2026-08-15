@@ -6,6 +6,10 @@
 //   - a new "SQL Playground" section per chapter: { schema, sampleQueries }
 //     matching the shape you already use in your JSON, e.g.:
 //       "playground": { "schema": "CREATE TABLE ...", "sampleQueries": [...] }
+//   - one subject_content ROW per topic (e.g. Accounts → AC0001 "Journal
+//     Entries", AC0002 "Ledger Posting"), codes auto-generated per subject
+//     name, no merging/deduplication — creating a subject always makes a
+//     new row
 const QTYPE_COLORS = { MCQ: '#6C3FF5', MSQ: '#0891b2', NAT: '#d97706' };
 const BTYPE_COLORS = {
   heading: '#4f46e5', paragraph: '#6b7280', note: '#7c3aed', formula: '#0891b2',
@@ -214,8 +218,8 @@ function getUnitsContainer() {
 }
 
 function getActiveChapterObj() {
-  const container = getUnitsContainer(); if (!container) return;
-  const unit = container?.units?.find(u => u.id === builder.activeUnitId);
+  const container = getUnitsContainer(); if (!container) return null;
+  const unit = container.units?.find(u => u.id === builder.activeUnitId);
   return unit?.chapters?.find(c => c.id === builder.activeChapterId) || null;
 }
 
@@ -245,7 +249,7 @@ function renderBuilderEditor() {
   chapter.playground = chapter.playground || { schema: '', sampleQueries: [] };
   const concept = chapter.concept;
   const pg = chapter.playground;
-  const isSql = (builder.activeData.code || '').toUpperCase() === 'SQL';
+  const isSql = (builder.activeData.code || '').toUpperCase().startsWith('SQL') || (builder.activeData.subject || '').toUpperCase() === 'SQL';
 
   wrap.innerHTML = `
     <div class="editor-section">
@@ -634,7 +638,7 @@ function renderQuestionEditor(q, container) {
       const optImg = q.optionImages[i] || '';
       optsHtml += `<div class="b-opt-row" style="display:flex;align-items:center;gap:8px;margin-bottom:${optImg ? '2px' : '7px'}">
         <span style="width:22px;height:22px;border-radius:6px;background:#f3f4f6;color:#6b7280;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center">${String.fromCharCode(65 + i)}</span>
-        <input type="text" style="flex:1" value="${escAttr(opt)}" oninput="updateOptionText('${q.id}',${i},this.value)" placeholder="Option ${String.fromCharCode(65 + i)}">
+        <input type="text" style="flex:1" value="${escAttr(opt)}" oninput="updateOptionText('${q.id}',${i},this.value)" placeholder="Option ${String.fromCharCode(65 + i)} (leave blank for image-only)">
         <input type="${inputType}" name="correct-${q.id}" ${checked ? 'checked' : ''} onchange="toggleOptionCorrect('${q.id}',${i},this.checked)" title="Mark as correct">
         <label class="b-icon-btn" title="Add/replace option image" style="cursor:pointer">🖼<input type="file" accept="image/*" style="display:none" onchange="handleOptionImageUpload('${q.id}',${i},this)"></label>
         <button class="b-icon-btn danger" onclick="removeOption('${q.id}',${i})" title="Remove option">✕</button>
@@ -665,18 +669,18 @@ function renderQuestionEditor(q, container) {
         <option value="below" ${q.imagePosition === 'below' ? 'selected' : ''}>Below the question text</option>
       </select></div>` : ''}
     </div>
-    ${q.type !== 'NAT' ? `<div class="b-field"><label>Options ${q.type === 'MCQ' ? '(select the one correct radio)' : '(check all correct boxes)'}</label>${optsHtml}<button class="b-btn b-btn-outline b-btn-sm" onclick="addOption('${q.id}')">+ Add Option</button></div>` : natHtml}
+    ${q.type !== 'NAT' ? `<div class="b-field"><label>Options ${q.type === 'MCQ' ? '(select the one correct radio)' : '(check all correct boxes)'}</label>${optsHtml}<button class="b-btn b-btn-outline b-btn-sm" onclick="addOption('${q.id}')">+ Add Option</button><div class="b-field-hint">An option can be text, an image, or both — leave the text box empty for an image-only option.</div></div>` : natHtml}
     <div class="b-field"><label>Explanation (text)</label><textarea rows="2" oninput="updateQuestionField('${q.id}','explanation',this.value)">${escHtml(q.explanation)}</textarea></div>
-<div class="b-field">
-  <label>Explanation Image (optional)</label>
-  <input type="text" value="${escAttr(q.explanationImage || '')}" oninput="updateQuestionField('${q.id}','explanationImage',this.value)">
-  <div class="b-upload-row">
-    <input type="file" accept="image/*" onchange="handleExplanationImageUpload('${q.id}',this)">
-    ${q.explanationImage ? `<img src="${escAttr(q.explanationImage)}" class="b-thumb" style="max-width:160px;max-height:110px;border-radius:8px;border:1px solid #e5e7eb;object-fit:cover" onerror="this.style.display='none'"><button class="b-icon-btn danger b-btn-sm" onclick="clearExplanationImage('${q.id}')">Remove image</button>` : ''}
-  </div>
-</div>
-<div class="b-field"><label>Explanation Video (YouTube URL, optional)</label><input type="text" value="${escAttr(q.explanationVideo || '')}" oninput="updateQuestionField('${q.id}','explanationVideo',this.value)"></div>
-<div class="b-field"><label>Explanation Link (optional)</label><input type="text" value="${escAttr(q.explanationLink || '')}" oninput="updateQuestionField('${q.id}','explanationLink',this.value)"></div>`;
+    <div class="b-field">
+      <label>Explanation Image (optional)</label>
+      <input type="text" value="${escAttr(q.explanationImage || '')}" oninput="updateQuestionField('${q.id}','explanationImage',this.value)">
+      <div class="b-upload-row">
+        <input type="file" accept="image/*" onchange="handleExplanationImageUpload('${q.id}',this)">
+        ${q.explanationImage ? `<img src="${escAttr(q.explanationImage)}" class="b-thumb" style="max-width:160px;max-height:110px;border-radius:8px;border:1px solid #e5e7eb;object-fit:cover" onerror="this.style.display='none'"><button class="b-icon-btn danger b-btn-sm" onclick="clearExplanationImage('${q.id}')">Remove image</button>` : ''}
+      </div>
+    </div>
+    <div class="b-field"><label>Explanation Video (YouTube URL, optional)</label><input type="text" value="${escAttr(q.explanationVideo || '')}" oninput="updateQuestionField('${q.id}','explanationVideo',this.value)"></div>
+    <div class="b-field"><label>Explanation Link (optional)</label><input type="text" value="${escAttr(q.explanationLink || '')}" oninput="updateQuestionField('${q.id}','explanationLink',this.value)"></div>`;
 }
 function updateQuestionField(qid, field, val) {
   const q = findQuestion(qid); if (!q) return;
@@ -757,7 +761,6 @@ function clearOptionImage(qid, idx) {
   markDirty();
 }
 
-
 // ── Save / Export ──
 async function saveSubjectContent() {
   if (!builder.activeData) return;
@@ -769,14 +772,12 @@ async function saveSubjectContent() {
   btn.disabled = true;
   setBuilderStatus('Saving…', '');
   try {
-    const requesterId = builder.session?.user?.id ?? builder.session?.id ?? null; // ⚠ confirm shape below
     const res = await Api.post('/api/content', {
       code: builder.activeData.code,
       subject: builder.activeData.subject,
       subjectTitle: builder.activeData.subjectTitle || '',
       color: builder.activeData.color,
       data: builder.activeData,
-      requesterId,
     });
     if (res && res.success) { builder.dirty = false; setBuilderStatus('✓ Saved to database', 'success'); }
     else setBuilderStatus('⚠ ' + (res?.error || 'Save failed'), 'error');
@@ -794,26 +795,28 @@ window.addEventListener('beforeunload', (e) => { if (builder.dirty) { e.preventD
 
 // ── New Subject modal ──
 let ns_codeEdited = false;
-let ns_existingMatch = null;  // set when the typed name matches an existing subject
+let ns_existingMatch = null;  // set (informationally) when the typed name matches an existing subject
 let ns_nameDebounce = null;
 
 function openNewSubjectPrompt() {
   document.getElementById('ns-name').value = '';
   document.getElementById('ns-subtopic').value = '';
   document.getElementById('ns-code').value = '';
+  document.getElementById('ns-code').disabled = true; // always auto-generated — code follows the subject name, not typed by hand
   document.getElementById('ns-color').value = '#9333EA';
   document.getElementById('ns-err').textContent = '';
+  document.getElementById('ns-existing-info').innerHTML = '';
+  ns_codeEdited = false;
+  ns_existingMatch = null;
   document.getElementById('subject-modal-overlay').classList.add('open');
-}
-function updateCodePreview() {
-  const name = document.getElementById('ns-name').value;
-  document.getElementById('ns-code').value = name ? suggestSubjectCode(name) : '';
 }
 function closeNewSubjectModal() {
   document.getElementById('subject-modal-overlay').classList.remove('open');
 }
-// Suggests "PH0001"-style codes: first 2 letters of the name (uppercase),
-// then the next free 4-digit number among subjects sharing that prefix.
+// Suggests "AC0001"-style codes: first 2 letters of the name (uppercase),
+// then the next free 4-digit number among subjects sharing that prefix —
+// increments independently per subject name (Accounts → AC0001, AC0002...;
+// Economics → EC0001, EC0002...).
 function suggestSubjectCode(name) {
   const letters = (name || '').replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 2) || 'SB';
   let n = 1, code;
@@ -825,67 +828,44 @@ function suggestSubjectCode(name) {
   return code;
 }
 
-// Typing a subject name that matches one that already exists switches this
-// modal from "create a new subject" into "add another version of that
-// subject" — this replaces the old standalone "+ Add another version"
-// button. Multiple people contributing their own take on the same subject
-// (e.g. several teachers each writing "Physics") now just goes through
-// here by typing the same name.
+// Purely informational — shows existing topics under the same subject
+// name as you type, so people know what's already there before adding
+// their own. Never blocks or merges: submitting always creates a new row
+// with a freshly generated code, per your instruction that duplicate
+// subject names are fine (the code is what's unique).
 function onNewSubjectNameInput() {
   const name = document.getElementById('ns-name').value.trim();
+  document.getElementById('ns-code').value = name ? suggestSubjectCode(name) : '';
   clearTimeout(ns_nameDebounce);
   ns_nameDebounce = setTimeout(() => checkExistingSubjectByName(name), 200);
 }
 
 async function checkExistingSubjectByName(name) {
   const infoEl = document.getElementById('ns-existing-info');
-  const codeField = document.getElementById('ns-code');
-  const requiredMark = document.getElementById('ns-subtopic-required-mark');
-  const hintEl = document.getElementById('ns-subtopic-hint');
+  const matches = name ? builder.subjects.filter(s => s.subject.trim().toLowerCase() === name.trim().toLowerCase()) : [];
 
-  const match = name ? builder.subjects.find(s => s.subject.trim().toLowerCase() === name.trim().toLowerCase()) : null;
-
-  if (!match) {
+  if (!matches.length) {
     ns_existingMatch = null;
     infoEl.innerHTML = '';
-    codeField.disabled = false;
-    requiredMark.style.display = 'none';
-    hintEl.textContent = 'Fill this in if this subject will have multiple versions (different teachers/classes). Leave blank for a simple single-version subject.';
-    if (!ns_codeEdited) codeField.value = suggestSubjectCode(name);
     return;
   }
+  ns_existingMatch = matches[0];
+  infoEl.innerHTML = `<div class="b-field-hint">Checking existing topics…</div>`;
 
-  ns_existingMatch = match;
-  codeField.value = match.code;
-  codeField.disabled = true;
-  requiredMark.style.display = 'inline';
-  hintEl.textContent = `"${match.subject}" already exists — name your version below (e.g. who prepared it) so it's added alongside the others, not overwriting them.`;
-  infoEl.innerHTML = `<div class="b-field-hint">Checking existing versions…</div>`;
-
-  let variants = [];
-  try {
-    const contentRes = await Api.get('/api/content', { code: match.code });
-    const data = contentRes.data || {};
-    variants = Array.isArray(data.categories) && data.categories.length
-      ? data.categories.map(c => c.title)
-      : (data.units && data.units.length ? ['(default version)'] : []);
-  } catch { /* fine — show what we can below */ }
-
-  let mappedByVariant = {};
+  let mappedByCode = {};
   try {
     const mapRes = await Api.get('/api/users', { resource: 'mappings' });
-    (mapRes.mappings || []).filter(m => m.code === match.code).forEach(m => {
-      const key = m.variant_title || '(default version)';
-      (mappedByVariant[key] = mappedByVariant[key] || []).push(m.admin_name);
+    (mapRes.mappings || []).forEach(m => {
+      (mappedByCode[m.code] = mappedByCode[m.code] || []).push(m.admin_name);
     });
-  } catch { /* editors can't list all mappings — that's fine, just skip names */ }
+  } catch { /* editors can't list all mappings — fine, just skip names */ }
 
-  // Only checked again after the fetches above, in case the person kept typing.
   if (document.getElementById('ns-name').value.trim().toLowerCase() !== name.trim().toLowerCase()) return;
 
   infoEl.innerHTML = `<div class="b-note">
-    <strong>${escHtml(match.subject)}</strong> (${match.code}) already has ${variants.length || 0} version(s):
-    ${variants.length ? `<ul>${variants.map(v => `<li>${escHtml(v)}${mappedByVariant[v] ? ' — mapped to ' + mappedByVariant[v].map(escHtml).join(', ') : ''}</li>`).join('')}</ul>` : ''}
+    <strong>${escHtml(name)}</strong> already has ${matches.length} topic(s):
+    <ul>${matches.map(m => `<li>${escHtml(m.code)} — ${escHtml(m.subject_title || '(untitled)')}${mappedByCode[m.code] ? ' — mapped to ' + mappedByCode[m.code].map(escHtml).join(', ') : ''}</li>`).join('')}</ul>
+    Submitting below adds a new topic alongside these, with its own code.
   </div>`;
 }
 
@@ -916,24 +896,6 @@ function submitNewSubject() {
   markDirty();
   setBuilderStatus(`New subject "${code}" created — add a unit, then Save.`, '');
   closeNewSubjectModal();
-}
-
-// Loads the existing subject (same code, so it lands right in the picker),
-// converts it to variant mode if it wasn't already, and adds the new
-// sub-topic as a fresh version — this is how "same subject, multiple
-// people contributing" actually works now.
-async function addVariantToExistingSubject(code, subtopicTitle) {
-  setBuilderStatus(`Loading "${code}"…`, '');
-  await loadSubjectIntoBuilder(code);
-  if (!isVariantMode()) {
-    convertToVariantMode(builder.activeData.subject + ' (original)');
-  }
-  const cat = { id: uid('cat'), title: subtopicTitle, subtitle: '', icon: '📘', units: [] };
-  builder.activeData.categories.push(cat);
-  builder.activeVariantId = cat.id;
-  builder.activeUnitId = null; builder.activeChapterId = null;
-  renderVariantPills(); renderBuilderTree(); renderBuilderEditor(); markDirty();
-  setBuilderStatus(`Added "${subtopicTitle}" as a new version of ${builder.activeData.subject} — add units, then Save.`, 'success');
 }
 
 // ── Live Preview / Raw JSON modal ──
@@ -1000,16 +962,16 @@ function renderChapterPreviewHtml(chapter) {
         html += `<div style="font-size:12.5px;color:#16a34a">Answer: ${q.answer ?? 0}${q.tolerance ? ` (± ${q.tolerance})` : ''}</div>`;
       } else {
         (q.options || []).forEach((opt, oi) => {
-        const isCorrect = (q.answer || []).includes(oi);
-        const optImg = (q.optionImages || [])[oi];
-        const hasText = !!(opt && opt.trim());
-        html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:7px;margin-bottom:4px;font-size:12.5px;${isCorrect ? 'background:#f0fdf4;color:#15803d;font-weight:600' : 'background:#f9fafb'}">
-          <span style="flex-shrink:0">${String.fromCharCode(65 + oi)}.</span>
-          ${hasText ? `<span>${escHtml(opt)}</span>` : ''}
-          ${optImg ? `<img src="${escAttr(optImg)}" style="max-width:60px;max-height:40px;border-radius:5px;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'">` : ''}
-          ${isCorrect ? '<span>✓</span>' : ''}
-        </div>`;
-      });
+          const isCorrect = (q.answer || []).includes(oi);
+          const optImg = (q.optionImages || [])[oi];
+          const hasText = !!(opt && opt.trim());
+          html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:7px;margin-bottom:4px;font-size:12.5px;${isCorrect ? 'background:#f0fdf4;color:#15803d;font-weight:600' : 'background:#f9fafb'}">
+            <span style="flex-shrink:0">${String.fromCharCode(65 + oi)}.</span>
+            ${hasText ? `<span>${escHtml(opt)}</span>` : ''}
+            ${optImg ? `<img src="${escAttr(optImg)}" style="max-width:60px;max-height:40px;border-radius:5px;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'">` : ''}
+            ${isCorrect ? '<span>✓</span>' : ''}
+          </div>`;
+        });
       }
       const hasExplanation = q.explanation || q.explanationImage || q.explanationVideo || q.explanationLink;
       if (hasExplanation) {
@@ -1132,7 +1094,7 @@ async function jumpToSearchResult(code, unitId, chapterId) {
 
 // ── Import from JSON (for people authoring offline in their own editor) ──
 // Accepted shapes, in order of preference:
-//   1) A full subject:      { code, subject, color, units: [...] }
+//   1) A full subject:      { code, subject, subject_title, color, units: [...] }
 //   2) Units to append:     { units: [...] }
 //   3) A bare array of units: [ { title, chapters: [...] }, ... ]
 //   4) A single chapter:    { title, concept, questions, playground }
@@ -1195,7 +1157,7 @@ function handleImportedJson(json) {
 
   if (asNewSubject) {
     const makeNew = confirm(
-      `This file looks like a full subject: "${asNewSubject.subject}" (${asNewSubject.code.toUpperCase()}) — ` +
+      `This file looks like a full subject: "${asNewSubject.subject}" (${(asNewSubject.code || '').toUpperCase()}) — ` +
       `${units.length} unit(s), ${totalChapters} chapter(s), ${totalQuestions} question(s).\n\n` +
       `OK = create it as a NEW subject\nCancel = append its content into the CURRENTLY SELECTED subject instead`
     );
@@ -1209,8 +1171,7 @@ function handleImportedJson(json) {
 }
 
 function createSubjectFromImport(meta, units) {
-  const code = (meta.code || '').trim().toUpperCase();
-  if (!code) { alert('The file is missing a subject "code".'); return; }
+  const code = (meta.code || '').trim().toUpperCase() || suggestSubjectCode(meta.subject);
   const existing = builder.subjects.find(s => s.code === code);
   if (existing) {
     if (!confirm(`A subject with code "${code}" already exists ("${existing.subject}"). Load it and append this content instead?`)) return;
@@ -1231,8 +1192,8 @@ function createSubjectFromImport(meta, units) {
 
 function appendUnitsToActiveSubject(rawUnits) {
   const normalized = normalizeImportedUnits(rawUnits);
-  const container = getUnitsContainer(); if (!container) return;
-  if (!container) { alert('Select or add a version first (this subject has multiple versions).'); return; }
+  const container = getUnitsContainer();
+  if (!container) { alert('Select or create a subject first.'); return; }
   container.units = container.units || [];
   container.units.push(...normalized);
   renderBuilderTree();
@@ -1248,8 +1209,8 @@ function downloadTemplateJson() {
   const template = {
     code: 'NEW',
     subject: 'New Subject Name',
-    color: '#6C3FF5',
     subject_title: 'Concept of Subject',
+    color: '#6C3FF5',
     units: [
       {
         title: 'Unit 1: Example Unit',
