@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Producer Guide — Question Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,sans-serif;background:#f4f5fb;color:#1a1a2e;line-height:1.6}
+  :root{--brand:#6C3FF5;--brand-dark:#4f46e5;--ink:#1a1a2e;--muted:#6b7280}
+
+  /* ── Top hero ── */
+  .hero{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:56px 24px 64px;text-align:center}
+  .hero-badge{width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;margin:0 auto 16px}
+  .hero h1{font-size:30px;font-weight:800;margin-bottom:8px}
+  .hero p{font-size:15px;opacity:.9;max-width:560px;margin:0 auto}
+
+  /* ── Layout ── */
+  .wrap{max-width:880px;margin:-32px auto 60px;padding:0 20px}
+  .card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;box-shadow:0 4px 20px rgba(0,0,0,.06);padding:28px 30px;margin-bottom:22px}
+  .toc{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px}
+  .toc a{font-size:13.5px;font-weight:600;color:var(--brand);text-decoration:none;display:flex;gap:8px;padding:4px 0}
+  .toc a:hover{text-decoration:underline}
+  @media(max-width:600px){.toc{grid-template-columns:1fr}}
+
+  h2{font-size:20px;font-weight:800;color:var(--ink);margin-bottom:4px;display:flex;align-items:center;gap:10px}
+  .step-num{width:28px;height:28px;border-radius:9px;background:var(--brand);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .section-sub{font-size:13px;color:var(--muted);margin:2px 0 18px 38px}
+  h3{font-size:15px;font-weight:700;color:var(--ink);margin:20px 0 8px}
+  p{font-size:14.5px;color:#374151;margin-bottom:10px}
+  ul,ol{margin:0 0 12px 22px}
+  li{font-size:14.5px;color:#374151;margin-bottom:6px;line-height:1.65}
+  code{background:#f3f4f6;color:#6C3FF5;padding:1px 6px;border-radius:5px;font-size:13px;font-family:'SFMono-Regular',Consolas,Menlo,monospace}
+  strong{color:var(--ink);font-weight:700}
+
+  pre{background:#1e1e2e;color:#e2e8f0;border-radius:10px;padding:16px 18px;overflow-x:auto;font-size:12.5px;line-height:1.65;font-family:'SFMono-Regular',Consolas,Menlo,monospace;margin:10px 0 16px}
+  pre .k{color:#f472b6}   /* keys */
+  pre .s{color:#a6e3a1}   /* strings */
+  pre .n{color:#fab387}   /* numbers/bools */
+  pre .c{color:#7f8998;font-style:italic} /* comments */
+
+  .note{background:#f0ebff;border-left:4px solid var(--brand);border-radius:8px;padding:12px 15px;font-size:13.5px;color:#4c1d95;margin:14px 0}
+  .warn{background:#fffbeb;border-left:4px solid #f59e0b;border-radius:8px;padding:12px 15px;font-size:13.5px;color:#92400e;margin:14px 0}
+  .do-dont{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+  @media(max-width:600px){.do-dont{grid-template-columns:1fr}}
+  .do,.dont{border-radius:12px;padding:14px 16px;font-size:13.5px}
+  .do{background:#f0fdf4;border:1px solid #bbf7d0}
+  .dont{background:#fef2f2;border:1px solid #fecaca}
+  .do-title{font-weight:800;color:#15803d;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+  .dont-title{font-weight:800;color:#b91c1c;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+
+  table.ref{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0 18px}
+  table.ref th{background:#f9fafb;text-align:left;padding:8px 10px;font-weight:700;color:#374151;border-bottom:2px solid #e5e7eb}
+  table.ref td{padding:8px 10px;border-bottom:1px solid #f3f4f6;color:#4b5563;vertical-align:top}
+  table.ref tr:last-child td{border-bottom:none}
+
+  .badge{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:20px;color:#fff;text-transform:uppercase;letter-spacing:.03em}
+
+  .blocktype-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:12px 0 20px}
+  .blocktype-chip{display:flex;align-items:center;gap:8px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:9px;padding:9px 12px;font-size:12.5px;font-weight:600;color:#374151}
+  .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+
+  .checklist{background:#fafafa;border:1.5px dashed #d1d5db;border-radius:12px;padding:16px 18px;margin-top:16px}
+  .checklist li{list-style:none;margin-bottom:8px;display:flex;gap:8px;font-size:13.5px}
+  .checklist li::before{content:'☐';color:var(--brand);font-weight:800;flex-shrink:0}
+
+  footer{text-align:center;font-size:12px;color:#9ca3af;padding:20px}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">UN</div>
+  <h1>Content Producer Guide</h1>
+  <p>How to build a chapter — theory, questions, and everything else — in the Question Builder tab.</p>
+</div>
+
+<div class="wrap">
+
+  <!-- TOC -->
+  <div class="card">
+    <h2 style="margin-bottom:14px">📑 What's in this guide</h2>
+    <div class="toc">
+      <a href="#start">1. Getting started</a>
+      <a href="#subject">2. Creating a subject</a>
+      <a href="#tree">3. Units &amp; chapters</a>
+      <a href="#concept">4. Writing the concept (theory)</a>
+      <a href="#blocks">5. Content block reference</a>
+      <a href="#playground">6. SQL Playground (SQL subjects only)</a>
+      <a href="#questions">7. Adding practice questions</a>
+      <a href="#options">8. Text vs. image options — the rules</a>
+      <a href="#explanation">9. Explanations (text, image, video, link)</a>
+      <a href="#import">10. Importing content from a file</a>
+      <a href="#save">11. Saving &amp; permissions</a>
+      <a href="#checklist">12. Before-you-save checklist</a>
+    </div>
+  </div>
+
+  <!-- 1. Getting started -->
+  <div class="card" id="start">
+    <h2><span class="step-num">1</span> Getting started</h2>
+    <p class="section-sub">Log in and find your subject</p>
+    <ol>
+      <li>Log in at the admin login page with your editor/admin account.</li>
+      <li>Open the <strong>Question Builder</strong> tab. The pills across the top show every subject <em>mapped to you</em> — if you don't see a subject you expect, ask an admin to map it to your account.</li>
+      <li>Click a pill to load that subject's units and chapters into the tree on the left.</li>
+    </ol>
+    <div class="note">👁 If a subject pill loads but the <strong>Save</strong> button is greyed out with a "View only" note, you have read access but not edit access to that subject — ask an admin to grant <code>can_edit</code>.</div>
+  </div>
+
+  <!-- 2. Creating a subject -->
+  <div class="card" id="subject">
+    <h2><span class="step-num">2</span> Creating a subject</h2>
+    <p class="section-sub">Only needed once per new topic — most days you'll skip straight to step 3</p>
+    <ol>
+      <li>Click <strong>+ New Subject</strong>.</li>
+      <li>Pick the <strong>Subject Name</strong> from the dropdown (e.g. Accounts, Economics, Physics).</li>
+      <li>Type a <strong>Subject Topic Name</strong> — this is the specific version you're authoring, e.g. <em>"Introduction to Journal Entries"</em>. It's required.</li>
+      <li>The <strong>Subject Code</strong> fills in automatically — you don't type it. It's generated from the subject name and a running number, e.g. <code>AC0001</code>, then <code>AC0002</code>, then <code>AC0003</code>.</li>
+      <li>Pick a color (used for badges/highlights across the app) and click <strong>Create</strong>.</li>
+    </ol>
+    <div class="note">Picking the same Subject Name again (e.g. Accounts a second time) is completely fine — it just creates a new row with the next code (<code>AC0002</code>) and its own Subject Topic Name. You don't need to worry about "duplicates."</div>
+  </div>
+
+  <!-- 3. Units & chapters -->
+  <div class="card" id="tree">
+    <h2><span class="step-num">3</span> Units &amp; chapters</h2>
+    <p class="section-sub">The tree on the left — your table of contents</p>
+    <ul>
+      <li><strong>Units</strong> are the big groupings a learner sees in the sidebar (e.g. "Unit 1: Fundamentals").</li>
+      <li><strong>Chapters</strong> live inside a unit — each chapter gets its own theory (concept) and its own set of practice questions.</li>
+      <li>Click <strong>+ Add Unit</strong> or <strong>+ Add Chapter</strong> and type a title. Click any chapter row to open it in the editor on the right.</li>
+      <li>Use ✎ to rename, 🗑/✕ to delete. Deleting a unit deletes every chapter (and every question) inside it — there's a confirm prompt, but there's no undo after you save.</li>
+    </ul>
+  </div>
+
+  <!-- 4. Writing the concept -->
+  <div class="card" id="concept">
+    <h2><span class="step-num">4</span> Writing the concept (theory)</h2>
+    <p class="section-sub">The explanation a learner reads before attempting questions</p>
+    <ol>
+      <li>Select a chapter, then open the <strong>💡 Concept / Theory</strong> section.</li>
+      <li>Set a <strong>Concept Title</strong> (defaults to the chapter title).</li>
+      <li>Leave <strong>Enable LaTeX</strong> checked if you'll write any math — you can then use <code>$x^2$</code> for inline math and <code>$$x^2$$</code> for a centered equation, anywhere text is accepted.</li>
+      <li>Build the body out of <strong>content blocks</strong> — click any of the <code>+ type</code> buttons to add one. Reorder with ↑ / ↓, remove with ✕.</li>
+    </ol>
+    <div class="note">There's no single "concept text box" — theory is always a sequence of blocks (heading, paragraph, list, table, etc.), stacked in the order you add them. This is what lets a chapter mix prose, a table, an example, and a video in one flow.</div>
+  </div>
+
+  <!-- 5. Block reference -->
+  <div class="card" id="blocks">
+    <h2><span class="step-num">5</span> Content block reference</h2>
+    <p class="section-sub">Every block type, what it's for, and the JSON it produces</p>
+
+    <div class="blocktype-grid">
+      <div class="blocktype-chip"><span class="dot" style="background:#4f46e5"></span>heading</div>
+      <div class="blocktype-chip"><span class="dot" style="background:#6b7280"></span>paragraph</div>
+      <div class="blocktype-chip"><span class="dot" style="background:#7c3aed"></span>note</div>
+      <div class="blocktype-chip"><span class="dot" style="background:#0891b2"></span>formula</div>
+      <div class="blocktype-chip"><span class="dot" style="background:#d97706"></span>list</div>
+      <div class="blocktype-chip"><span class="dot" style="background:#0d9488"></span>summary</div>
+      <div class="blocktype-chip"><span class="dot" style="background:#059669"></span>table</div>
+      <div class="blocktype-chip"><span class="dot" style="background:#dc2626"></span>syntax</div>
+      <div class="blocktype-chip"><span class="dot" style="background:#db2777"></span>image</div>
+      <div class="blocktype-chip"><span class="dot" style="background:#dc2626"></span>video</div>
+      <div class="blocktype-chip"><span class="dot" style="background:#f59e0b"></span>exercise</div>
+      <div class="blocktype-chip"><span class="dot" style="background:#6C3FF5"></span>steps</div>
+      <div class="blocktype-chip"><span class="dot" style="background:#0ea5e9"></span>example</div>
+    </div>
+
+    <h3>heading / paragraph / note / formula</h3>
+    <p>The four "plain text" blocks — a heading breaks up the page, a paragraph is body text, a note renders as a highlighted 💡 callout, and a formula renders in a dark, centered code-style box (good for a single key equation).</p>
+    <pre>{ <span class="k">"type"</span>: <span class="s">"heading"</span>, <span class="k">"text"</span>: <span class="s">"Introduction"</span> }
+{ <span class="k">"type"</span>: <span class="s">"paragraph"</span>, <span class="k">"text"</span>: <span class="s">"A journal entry records a transaction using $Debit = Credit$."</span> }
+{ <span class="k">"type"</span>: <span class="s">"note"</span>, <span class="k">"text"</span>: <span class="s">"Every entry must balance — total debits always equal total credits."</span> }
+{ <span class="k">"type"</span>: <span class="s">"formula"</span>, <span class="k">"text"</span>: <span class="s">"Assets = Liabilities + Equity"</span> }</pre>
+
+    <h3>list / summary</h3>
+    <p>A bulleted list. <code>summary</code> is the same shape, styled as a "📌 Summary" box — use it for a recap at the end of a chapter.</p>
+    <pre>{ <span class="k">"type"</span>: <span class="s">"list"</span>, <span class="k">"items"</span>: [<span class="s">"First point"</span>, <span class="s">"Second point"</span>] }</pre>
+    <div class="note">Tip: in the editor, paste several lines from a doc directly into any list item box — it automatically splits them into separate items instead of one long line.</div>
+
+    <h3>table</h3>
+    <pre>{
+  <span class="k">"type"</span>: <span class="s">"table"</span>,
+  <span class="k">"headers"</span>: [<span class="s">"Account"</span>, <span class="s">"Debit"</span>, <span class="s">"Credit"</span>],
+  <span class="k">"rows"</span>: [
+    [<span class="s">"Cash"</span>, <span class="s">"5000"</span>, <span class="s">""</span>],
+    [<span class="s">"Sales"</span>, <span class="s">""</span>, <span class="s">"5000"</span>]
+  ]
+}</pre>
+    <p>In the editor, you can paste a table straight from Excel/Sheets (tab-separated) using the "📋 Paste table data" option instead of typing cell by cell.</p>
+
+    <h3>syntax</h3>
+    <p>A dark, monospace code block — use for SQL, formulas, or any code snippet.</p>
+    <pre>{ <span class="k">"type"</span>: <span class="s">"syntax"</span>, <span class="k">"language"</span>: <span class="s">"sql"</span>, <span class="k">"code"</span>: <span class="s">"SELECT * FROM Student WHERE Marks > 80;"</span> }</pre>
+
+    <h3>image / video</h3>
+    <pre>{ <span class="k">"type"</span>: <span class="s">"image"</span>, <span class="k">"title"</span>: <span class="s">"Ledger format"</span>, <span class="k">"image"</span>: <span class="s">"(uploaded file or URL)"</span>, <span class="k">"pdf"</span>: <span class="s">""</span> }
+{ <span class="k">"type"</span>: <span class="s">"video"</span>, <span class="k">"title"</span>: <span class="s">"Walkthrough"</span>, <span class="k">"url"</span>: <span class="s">"https://youtube.com/watch?v=..."</span>, <span class="k">"start"</span>: <span class="s">"1:30"</span> }</pre>
+    <p>Upload an image directly with the file picker in the editor — no need to host it yourself. For video, paste any YouTube link; <code>start</code> is optional (seconds, or <code>mm:ss</code>).</p>
+
+    <h3>steps / exercise</h3>
+    <p>Both show a numbered list. <code>steps</code> is a plain walkthrough; <code>exercise</code> is styled as a boxed "✏️ Practice" callout — use it for a problem you want visually separated from the theory.</p>
+    <pre>{ <span class="k">"type"</span>: <span class="s">"steps"</span>, <span class="k">"title"</span>: <span class="s">"How to post an entry"</span>, <span class="k">"steps"</span>: [<span class="s">"Identify the accounts"</span>, <span class="s">"Determine debit/credit"</span>, <span class="s">"Record the entry"</span>] }</pre>
+
+    <h3>example</h3>
+    <p>The richest block — a worked example with an optional input, numbered steps, a formula, a result, and an image, all in one card.</p>
+    <pre>{
+  <span class="k">"type"</span>: <span class="s">"example"</span>,
+  <span class="k">"title"</span>: <span class="s">"AVERAGEIF() Example"</span>,
+  <span class="k">"before"</span>: <span class="s">"Find the average marks of students in Physics."</span>,
+  <span class="k">"steps"</span>: [<span class="s">"Select the marks range"</span>, <span class="s">"Apply the condition"</span>],
+  <span class="k">"formula"</span>: <span class="s">"=AVERAGEIF(B2:B20,\"Physics\",D2:D20)"</span>,
+  <span class="k">"after"</span>: <span class="s">"Average marks of Physics students"</span>
+}</pre>
+  </div>
+
+  <!-- 6. SQL Playground -->
+  <div class="card" id="playground">
+    <h2><span class="step-num">6</span> SQL Playground <span style="font-size:12px;font-weight:600;color:var(--muted)">— only shown for the SQL subject</span></h2>
+    <p class="section-sub">A live, runnable sandbox attached to the chapter</p>
+    <ol>
+      <li>Open the <strong>🛢️ SQL Playground</strong> section (visible only when the subject code is <code>SQL</code>).</li>
+      <li><strong>Schema</strong>: the DDL + seed <code>INSERT</code> statements that run automatically before the learner types anything — this is what their queries will run against.</li>
+      <li><strong>Sample Queries</strong>: a few starter queries shown as clickable chips, so a learner can try something before writing their own.</li>
+    </ol>
+    <pre>{
+  <span class="k">"schema"</span>: <span class="s">"CREATE TABLE Student (Roll_No INT, Name TEXT, Marks INT);\nINSERT INTO Student VALUES (1,'Riya',88);"</span>,
+  <span class="k">"sampleQueries"</span>: [<span class="s">"SELECT * FROM Student;"</span>, <span class="s">"SELECT Name FROM Student WHERE Marks > 80;"</span>]
+}</pre>
+    <div class="warn">If you leave the schema blank, the learner-facing playground falls back to a generic demo table — always fill this in for a real SQL chapter so the practice matches the concept you just taught.</div>
+  </div>
+
+  <!-- 7. Questions -->
+  <div class="card" id="questions">
+    <h2><span class="step-num">7</span> Adding practice questions</h2>
+    <p class="section-sub">MCQ, MSQ, and NAT — three question types</p>
+    <table class="ref">
+      <tr><th>Type</th><th>What it is</th><th>Answer shape</th></tr>
+      <tr><td><span class="badge" style="background:#6C3FF5">MCQ</span></td><td>Single correct option</td><td>Exactly one option checked</td></tr>
+      <tr><td><span class="badge" style="background:#0891b2">MSQ</span></td><td>Multiple correct options</td><td>One or more options checked</td></tr>
+      <tr><td><span class="badge" style="background:#d97706">NAT</span></td><td>Numeric-answer type</td><td>A number, optionally within a tolerance, with an optional unit</td></tr>
+    </table>
+    <ol>
+      <li>In the <strong>Practice Questions</strong> section, click <strong>+ MCQ</strong>, <strong>+ MSQ</strong>, or <strong>+ NAT</strong>.</li>
+      <li>Type the <strong>Question Text</strong>. Check <strong>Enable LaTeX</strong> if it contains math.</li>
+      <li>Optionally attach a <strong>Question Image</strong> and choose whether it appears above or below the question text.</li>
+      <li>For MCQ/MSQ: fill in each <strong>Option</strong>, and mark the correct one(s) with the radio/checkbox next to it. For NAT: enter the <strong>Correct Answer</strong>, an optional <strong>Tolerance</strong>, and an optional <strong>Unit</strong>.</li>
+      <li>Write an <strong>Explanation</strong> — see the next section for adding media to it.</li>
+    </ol>
+  </div>
+
+  <!-- 8. Options rules -->
+  <div class="card" id="options">
+    <h2><span class="step-num">8</span> Text vs. image options — the rules</h2>
+    <p class="section-sub">How an option renders depends on what you fill in</p>
+    <table class="ref">
+      <tr><th>You fill in</th><th>Learner sees</th></tr>
+      <tr><td>Text only</td><td><code>A. Option A</code></td></tr>
+      <tr><td>Image only (text left blank)</td><td><code>A. [Image]</code> — no empty text shown</td></tr>
+      <tr><td>Text + Image</td><td><code>A. Option A [Image]</code> — text first, then image</td></tr>
+    </table>
+    <div class="do-dont">
+      <div class="do"><div class="do-title">✓ Do</div>Leave the text box empty if an option is purely a picture (e.g. a chart, a diagram). The app hides the empty text automatically.</div>
+      <div class="dont"><div class="dont-title">✗ Don't</div>Type a placeholder like "See image" just to fill the box — it will show up as real option text next to the picture.</div>
+    </div>
+    <p>Attach an option image with the 🖼 icon next to that option — it uploads directly, no separate hosting needed.</p>
+  </div>
+
+  <!-- 9. Explanations -->
+  <div class="card" id="explanation">
+    <h2><span class="step-num">9</span> Explanations — text, image, video, or link</h2>
+    <p class="section-sub">Shown to the learner right after they answer</p>
+    <p>An explanation isn't limited to plain text. Under the Explanation field you can also add:</p>
+    <ul>
+      <li><strong>Explanation Image</strong> — a diagram or worked-out image.</li>
+      <li><strong>Explanation Video</strong> — a YouTube URL; it embeds directly in the explanation box.</li>
+      <li><strong>Explanation Link</strong> — a reference link the learner can click to read more.</li>
+    </ul>
+    <p>Use as many of these as are useful together — e.g. a short text explanation <em>plus</em> a diagram is common and fully supported.</p>
+  </div>
+
+  <!-- 10. Import -->
+  <div class="card" id="import">
+    <h2><span class="step-num">10</span> Importing content from a file</h2>
+    <p class="section-sub">For writing offline in a spreadsheet-to-JSON tool or your own editor</p>
+    <ol>
+      <li>Click <strong>Download Template</strong> to get a ready-to-fill JSON file with the exact shape the builder expects.</li>
+      <li>Fill it in offline — one or more units, each with chapters, concept blocks, and questions.</li>
+      <li>Click <strong>Import JSON</strong> and choose your file. You'll be asked to confirm before anything is added.</li>
+      <li>Review the imported units/chapters in the tree, then <strong>Save</strong> — importing only changes what's in front of you; nothing touches the database until you save.</li>
+    </ol>
+    <div class="note">IDs are always regenerated on import, so two people's offline files never collide when merged into the same subject.</div>
+  </div>
+
+  <!-- 11. Save -->
+  <div class="card" id="save">
+    <h2><span class="step-num">11</span> Saving &amp; permissions</h2>
+    <ul>
+      <li>Nothing is written to the database until you click <strong>Save</strong> — everything before that is a local, in-browser draft.</li>
+      <li>Every save is logged with your name and the time, so changes are always traceable.</li>
+      <li>If you navigate away with unsaved changes, the browser will warn you before leaving the page.</li>
+      <li>Editors can only save subjects an admin has explicitly mapped to them with edit access — admins and super admins can save any subject.</li>
+    </ul>
+  </div>
+
+  <!-- 12. Checklist -->
+  <div class="card" id="checklist">
+    <h2><span class="step-num">✓</span> Before-you-save checklist</h2>
+    <div class="checklist">
+      <ul>
+        <li>Chapter title is clear and matches what's in the concept</li>
+        <li>Concept has at least a heading + paragraph — not left empty</li>
+        <li>Any math uses <code>$...$</code> / <code>$$...$$</code> and LaTeX is enabled</li>
+        <li>Images are uploaded directly, not linked to an external page that could go down</li>
+        <li>Every question has at least one option (or a NAT answer) and a correct answer marked</li>
+        <li>Option text boxes are left blank where an option is image-only</li>
+        <li>Explanation is filled in for every question — text, or text + media</li>
+        <li>SQL subjects: schema and sample queries are filled in, not left default</li>
+        <li>Previewed the chapter (👁 Preview) before saving</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<footer>UNIC Academic — Question Builder producer guide</footer>
+
+</body>
+</html>
