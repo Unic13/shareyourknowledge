@@ -20,7 +20,6 @@
     <div class="brand-tagline">Learn • Create • Share</div>
   </div>
   <div class="header-right">
-     <a href="question-builder-guide.html" class="btn-logout" style="text-decoration:none" id="guide-link">📘 Guide for Making Content</a>
     <a href="admin-guide.html" class="btn-logout" style="text-decoration:none" id="guide-link">📘 Guide</a>
     <a href="view.html" target="_blank" class="btn-logout" style="text-decoration:none">👁 View Live Content</a>
     <span class="role-badge" id="role-badge"></span>
@@ -243,14 +242,13 @@
     <div class="form-modal-body">
       <div class="b-field">
         <label>Subject</label>
-        <input type="text" id="mm-subject-input" list="mm-subject-list" placeholder="Search subject by name or code…" oninput="UsersModule.onMapSubjectInput()">
+        <div style="display:flex;gap:8px">
+          <input type="text" id="mm-subject-input" list="mm-subject-list" placeholder="CODE - Subject Name - Topic…" style="flex:1" oninput="UsersModule.onMapSubjectInput()">
+          <button class="b-btn b-btn-outline b-btn-sm" onclick="openNewSubjectPrompt()">+ New Subject</button>
+        </div>
         <datalist id="mm-subject-list"></datalist>
         <div id="mm-already-mapped" class="b-field-hint"></div>
-      </div>
-      <div class="b-field">
-        <label>Sub-topic / Version (optional)</label>
-        <input type="text" id="mm-variant" placeholder="e.g. Class 6 — Prepared by Muthu">
-        <div class="b-field-hint">Informational note only — shown on the Subject Map page, doesn't restrict access to a specific version.</div>
+        <div class="b-field-hint">Format: <code>CODE - Subject Name - Topic</code>, e.g. <code>ACC001 - Accounts - Introduction to Journal Entries</code></div>
       </div>
       <div class="b-field"><label><input type="checkbox" id="mm-edit" style="width:auto;margin-right:6px" checked> Can edit</label></div>
       <div class="b-field"><label><input type="checkbox" id="mm-publish" style="width:auto;margin-right:6px"> Can publish</label></div>
