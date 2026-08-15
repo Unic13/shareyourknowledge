@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UNIC Academic — Knowledge Sharing</title>
+<title>UnicKnowledge Sharing — Practice Portal</title>
+<link rel="icon" href="img/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
@@ -41,13 +42,13 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f4f5fb;color:#1a1a2e;m
   padding:0 16px;z-index:30;flex-shrink:0;
   box-shadow:0 1px 3px rgba(0,0,0,.06)
 }
-#logo-box{
-  width:34px;height:34px;border-radius:10px;flex-shrink:0;
-  background:linear-gradient(135deg,#7c3aed,#4f46e5);
-  display:flex;align-items:center;justify-content:center;
-  font-weight:800;color:#fff;font-size:11px;letter-spacing:.5px
+/* Logo — a real link to index.html, image only (the logo already carries the wordmark) */
+.brand-logo-img{height:34px;width:auto;display:block;object-fit:contain}
+#brand-home-btn{
+  display:flex;align-items:center;text-decoration:none;color:inherit;
+  padding:4px 6px;border-radius:9px;transition:background var(--trans);flex-shrink:0
 }
-#brand-name{font-weight:700;font-size:14px;color:#111;white-space:nowrap}
+#brand-home-btn:hover{background:#f3f4f6}
 #sidebar-toggle{
   background:none;border:none;cursor:pointer;padding:7px;
   border-radius:8px;color:#6b7280;transition:background var(--trans)
@@ -448,10 +449,8 @@ table.sql-result-table tbody tr:nth-child(even){background:#f8fafc}
 .modal-stripe{height:5px;background:linear-gradient(90deg,#7c3aed,#6366f1,#4f46e5)}
 .modal-body{padding:32px}
 .modal-logo{
-  width:52px;height:52px;border-radius:16px;margin:0 auto 14px;
-  background:linear-gradient(135deg,#7c3aed,#4f46e5);
-  display:flex;align-items:center;justify-content:center;
-  font-weight:800;color:#fff;font-size:14px;box-shadow:0 4px 14px rgba(124,58,237,.35)
+  height:52px;width:auto;max-width:220px;margin:0 auto 14px;
+  display:block;object-fit:contain
 }
 .modal-title{font-size:22px;font-weight:800;color:#111;text-align:center;margin-bottom:5px}
 .modal-sub{font-size:13px;color:#9ca3af;text-align:center;margin-bottom:22px;line-height:1.5}
@@ -521,12 +520,7 @@ table.sql-result-table tbody tr:nth-child(even){background:#f8fafc}
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:240px;color:#9ca3af;gap:10px;text-align:center}
 .empty-icon{font-size:40px}
 
-/* ─── Brand / Home nav button ─── */
-#brand-home-btn{
-  display:flex;align-items:center;gap:9px;background:none;border:none;
-  cursor:pointer;padding:4px 6px;border-radius:9px;transition:background var(--trans)
-}
-#brand-home-btn:hover{background:#f3f4f6}
+/* ─── Home / dashboard / notes nav buttons ─── */
 #home-nav-btn,#dashboard-nav-btn{
   display:flex;align-items:center;gap:6px;
   padding:6px 13px;border-radius:9px;border:1.5px solid #e5e7eb;
@@ -712,7 +706,7 @@ table.sql-result-table tbody tr:nth-child(even){background:#f8fafc}
 
 /* ─── Responsive ─── */
 @media(max-width:640px){
-  #brand-name{display:none}
+  .brand-logo-img{height:28px}
   #global-search-input{width:110px}
   #global-search-input:focus{width:140px}
   .global-search-dropdown{width:260px;right:-40px}
@@ -799,9 +793,9 @@ table.sql-result-table tbody tr:nth-child(even){background:#f8fafc}
   <div class="modal">
     <div class="modal-stripe"></div>
     <div class="modal-body">
-      <div class="modal-logo" id="modal-logo">UN</div>
-      <h1 class="modal-title" id="modal-title">Welcome to UNIC Academic</h1>      
-      <p class="modal-sub" id="modal-sub"><em>Knowledge Sharing — Learn • Create • Share</em><br>Enter your details to save progress &amp; get updates.<br><em>All fields are optional.</em></p>
+      <img class="modal-logo" id="modal-logo" src="img/logo.png" alt="UnicKnowledge Sharing">
+      <h1 class="modal-title" id="modal-title">Welcome to UnicKnowledge Sharing</h1>      
+      <p class="modal-sub" id="modal-sub"><em>Learn • Create • Share</em><br>Enter your details to save progress &amp; get updates.<br><em>All fields are optional.</em></p>
 
       <div class="modal-mode-tabs">
         <button type="button" class="mode-tab active" id="mode-register-btn" onclick="setModalMode('register')">New here? Register</button>
@@ -856,10 +850,9 @@ table.sql-result-table tbody tr:nth-child(even){background:#f8fafc}
     <button id="sidebar-toggle" aria-label="Toggle sidebar">
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
     </button>
-    <button id="brand-home-btn" title="Go to home">
-      <div id="logo-box">UN</div>
-      <span id="brand-name">UNIC Academic<br>Learn • Create • Share</span>
-    </button>
+    <a id="brand-home-btn" href="index.html" title="Go to UnicKnowledge Sharing home">
+      <img src="img/logo.png" alt="UnicKnowledge Sharing" class="brand-logo-img">
+    </a>
     <button id="home-nav-btn" title="Go to home">🏠 <span>Home</span></button>
     <button id="dashboard-nav-btn" title="Your practice dashboard">📊 <span>Dashboard</span></button>
     <button id="notes-nav-btn" title="Your notes">📝 <span>Notes</span></button>
@@ -915,7 +908,7 @@ table.sql-result-table tbody tr:nth-child(even){background:#f8fafc}
 
 <script>
 // ══════════════════════════════════════════
-//  UNIC ACADEMIC — Core App
+//  UNICKNOWLEDGE SHARING — Core App
 // ══════════════════════════════════════════
 
 // SUBJECTS is now built dynamically from the live database in init() below
@@ -969,7 +962,7 @@ function getActivePlayground() {
 const I18N = {
   en: {
     home:'Home', dashboard:'Dashboard', notes:'Notes', signOut:'Sign out',
-    welcomeTo:'Welcome to', tagline:'Knowledge Sharing — Learn • Create • Share',
+    welcomeTo:'Welcome to', tagline:'Learn • Create • Share — Practice • Grow',
     pickSubject:'Pick a subject below to start practising',
     startLearning:'Start Learning & Practice',
     yourDashboard:'Your Dashboard', dashboardSub:'Practice time, accuracy, and feedback — all in one place',
@@ -985,7 +978,7 @@ const I18N = {
   },
   ta: {
     home:'முகப்பு', dashboard:'பலகை', notes:'குறிப்புகள்', signOut:'வெளியேறு',
-    welcomeTo:'வரவேற்கிறோம்', tagline:'அறிவைப் பகிர்தல் — கற்றல் • உருவாக்கம் • பகிர்தல்',
+    welcomeTo:'வரவேற்கிறோம்', tagline:'கற்றல் • உருவாக்கம் • பகிர்தல் — பயிற்சி • வளர்ச்சி',
     pickSubject:'பயிற்சியைத் தொடங்க கீழே ஒரு பாடத்தைத் தேர்ந்தெடுக்கவும்',
     startLearning:'கற்றலைத் தொடங்கு & பயிற்சி செய்',
     yourDashboard:'உங்கள் பலகை', dashboardSub:'பயிற்சி நேரம், துல்லியம் மற்றும் கருத்து — அனைத்தும் ஒரே இடத்தில்',
@@ -1001,7 +994,7 @@ const I18N = {
   },
   hi: {
     home:'होम', dashboard:'डैशबोर्ड', notes:'नोट्स', signOut:'साइन आउट',
-    welcomeTo:'में आपका स्वागत है', tagline:'ज्ञान साझा करना — सीखें • बनाएं • साझा करें',
+    welcomeTo:'में आपका स्वागत है', tagline:'सीखें • बनाएं • साझा करें — अभ्यास • विकास',
     pickSubject:'अभ्यास शुरू करने के लिए नीचे एक विषय चुनें',
     startLearning:'सीखना और अभ्यास शुरू करें',
     yourDashboard:'आपका डैशबोर्ड', dashboardSub:'अभ्यास समय, सटीकता और फीडबैक — सब एक जगह',
@@ -1160,16 +1153,13 @@ async function init() {
   });
 
   state.config = {
-    academyName: 'UNIC Academic',
-    logoText: 'UN',
+    academyName: 'UnicKnowledge Sharing',
     subjects: Object.keys(SUBJECTS),
     howDidYouFindUs: ['Google', 'Friend', 'YouTube', 'Teacher', 'Other'],
   };
 
   document.title = state.config.academyName + ' — Practice Portal';
-  document.querySelectorAll('#logo-box, .modal-logo').forEach(el => el.textContent = state.config.logoText || 'UN');
   document.getElementById('modal-title').textContent = 'Welcome to ' + state.config.academyName;
-  document.getElementById('brand-name').textContent = state.config.academyName;
 
   const src = document.getElementById('f-source');
   (state.config.howDidYouFindUs || []).forEach(opt => {
@@ -1280,7 +1270,7 @@ function renderHomeHTML() {
   wrap.innerHTML = `
     <div class="fade-in">
       <div class="home-hero">
-        <h1>${t('welcomeTo')} ${state.config?.academyName || 'UNIC Academic'}</h1> <br><h5>${t('tagline')}</h5>
+        <h1>${t('welcomeTo')} ${state.config?.academyName || 'UnicKnowledge Sharing'}</h1> <br><h5>${t('tagline')}</h5>
         <p>${t('pickSubject')}</p>
       </div>
       <div class="home-grid">${cardsHTML}</div>
@@ -1743,27 +1733,36 @@ function renderVideoBlock(url, title = '', start) {
   </div>`;
 }
 
-function renderOptionContent(opt) {
+function renderOptionContent(opt, imgVal) {
+  // Legacy shape: option stored as an object with its own text/image/pdf.
   if (opt && typeof opt === 'object' && !Array.isArray(opt)) {
     const text = opt.text ?? opt.label ?? '';
-    const imgVal = opt.image || opt.src || opt.path || opt.url;
+    imgVal = imgVal || opt.image || opt.src || opt.path || opt.url;
     const pdfVal = opt.pdf;
+    const hasText = !!(text && String(text).trim());
     let html = '';
+    if (hasText) html += `<span class="opt-text-inline">${formatText(String(text))}</span>`;
     if (imgVal) {
       const src = resolveMediaSrc(imgVal, 'image');
       if (src) html += `<img src="${src}" alt="" loading="lazy" class="opt-img" onclick="event.stopPropagation();openLightbox('${src.replace(/'/g,"\\'")}')">`;
     }
     if (pdfVal) html += renderPdfBlock(pdfVal);
-    if (text) html += `<span class="opt-text-inline">${formatText(String(text))}</span>`;
     return html || '&nbsp;';
   }
 
-  if (looksLikeImageString(opt)) {
-    const src = resolveMediaSrc(opt, 'image');
-    return `<img src="${src}" alt="" loading="lazy" class="opt-img" onclick="event.stopPropagation();openLightbox('${src.replace(/'/g,"\\'")}')">`;
-  }
+  const textStr = String(opt ?? '').trim();
+  // Legacy fallback: some older rows stored the image data itself as the option "text".
+  const textIsImage = !imgVal && looksLikeImageString(textStr);
+  const effectiveImg = imgVal || (textIsImage ? textStr : '');
+  const hasText = textStr && !textIsImage;
 
-  return formatText(String(opt ?? ''));
+  let html = '';
+  if (hasText) html += `<span class="opt-text-inline">${formatText(textStr)}</span>`;
+  if (effectiveImg) {
+    const src = resolveMediaSrc(effectiveImg, 'image');
+    if (src) html += `<img src="${src}" alt="" loading="lazy" class="opt-img" onclick="event.stopPropagation();openLightbox('${src.replace(/'/g,"\\'")}')">`;
+  }
+  return html || '&nbsp;';
 }
 
 function renderConceptBody(body = []) {
@@ -2130,17 +2129,18 @@ function renderSingleQuestionCard(q, absoluteIndex, color) {
       } else {
         if ((selected || []).includes(i)) cls += ' selected';
       }
+      const optImg = (q.optionImages || [])[i];
       optionsHTML += `
         <button class="${cls}" data-idx="${i}" onclick="toggleOption('${q.id}', ${i})">
           <span class="opt-label">${labelContent}</span>
-          <span class="opt-text">${renderOptionContent(opt)}</span>
+          <span class="opt-text">${renderOptionContent(opt, optImg)}</span>
         </button>`;
     });
     bodyHTML = `<div class="q-options">${optionsHTML}</div>`;
   }
 
   let exHTML = '';
-  if (isSubmitted && (q.explanation || q.explanationImage || q.explanationPdf)) {
+  if (isSubmitted && (q.explanation || q.explanationImage || q.explanationPdf || q.explanationVideo || q.explanationLink)) {
     const isRight = checkIsCorrect(q, selected);
     const cls = isRight ? 'correct' : 'wrong';
     const icon = isRight ? '🎉' : '💡';
@@ -2150,6 +2150,8 @@ function renderSingleQuestionCard(q, absoluteIndex, color) {
       ${q.explanation ? `<div class="exp-text">${q.explanation}</div>` : ''}
       ${renderImageBlock(q.explanationImage)}
       ${renderPdfBlock(q.explanationPdf)}
+      ${q.explanationVideo ? renderVideoBlock(q.explanationVideo, '') : ''}
+      ${q.explanationLink ? `<div style="margin-top:8px"><a href="${escapeHtml(q.explanationLink)}" target="_blank" rel="noopener">🔗 ${escapeHtml(q.explanationLink)}</a></div>` : ''}
     </div>`;
   }
 
@@ -3244,7 +3246,8 @@ function bindEvents() {
   document.getElementById('f-name').addEventListener('keydown', e => { if(e.key==='Enter') handleModalSubmit(); });
   document.getElementById('f-email').addEventListener('keydown', e => { if(e.key==='Enter') handleModalSubmit(); });
 
-  document.getElementById('brand-home-btn').addEventListener('click', showHome);
+  // brand-home-btn is a real <a href="index.html"> now — no click handler
+  // needed, the browser navigates there natively (see topbar markup above).
   document.getElementById('home-nav-btn').addEventListener('click', showHome);
   document.getElementById('dashboard-nav-btn').addEventListener('click', showDashboard);
   document.getElementById('notes-nav-btn').addEventListener('click', showNotesPage);
