@@ -3,16 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UNIC Academic — Knowledge Sharing</title>
+<title>UnicKnowledge Sharing — Learn • Create • Share</title>
+<meta name="description" content="UnicKnowledge Sharing — practice questions, chapter theory, and a live SQL playground. Learn, create, and share knowledge.">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/admin.css">
+<link rel="icon" href="img/logo.png">
 <style>
   body{min-height:100vh;display:flex;flex-direction:column}
   .hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px}
-  .hero-logo{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:20px;box-shadow:0 8px 24px rgba(124,58,237,.35);margin-bottom:18px}
-  .hero-title{font-size:32px;font-weight:800;color:#111;margin-bottom:6px}
-  .hero-sub{font-size:15px;color:#6b7280;margin-bottom:2px}
-  .hero-tagline{font-size:12px;font-weight:700;letter-spacing:.08em;color:#a78bfa;text-transform:uppercase;margin-bottom:36px}
+
+  /* ── Logo placement ── */
+  .brand-logo-img{display:block;object-fit:contain}
+  header .brand-logo-img{height:38px;width:auto}
+  .hero .brand-logo-img{height:96px;width:auto;margin-bottom:14px;filter:drop-shadow(0 8px 20px rgba(124,58,237,.18))}
+  footer .brand-logo-img{height:30px;width:auto}
+  /* header no longer needs the old square badge + separate brand text stack */
+  header .logo{display:none}
+  header .brand-lockup{display:flex;align-items:center;gap:0}
+
+  .hero-title{font-size:30px;font-weight:800;color:#111;margin-bottom:4px}
+  .hero-sub{font-size:14px;color:#6b7280;margin-bottom:2px}
+  .hero-tagline{font-size:13px;font-weight:700;letter-spacing:.06em;color:#7c3aed;text-transform:uppercase;margin-bottom:2px}
+  .hero-tagline-sub{font-size:11px;font-weight:600;letter-spacing:.1em;color:#a78bfa;text-transform:uppercase;margin-bottom:36px}
+
   .hero-cards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:680px}
   .hero-card{width:270px;background:#fff;border:1.5px solid #e5e7eb;border-radius:18px;padding:28px 24px;text-align:left;text-decoration:none;color:inherit;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.06)}
   .hero-card:hover{border-color:#c4b5fd;box-shadow:0 8px 24px rgba(124,58,237,.12);transform:translateY(-2px)}
@@ -43,7 +56,6 @@
   .site-footer{max-width:1000px;margin:0 auto;padding:36px 20px 20px;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:28px}
   @media(max-width:640px){.site-footer{grid-template-columns:1fr;gap:22px}}
   .footer-brand{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-  .footer-logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:10px;flex-shrink:0}
   .footer-brand-name{font-weight:800;font-size:13.5px;color:#111}
   .footer-tagline{font-size:12px;color:#9ca3af;line-height:1.6}
   .footer-col-title{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin-bottom:10px}
@@ -55,11 +67,9 @@
 <body>
 
 <header>
-  <div class="logo">UN</div>
-  <div>
-    <div class="brand">UNIC Academic</div>
-    <div class="sub-brand">Knowledge Sharing</div>
-  </div>
+  <button id="brand-home-link" class="brand-lockup" style="background:none;border:none;cursor:pointer;padding:0" onclick="window.location.href='index.html'">
+    <img src="img/logo.png" alt="UnicKnowledge Sharing" class="brand-logo-img">
+  </button>
   <div class="header-right">
     <a href="view.html" class="btn-logout" style="text-decoration:none">📖 Browse</a>
     <a href="career.html" class="btn-logout" style="text-decoration:none">🎓 Careers</a>
@@ -68,10 +78,9 @@
 </header>
 
 <div class="hero">
-  <div class="hero-logo">UN</div>
-  <div class="hero-title">UNIC Academic</div>
-  <div class="hero-sub">Knowledge Sharing</div>
+  <img src="img/logo.png" alt="UnicKnowledge Sharing" class="brand-logo-img">
   <div class="hero-tagline">Learn • Create • Share</div>
+  <div class="hero-tagline-sub">Practice • Grow</div>
 
   <div class="hero-cards">
     <a class="hero-card" href="view.html">
@@ -160,10 +169,9 @@
   <div class="site-footer">
     <div>
       <div class="footer-brand">
-        <div class="footer-logo">UN</div>
-        <div class="footer-brand-name">UNIC Academic</div>
+        <img src="img/logo.png" alt="UnicKnowledge Sharing" class="brand-logo-img">
       </div>
-      <div class="footer-tagline">Knowledge Sharing — Learn • Create • Share.<br>Built for learners and contributors alike.</div>
+      <div class="footer-tagline">Learn • Create • Share — Practice • Grow.<br>Built for learners and contributors alike.</div>
     </div>
     <div class="footer-col">
       <div class="footer-col-title">Learn</div>
@@ -177,7 +185,7 @@
       <a href="legal.html">Disclaimer &amp; Terms</a>
     </div>
   </div>
-  <div class="footer-bottom">© UNIC Academic — some content may be AI-assisted and can sometimes be inaccurate.</div>
+  <div class="footer-bottom">© UnicKnowledge Sharing — some content may be AI-assisted and can sometimes be inaccurate.</div>
 </footer>
 
 <script>
