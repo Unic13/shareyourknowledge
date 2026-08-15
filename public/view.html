@@ -2207,7 +2207,8 @@ function renderSingleQuestionCard(q, absoluteIndex, color) {
     bodyHTML = renderNATHTML(q, isSubmitted);
   } else if (q.type === 'MATCH') {
     bodyHTML = renderMatchHTML(q, isSubmitted);
-    else {
+  {
+  else {
     let optionsHTML = '';
     q.options.forEach((opt, i) => {
       let cls = 'opt';
