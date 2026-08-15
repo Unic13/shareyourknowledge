@@ -896,6 +896,9 @@ function submitNewSubject() {
   markDirty();
   setBuilderStatus(`New subject "${code}" created — add a unit, then Save.`, '');
   closeNewSubjectModal();
+  // Lets other UI (e.g. the Map Subject modal) refresh its subject list
+  // without this file needing to know about them directly.
+  document.dispatchEvent(new CustomEvent('unic:subjectCreated', { detail: newSubject }));
 }
 
 // ── Live Preview / Raw JSON modal ──
