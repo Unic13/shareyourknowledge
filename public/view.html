@@ -354,6 +354,23 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f4f5fb;color:#1a1a2e;m
 .explanation.wrong{background:#fef2f2;border-color:#fca5a5;color:#b91c1c}
 .explanation-head{display:flex;align-items:center;gap:7px;font-weight:700;margin-bottom:5px;font-size:15px}
 
+.ar-block{padding:0 22px 14px}
+.ar-row{font-size:14px;color:#374151;margin-bottom:6px;line-height:1.6}
+
+.case-card{background:#f5f3ff;border:1.5px solid #ddd6fe;border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.case-title{font-weight:800;color:#5b21b6;font-size:13.5px;margin-bottom:8px}
+.case-passage{font-size:14px;color:#4c1d95;line-height:1.75;white-space:pre-wrap}
+
+.match-wrap{padding:0 22px 20px}
+.match-col-labels{display:flex;justify-content:space-between;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#9ca3af;margin-bottom:8px;padding:0 4px}
+.match-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;border:1.5px solid #e5e7eb;margin-bottom:8px}
+.match-row.correct{border-color:#86efac;background:#f0fdf4}
+.match-row.wrong{border-color:#fca5a5;background:#fef2f2}
+.match-left{flex:1;font-size:13.5px;color:#374151}
+.match-arrow{color:#9ca3af}
+.match-select{flex:1;padding:8px 10px;border-radius:8px;border:1.5px solid #e5e7eb;font-family:inherit;font-size:13px}
+.match-icon{font-weight:800}
+  
 /* Actions */
 .q-actions{padding:0 22px 20px;display:flex;align-items:center;gap:10px}
 .btn{
@@ -1579,6 +1596,8 @@ function getTypeCounts() {
     MCQ: all.filter(q => q.type === 'MCQ').length,
     MSQ: all.filter(q => q.type === 'MSQ').length,
     NAT: all.filter(q => q.type === 'NAT').length,
+    AR: all.filter(q => q.type === 'AR').length,
+    MATCH: all.filter(q => q.type === 'MATCH').length,
   };
 }
 
@@ -2003,6 +2022,8 @@ function renderTypeTabsHTML() {
     { key:'MCQ', label:'MCQ' },
     { key:'MSQ', label:'MSQ' },
     { key:'NAT', label:'NAT' },
+    { key: 'AR', label: 'Assertion-Reason' },
+    { key: 'MATCH', label: 'Match' },
   ];
   let html = '<div class="qtype-tabs">';
   types.forEach(t => {
@@ -2015,6 +2036,14 @@ function renderTypeTabsHTML() {
   return html;
 }
 
+function renderCasePassageHTML(c) {
+  return `<div class="case-card fade-in">
+    ${c.title ? `<div class="case-title">📋 ${escapeHtml(c.title)}</div>` : ''}
+    ${renderImageBlock(c.image)}
+    <div class="case-passage">${formatText(c.passage || '')}</div>
+  </div>`;
+}
+  
 function setQtypeFilter(type) {
   state.qtypeFilter = type;
   state.questionIndex = 0;
@@ -2050,13 +2079,23 @@ function renderQuestion() {
     bindSqlPlaygroundEvents();
     return;
   }
+  
 
   const batchStart = state.questionIndex;
   const batchEnd = Math.min(batchStart + batch.length, totalQ);
   const pct = (batchEnd / totalQ) * 100;
   const isLastBatch = batchEnd >= totalQ;
 
-  const cardsHTML = batch.map((q, bi) => renderSingleQuestionCard(q, batchStart + bi, color)).join('');
+  let lastCaseId = null;
+  const cardsHTML = batch.map((q, bi) => {
+    let caseHTML = '';
+    if (q.caseId && q.caseId !== lastCaseId) {
+      const c = (chapter?.cases || []).find(x => x.id === q.caseId);
+      if (c) caseHTML = renderCasePassageHTML(c);
+    }
+    lastCaseId = q.caseId || null;
+    return caseHTML + renderSingleQuestionCard(q, batchStart + bi, color);
+  }).join('');
 
   const totalBatches = Math.ceil(totalQ / BATCH_SIZE);
   const currentBatch = Math.floor(state.questionIndex / BATCH_SIZE);
@@ -2107,14 +2146,68 @@ function renderQuestion() {
   bindSqlPlaygroundEvents();
 }
 
+
+ const matchShuffleCache = {};
+function getMatchShuffledRightIndices(q) {
+  if (!matchShuffleCache[q.id]) {
+    const idx = q.pairs.map((_, i) => i);
+    for (let i = idx.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [idx[i], idx[j]] = [idx[j], idx[i]];
+    }
+    matchShuffleCache[q.id] = idx;
+  }
+  return matchShuffleCache[q.id];
+}
+
+function renderMatchHTML(q, isSubmitted) {
+  const rightOrder = getMatchShuffledRightIndices(q);
+  const selected = state.answers[q.id] || {};
+  const rows = q.pairs.map((p, li) => {
+    const selectedRightIdx = selected[li];
+    let rowCls = '', icon = '';
+    if (isSubmitted) {
+      const isCorrect = selectedRightIdx === li; // correct match shares the same original index
+      rowCls = isCorrect ? 'correct' : 'wrong';
+      icon = isCorrect ? '✓' : '✗';
+    }
+    const options = rightOrder.map(ri =>
+      `<option value="${ri}" ${String(selectedRightIdx) === String(ri) ? 'selected' : ''}>${escapeHtml(q.pairs[ri].right)}</option>`).join('');
+    return `
+      <div class="match-row ${rowCls}">
+        <span class="match-left">${li + 1}. ${formatText(p.left)}</span>
+        <span class="match-arrow">→</span>
+        <select class="match-select" ${isSubmitted ? 'disabled' : ''} onchange="handleMatchSelect('${q.id}',${li},this.value)">
+          <option value="">Select match…</option>${options}
+        </select>
+        ${isSubmitted ? `<span class="match-icon">${icon}</span>` : ''}
+      </div>`;
+  }).join('');
+  return `<div class="match-wrap">
+    <div class="match-col-labels"><span>${escapeHtml(q.columnATitle || 'Column A')}</span><span>${escapeHtml(q.columnBTitle || 'Column B')}</span></div>
+    ${rows}
+  </div>`;
+}
+
+function handleMatchSelect(qid, leftIdx, val) {
+  state.answers[qid] = state.answers[qid] || {};
+  state.answers[qid][leftIdx] = val === '' ? undefined : parseInt(val, 10);
+  const q = getQuestions().find(qq => qq.id === qid);
+  const allAnswered = q && q.pairs.every((_, i) => state.answers[qid][i] !== undefined);
+  const checkBtn = document.getElementById(`btn-check-${qid}`);
+  if (checkBtn) checkBtn.disabled = !allAnswered;
+} 
+
 function renderSingleQuestionCard(q, absoluteIndex, color) {
-  const selected = state.answers[q.id] ?? (q.type === 'NAT' ? '' : []);
+  const selected = state.answers[q.id] ?? (q.type === 'NAT' ? '' : q.type === 'MATCH' ? {} : []);
   const isSubmitted = !!state.submitted[q.id];
 
   let bodyHTML = '';
   if (q.type === 'NAT') {
     bodyHTML = renderNATHTML(q, isSubmitted);
-  } else {
+  } else if (q.type === 'MATCH') {
+    bodyHTML = renderMatchHTML(q, isSubmitted);
+    else {
     let optionsHTML = '';
     q.options.forEach((opt, i) => {
       let cls = 'opt';
@@ -2139,6 +2232,14 @@ function renderSingleQuestionCard(q, absoluteIndex, color) {
     bodyHTML = `<div class="q-options">${optionsHTML}</div>`;
   }
 
+  let arHTML = '';
+  if (q.type === 'AR') {
+    arHTML = `<div class="ar-block">
+      <div class="ar-row"><strong>Assertion (A):</strong> ${formatText(q.assertion || '')}</div>
+      <div class="ar-row"><strong>Reason (R):</strong> ${formatText(q.reason || '')}</div>
+    </div>`;
+  }
+
   let exHTML = '';
   if (isSubmitted && (q.explanation || q.explanationImage || q.explanationPdf || q.explanationVideo || q.explanationLink)) {
     const isRight = checkIsCorrect(q, selected);
@@ -2156,8 +2257,10 @@ function renderSingleQuestionCard(q, absoluteIndex, color) {
   }
 
   const hasAnswer = q.type === 'NAT'
-    ? (selected !== undefined && selected !== null && String(selected).trim() !== '')
-    : (selected && selected.length > 0);
+        ? (selected !== undefined && selected !== null && String(selected).trim() !== '')
+        : q.type === 'MATCH'
+        ? (selected && q.pairs.every((_, i) => selected[i] !== undefined))
+        : (selected && selected.length > 0);
 
   let actionHTML = '';
   if (!isSubmitted) {
@@ -2241,6 +2344,10 @@ function checkIsCorrect(q, selected) {
     }
     return String(selected).trim().toLowerCase() === String(q.answer).trim().toLowerCase();
   }
+  if (q.type === 'MATCH') {
+    if (!selected) return false;
+    return q.pairs.every((_, i) => selected[i] === i);
+  }
   return JSON.stringify([...(selected||[])].sort((a,b)=>a-b)) === JSON.stringify([...q.answer].sort((a,b)=>a-b));
 }
 
@@ -2254,13 +2361,13 @@ function goToDot(batchStartIndex) {
 // ══════════════════════════════════════════
 function toggleOption(qid, idx) {
   const q = getQuestions().find(qq => qq.id === qid);
-  if (!q || state.submitted[q.id] || q.type === 'NAT') return;
+  if (!q || state.submitted[q.id] || q.type === 'NAT' || q.type === 'MATCH') return;
   const prev = state.answers[q.id] || [];
-  if (q.type === 'MCQ') {
+  if (q.type === 'MCQ' || q.type === 'AR') {
     state.answers[q.id] = [idx];
   } else {
     const has = prev.includes(idx);
-    state.answers[q.id] = has ? prev.filter(x=>x!==idx) : [...prev, idx];
+    state.answers[q.id] = has ? prev.filter(x => x !== idx) : [...prev, idx];
   }
   renderQuestion();
 }
