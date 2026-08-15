@@ -236,7 +236,6 @@ const UsersModule = (() => {
     document.getElementById('map-modal-title').textContent = `Map Subjects — ${u.name}`;
     document.getElementById('mm-err').textContent = '';
     document.getElementById('mm-subject-input').value = '';
-    document.getElementById('mm-variant').value = '';
     document.getElementById('mm-already-mapped').textContent = '';
     document.getElementById('mm-edit').checked = true;
     document.getElementById('mm-publish').checked = false;
@@ -251,6 +250,12 @@ const UsersModule = (() => {
     existingBlock.innerHTML = '<div class="b-field-hint">Loading current mappings…</div>';
     document.getElementById('map-modal-overlay').classList.add('open');
 
+    // Refresh the subject list every time this opens, so a subject just
+    // created (even via the "+ New Subject" shortcut inside this modal)
+    // shows up without having to close and reopen anything.
+    const contentRes = await Api.get('/api/content');
+    allSubjects = contentRes.subjects || [];
+
     // Pull EVERY mapping (not just this admin's) so we can warn if a
     // subject is already assigned to a different editor.
     const [mapRes, allMapRes] = await Promise.all([
@@ -260,28 +265,35 @@ const UsersModule = (() => {
     const mappings = mapRes.mappings || [];
     allMappingsCache = allMapRes.mappings || [];
 
-    const list = document.getElementById('mm-subject-list');
-    list.innerHTML = allSubjects.length
-      ? allSubjects.map(s => `<option value="${esc(s.subject)} (${s.code})">`).join('')
-      : '';
-    if (!allSubjects.length) document.getElementById('mm-already-mapped').textContent = 'No subjects exist yet — save one from the Question Builder first.';
+    populateMapSubjectList();
+    if (!allSubjects.length) document.getElementById('mm-already-mapped').textContent = 'No subjects exist yet — use "+ New Subject" above to create one.';
 
     existingBlock.innerHTML = mappings.length
       ? '<div class="b-field-hint" style="margin-bottom:6px">Currently mapped:</div>' +
         mappings.map(m => `
           <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f3f4f6">
             <span class="badge badge-blue">${esc(m.code)}</span>
-            <span style="flex:1;font-size:12.5px">${esc(m.subject)}${m.subject_title ? ` <span style="color:#9ca3af">— ${esc(m.subject_title)}</span>` : ''}</span>
+            <span style="flex:1;font-size:12.5px">${esc(m.subject)}${m.variant_title ? ` <span style="color:#9ca3af">— ${esc(m.variant_title)}</span>` : ''}</span>
             <span class="badge ${m.can_edit ? 'badge-green' : 'badge-red'}">${m.can_edit ? 'edit' : 'view'}</span>
             <button class="b-btn b-btn-danger b-btn-sm" onclick="UsersModule.removeMapping(${m.id})">Remove</button>
           </div>`).join('') + '<div class="b-field-hint" style="margin:10px 0 4px">Add another:</div>'
       : '';
   }
 
+  // "CODE - Subject Name - Topic" — matches the format asked for exactly,
+  // and doubles as a search string since <input list> filters on it.
+  function subjectOptionLabel(s) {
+    return `${s.code} - ${s.subject} - ${s.subject_title || '(untitled)'}`;
+  }
+  function populateMapSubjectList() {
+    document.getElementById('mm-subject-list').innerHTML = allSubjects
+      .map(s => `<option value="${esc(subjectOptionLabel(s))}">`).join('');
+  }
+
   function onMapSubjectInput() {
     const val = document.getElementById('mm-subject-input').value.trim();
     const hintEl = document.getElementById('mm-already-mapped');
-    const subject = allSubjects.find(s => `${s.subject} (${s.code})` === val);
+    const subject = allSubjects.find(s => subjectOptionLabel(s) === val);
     if (!subject) { hintEl.textContent = ''; return; }
     const others = allMappingsCache.filter(m => m.code === subject.code && String(m.admin_id) !== String(mappingAdminId));
     hintEl.textContent = others.length
@@ -299,14 +311,16 @@ const UsersModule = (() => {
     const errEl = document.getElementById('mm-err');
     errEl.textContent = '';
     const val = document.getElementById('mm-subject-input').value.trim();
-    const variantTitle = document.getElementById('mm-variant').value.trim();
-    const subject = allSubjects.find(s => `${s.subject} (${s.code})` === val);
-    if (!subject) { errEl.textContent = 'Pick a subject from the list (start typing to search).'; return; }
+    const subject = allSubjects.find(s => subjectOptionLabel(s) === val);
+    if (!subject) { errEl.textContent = 'Pick a subject from the list (format: CODE - Subject Name - Topic).'; return; }
     if (!subject.id) { errEl.textContent = 'Could not resolve that subject — try reopening this dialog.'; return; }
 
     const canEdit = document.getElementById('mm-edit').checked;
     const canPublish = document.getElementById('mm-publish').checked;
-    const res = await Api.post('/api/users', { resource: 'mapping', adminId: mappingAdminId, subjectId: subject.id, canEdit, canPublish, variantTitle: variantTitle || null });
+    // The code now uniquely identifies the topic, so the mapping's
+    // variant_title just mirrors the subject's own topic for display —
+    // no separate free-text entry needed anymore.
+    const res = await Api.post('/api/users', { resource: 'mapping', adminId: mappingAdminId, subjectId: subject.id, canEdit, canPublish, variantTitle: subject.subject_title || null });
     if (res.success) { closeMapModal(); renderAdminView(); }
     else errEl.textContent = res.error || 'Could not save mapping.';
   }
@@ -318,6 +332,16 @@ const UsersModule = (() => {
     if (res.success) { closeMapModal(); renderAdminView(); }
     else document.getElementById('mm-err').textContent = res.error || 'Could not remove mapping.';
   }
+
+  // When "+ New Subject" is used from inside the Map modal, refresh the
+  // subject dropdown in place so the new subject is immediately pickable.
+  document.addEventListener('unic:subjectCreated', () => {
+    if (!document.getElementById('map-modal-overlay').classList.contains('open')) return;
+    Api.get('/api/content').then(res => {
+      allSubjects = res.subjects || [];
+      populateMapSubjectList();
+    });
+  });
 
   function esc(s) { return String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
