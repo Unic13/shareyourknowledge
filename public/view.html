@@ -2146,8 +2146,7 @@ function renderQuestion() {
   bindSqlPlaygroundEvents();
 }
 
-
- const matchShuffleCache = {};
+const matchShuffleCache = {};
 function getMatchShuffledRightIndices(q) {
   if (!matchShuffleCache[q.id]) {
     const idx = q.pairs.map((_, i) => i);
@@ -2203,11 +2202,19 @@ function renderSingleQuestionCard(q, absoluteIndex, color) {
   const isSubmitted = !!state.submitted[q.id];
 
   let bodyHTML = '';
+  let arHTML = '';
+  if (q.type === 'AR') {
+    arHTML = `<div class="ar-block">
+      <div class="ar-row"><strong>Assertion (A):</strong> ${formatText(q.assertion || '')}</div>
+      <div class="ar-row"><strong>Reason (R):</strong> ${formatText(q.reason || '')}</div>
+    </div>`;
+  }
+  
   if (q.type === 'NAT') {
     bodyHTML = renderNATHTML(q, isSubmitted);
   } else if (q.type === 'MATCH') {
     bodyHTML = renderMatchHTML(q, isSubmitted);
-  }
+  }    
   else {
     let optionsHTML = '';
     q.options.forEach((opt, i) => {
@@ -2232,14 +2239,7 @@ function renderSingleQuestionCard(q, absoluteIndex, color) {
     });
     bodyHTML = `<div class="q-options">${optionsHTML}</div>`;
   }
-
-  let arHTML = '';
-  if (q.type === 'AR') {
-    arHTML = `<div class="ar-block">
-      <div class="ar-row"><strong>Assertion (A):</strong> ${formatText(q.assertion || '')}</div>
-      <div class="ar-row"><strong>Reason (R):</strong> ${formatText(q.reason || '')}</div>
-    </div>`;
-  }
+  
 
   let exHTML = '';
   if (isSubmitted && (q.explanation || q.explanationImage || q.explanationPdf || q.explanationVideo || q.explanationLink)) {
@@ -2286,6 +2286,7 @@ function renderSingleQuestionCard(q, absoluteIndex, color) {
       <div class="q-body">
         <div class="q-text q-question">${q.question}</div>
       </div>
+      ${arHTML}
       ${imageAbove ? '' : mediaHTML}
       ${bodyHTML}
       ${exHTML}
@@ -2346,11 +2347,12 @@ function checkIsCorrect(q, selected) {
     return String(selected).trim().toLowerCase() === String(q.answer).trim().toLowerCase();
   }
   if (q.type === 'MATCH') {
-    if (!selected) return false;
+    if (selected === undefined || selected === null || String(selected).trim() === '') return false;    
     return q.pairs.every((_, i) => selected[i] === i);
   }
   return JSON.stringify([...(selected||[])].sort((a,b)=>a-b)) === JSON.stringify([...q.answer].sort((a,b)=>a-b));
 }
+
 
 function goToDot(batchStartIndex) {
   state.questionIndex = batchStartIndex;
