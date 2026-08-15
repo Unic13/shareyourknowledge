@@ -1,16 +1,11 @@
-// js/builder.js — ported from the original single-file admin panel, split
-// out into its own module and extended with:
-//   - subject list scoped to the logged-in editor's mapped subjects
-//   - save button disabled (with a clear reason) when the editor lacks
-//     can_edit on the active subject — the server enforces this too
-//   - a new "SQL Playground" section per chapter: { schema, sampleQueries }
-//     matching the shape you already use in your JSON, e.g.:
-//       "playground": { "schema": "CREATE TABLE ...", "sampleQueries": [...] }
-//   - one subject_content ROW per topic (e.g. Accounts → AC0001 "Journal
-//     Entries", AC0002 "Ledger Posting"), codes auto-generated per subject
-//     name, no merging/deduplication — creating a subject always makes a
-//     new row
-const QTYPE_COLORS = { MCQ: '#6C3FF5', MSQ: '#0891b2', NAT: '#d97706' };
+// js/builder.js — Admin Question Builder
+//
+// Supports: subject list scoped to the logged-in editor's mapped subjects;
+// save disabled (with a reason) when the editor lacks can_edit; a SQL
+// Playground section per chapter; a Key Formulas box per concept; optional
+// Case Studies / shared passages per chapter; and five question types —
+// MCQ, MSQ, NAT, Assertion-Reason (AR), and Match the Following (MATCH).
+const QTYPE_COLORS = { MCQ: '#6C3FF5', MSQ: '#0891b2', NAT: '#d97706', AR: '#be123c', MATCH: '#7c3aed' };
 const BTYPE_COLORS = {
   heading: '#4f46e5', paragraph: '#6b7280', note: '#7c3aed', formula: '#0891b2',
   list: '#d97706', table: '#059669', syntax: '#dc2626', image: '#db2777',
@@ -102,9 +97,7 @@ async function loadSubjectIntoBuilder(code) {
   renderBuilderEditor();
 }
 
-// Shows which topic this row/code represents, with a rename option — this
-// replaces the old variant-pills UI (each topic is now its own row/code,
-// selected via the subject pills above, not nested inside one blob).
+// Shows which topic this row/code represents, with a rename option.
 function renderTopicInfo(meta) {
   const wrap = document.getElementById('builder-variant-pills');
   if (!wrap) return;
@@ -157,6 +150,13 @@ function renderBuilderTree() {
   wrap.innerHTML = html;
 }
 
+// Every subject in this editor is a flat { units: [...] } document — no
+// nested "categories/variants" layer — so this always resolves to the
+// active subject's data object directly.
+function getUnitsContainer() {
+  return builder.activeData || null;
+}
+
 function addUnit() {
   const container = getUnitsContainer(); if (!container) return;
   const title = prompt('Unit title:');
@@ -188,7 +188,8 @@ function addChapter(unitId) {
   if (!unit) return;
   const chapter = {
     id: uid('c'), title: title.trim(),
-    concept: { title: title.trim(), latex: true, body: [] },
+    concept: { title: title.trim(), latex: true, body: [], formulas: [] },
+    cases: [],
     questions: [],
     playground: { schema: '', sampleQueries: [] },
   };
@@ -212,25 +213,24 @@ function selectChapterInBuilder(unitId, chapterId) {
   builder.openQuestionId = null; builder.openBodyIndex = null;
   renderBuilderTree(); renderBuilderEditor();
 }
-
-function getUnitsContainer() {
-  return builder.activeData || null;
-}
-
 function getActiveChapterObj() {
-  const container = getUnitsContainer(); if (!container) return null;
-  const unit = container.units?.find(u => u.id === builder.activeUnitId);
+  const container = getUnitsContainer();
+  const unit = container?.units?.find(u => u.id === builder.activeUnitId);
   return unit?.chapters?.find(c => c.id === builder.activeChapterId) || null;
 }
 
 function normalizeConcept(concept, fallbackTitle) {
   concept = concept || {};
-  const out = { title: concept.title || fallbackTitle || '', latex: concept.latex !== false, body: [] };
+  const out = { title: concept.title || fallbackTitle || '', latex: concept.latex !== false, body: [], formulas: [] };
   (Array.isArray(concept.body) ? concept.body : []).forEach(b => {
     if (typeof b === 'string') out.body.push({ type: 'paragraph', text: b });
     else if (b && b.type) out.body.push(b);
   });
-  (concept.formulas || []).forEach(f => { if (typeof f === 'string' && f.trim()) out.body.push({ type: 'formula', text: f }); });
+  // Key Formulas is its own field — a row of chips shown separately from
+  // the body blocks (see the Key Formulas editor section + preview).
+  (Array.isArray(concept.formulas) ? concept.formulas : []).forEach(f => {
+    if (typeof f === 'string' && f.trim()) out.formulas.push(f);
+  });
   return out;
 }
 
@@ -246,10 +246,11 @@ function renderBuilderEditor() {
   }
   label.textContent = chapter.title;
   chapter.concept = normalizeConcept(chapter.concept, chapter.title);
+  chapter.cases = chapter.cases || [];
   chapter.playground = chapter.playground || { schema: '', sampleQueries: [] };
   const concept = chapter.concept;
   const pg = chapter.playground;
-  const isSql = (builder.activeData.code || '').toUpperCase().startsWith('SQL') || (builder.activeData.subject || '').toUpperCase() === 'SQL';
+  const isSql = (builder.activeData.code || '').toUpperCase() === 'SQL';
 
   wrap.innerHTML = `
     <div class="editor-section">
@@ -270,6 +271,22 @@ function renderBuilderEditor() {
       </div>
     </div>
 
+    <div class="editor-section">
+      <div class="editor-section-title">🧮 Key Formulas</div>
+      <div class="b-field">
+        <label>Shown together in a highlighted "Key Formulas" box at the end of the concept. Supports LaTeX (e.g. <code>$Z = A^p B^q/C^r$</code>) when LaTeX is enabled above.</label>
+        <div id="ed-formulas-list"></div>
+        <button class="b-btn b-btn-outline b-btn-sm" onclick="addKeyFormula()">+ Add Key Formula</button>
+      </div>
+    </div>
+
+    <div class="editor-section">
+      <div class="editor-section-title">📋 Case Studies / Shared Passages (optional)</div>
+      <div class="b-field-hint">Create a passage once, then assign it to a group of questions below — for case-study/comprehension-style questions.</div>
+      <div id="ed-cases-list"></div>
+      <button class="b-btn b-btn-outline b-btn-sm" onclick="addCase()">+ Add Case / Passage</button>
+    </div>
+
     ${isSql ? `
     <div class="editor-section">
       <div class="editor-section-title">🛢️ SQL Playground</div>
@@ -288,14 +305,18 @@ function renderBuilderEditor() {
     <div class="editor-section">
       <div class="editor-section-title"><span>Practice Questions (${(chapter.questions || []).length})</span></div>
       <div id="ed-questions-list"></div>
-      <div style="display:flex;gap:8px;margin-top:8px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
         <button class="b-btn b-btn-outline b-btn-sm" onclick="addQuestion('MCQ')">+ MCQ</button>
         <button class="b-btn b-btn-outline b-btn-sm" onclick="addQuestion('MSQ')">+ MSQ</button>
         <button class="b-btn b-btn-outline b-btn-sm" onclick="addQuestion('NAT')">+ NAT</button>
+        <button class="b-btn b-btn-outline b-btn-sm" onclick="addQuestion('AR')">+ Assertion-Reason</button>
+        <button class="b-btn b-btn-outline b-btn-sm" onclick="addQuestion('MATCH')">+ Match the Following</button>
       </div>
     </div>`;
 
   renderBodyItemsList(concept);
+  renderKeyFormulasList(concept);
+  renderCasesList(chapter);
   renderPlaygroundQueries(pg);
   renderQuestionsList(chapter);
 }
@@ -307,8 +328,83 @@ function updateChapterTitle(val) {
 }
 function updateConceptField(field, val) {
   const chapter = getActiveChapterObj(); if (!chapter) return;
-  chapter.concept = chapter.concept || { title: '', latex: true, body: [] };
+  chapter.concept = chapter.concept || { title: '', latex: true, body: [], formulas: [] };
   chapter.concept[field] = val; markDirty();
+}
+
+// ── Key Formulas ──
+function renderKeyFormulasList(concept) {
+  const wrap = document.getElementById('ed-formulas-list'); if (!wrap) return;
+  wrap.innerHTML = '';
+  (concept.formulas || []).forEach((f, i) => {
+    const row = document.createElement('div');
+    row.className = 'b-list-item';
+    row.innerHTML = `<input type="text" style="font-family:monospace" value="${escAttr(f)}" oninput="updateKeyFormula(${i}, this.value)" placeholder="e.g. Relative error = \\$\\Delta a/a\\$">
+      <button class="b-icon-btn danger" onclick="removeKeyFormula(${i})">✕</button>`;
+    wrap.appendChild(row);
+  });
+}
+function addKeyFormula() {
+  const chapter = getActiveChapterObj(); if (!chapter) return;
+  chapter.concept.formulas = chapter.concept.formulas || [];
+  chapter.concept.formulas.push('');
+  renderKeyFormulasList(chapter.concept);
+  markDirty();
+}
+function updateKeyFormula(i, val) {
+  const chapter = getActiveChapterObj(); if (!chapter) return;
+  chapter.concept.formulas[i] = val;
+  markDirty();
+}
+function removeKeyFormula(i) {
+  const chapter = getActiveChapterObj(); if (!chapter) return;
+  chapter.concept.formulas.splice(i, 1);
+  renderKeyFormulasList(chapter.concept);
+  markDirty();
+}
+
+// ── Case Studies / shared passages ──
+function renderCasesList(chapter) {
+  const wrap = document.getElementById('ed-cases-list'); if (!wrap) return;
+  wrap.innerHTML = '';
+  (chapter.cases || []).forEach((c) => {
+    const card = document.createElement('div');
+    card.style.cssText = 'border:1.5px solid #e5e7eb;border-radius:10px;margin-bottom:10px;padding:12px';
+    card.innerHTML = `
+      <div class="b-field"><label>Title</label><input type="text" value="${escAttr(c.title || '')}" oninput="updateCaseField('${c.id}','title',this.value)" placeholder="e.g. Case Study 1"></div>
+      <div class="b-field"><label>Passage</label><textarea rows="3" oninput="updateCaseField('${c.id}','passage',this.value)">${escHtml(c.passage || '')}</textarea></div>
+      <div class="b-field"><label>Image (optional)</label>
+        <input type="text" value="${escAttr(c.image || '')}" oninput="updateCaseField('${c.id}','image',this.value)">
+        <div class="b-upload-row"><input type="file" accept="image/*" onchange="handleCaseImageUpload('${c.id}',this)"></div>
+      </div>
+      <button class="b-icon-btn danger b-btn-sm" onclick="removeCase('${c.id}')">🗑 Remove Case</button>`;
+    wrap.appendChild(card);
+  });
+}
+function addCase() {
+  const chapter = getActiveChapterObj(); if (!chapter) return;
+  chapter.cases = chapter.cases || [];
+  chapter.cases.push({ id: uid('case'), title: '', passage: '', image: '' });
+  renderCasesList(chapter); markDirty();
+}
+function updateCaseField(caseId, field, val) {
+  const chapter = getActiveChapterObj(); if (!chapter) return;
+  const c = (chapter.cases || []).find(x => x.id === caseId); if (!c) return;
+  c[field] = val; markDirty();
+}
+async function handleCaseImageUpload(caseId, inputEl) {
+  const file = inputEl.files[0]; if (!file) return;
+  const chapter = getActiveChapterObj(); if (!chapter) return;
+  const c = (chapter.cases || []).find(x => x.id === caseId); if (!c) return;
+  try { c.image = await fileToBase64(file); renderCasesList(chapter); markDirty(); }
+  catch { alert('Could not read that image file.'); }
+}
+function removeCase(caseId) {
+  const chapter = getActiveChapterObj(); if (!chapter) return;
+  if (!confirm('Remove this case? Questions assigned to it will lose the reference.')) return;
+  chapter.cases = (chapter.cases || []).filter(c => c.id !== caseId);
+  (chapter.questions || []).forEach(q => { if (q.caseId === caseId) q.caseId = ''; });
+  renderCasesList(chapter); renderQuestionsList(chapter); markDirty();
 }
 
 // ── Playground ──
@@ -592,22 +688,47 @@ async function handleImageUpload(i, inputEl) {
 function addQuestion(type) {
   const chapter = getActiveChapterObj(); if (!chapter) return;
   chapter.questions = chapter.questions || [];
-  const base = { explanation: '', explanationImage: '', explanationVideo: '', explanationLink: '' };
-  const q = type === 'NAT'
-    ? { id: uid('q'), type: 'NAT', latex: false, question: '', image: '', answer: 0, tolerance: 0, unit: '', ...base }
-    : { id: uid('q'), type, latex: false, question: '', image: '', options: ['', '', '', ''], optionImages: ['', '', '', ''], answer: [], ...base };
+  const base = { explanation: '', explanationImage: '', explanationVideo: '', explanationLink: '', caseId: '' };
+  let q;
+  if (type === 'NAT') {
+    q = { id: uid('q'), type: 'NAT', latex: false, question: '', image: '', answer: 0, tolerance: 0, unit: '', ...base };
+  } else if (type === 'AR') {
+    q = {
+      id: uid('q'), type: 'AR', latex: false, question: '', image: '',
+      assertion: '', reason: '',
+      options: [
+        'Both A and R are true and R is the correct explanation of A',
+        'Both A and R are true but R is not the correct explanation of A',
+        'A is true but R is false',
+        'A is false but R is true',
+      ],
+      optionImages: ['', '', '', ''],
+      answer: [], ...base,
+    };
+  } else if (type === 'MATCH') {
+    q = {
+      id: uid('q'), type: 'MATCH', latex: false, question: '', image: '',
+      columnATitle: 'Column A', columnBTitle: 'Column B',
+      pairs: [{ left: '', right: '' }, { left: '', right: '' }],
+      ...base,
+    };
+  } else {
+    q = { id: uid('q'), type, latex: false, question: '', image: '', options: ['', '', '', ''], optionImages: ['', '', '', ''], answer: [], ...base };
+  }
   chapter.questions.push(q);
   builder.openQuestionId = q.id;
   renderBuilderEditor(); markDirty();
 }
-
 function renderQuestionsList(chapter) {
   const wrap = document.getElementById('ed-questions-list'); wrap.innerHTML = '';
   (chapter.questions || []).forEach(q => {
     const isOpen = builder.openQuestionId === q.id;
     const card = document.createElement('div');
     card.style.cssText = 'border:1.5px solid #e5e7eb;border-radius:12px;margin-bottom:12px;overflow:hidden';
-    const summary = q.question ? q.question.replace(/\$/g, '').slice(0, 60) : '(empty question)';
+    const summary = q.question ? q.question.replace(/\$/g, '').slice(0, 60)
+      : q.type === 'AR' ? (q.assertion || '(empty assertion)').replace(/\$/g, '').slice(0, 60)
+      : q.type === 'MATCH' ? `${(q.pairs || []).length} pair(s) to match`
+      : '(empty question)';
     card.innerHTML = `
       <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:#f9fafb;cursor:pointer" onclick="toggleQuestionOpen('${q.id}')">
         <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;color:#fff;background:${QTYPE_COLORS[q.type]}">${q.type}</span>
@@ -628,17 +749,47 @@ function deleteQuestion(qid) {
 }
 function findQuestion(qid) { return getActiveChapterObj()?.questions?.find(q => q.id === qid); }
 
+function explanationFieldsHtml(q) {
+  return `
+    <div class="b-field"><label>Explanation</label><textarea rows="2" oninput="updateQuestionField('${q.id}','explanation',this.value)">${escHtml(q.explanation)}</textarea></div>
+    <div class="b-field">
+      <label>Explanation Image (optional)</label>
+      <input type="text" value="${escAttr(q.explanationImage || '')}" oninput="updateQuestionField('${q.id}','explanationImage',this.value)">
+      <div class="b-upload-row">
+        <input type="file" accept="image/*" onchange="handleExplanationImageUpload('${q.id}',this)">
+        ${q.explanationImage ? `<img src="${escAttr(q.explanationImage)}" class="b-thumb" style="max-width:160px;max-height:110px;border-radius:8px;border:1px solid #e5e7eb;object-fit:cover" onerror="this.style.display='none'"><button class="b-icon-btn danger b-btn-sm" onclick="clearExplanationImage('${q.id}')">Remove image</button>` : ''}
+      </div>
+    </div>
+    <div class="b-field"><label>Explanation Video (YouTube URL, optional)</label><input type="text" value="${escAttr(q.explanationVideo || '')}" oninput="updateQuestionField('${q.id}','explanationVideo',this.value)"></div>
+    <div class="b-field"><label>Explanation Link (optional)</label><input type="text" value="${escAttr(q.explanationLink || '')}" oninput="updateQuestionField('${q.id}','explanationLink',this.value)"></div>`;
+}
+
+function caseSelectHtml(q) {
+  const chapter = getActiveChapterObj();
+  if (!chapter || !(chapter.cases || []).length) return '';
+  const caseOptions = (chapter.cases || []).map(c =>
+    `<option value="${c.id}" ${q.caseId === c.id ? 'selected' : ''}>${escHtml(c.title || '(untitled case)')}</option>`).join('');
+  return `
+    <div class="b-field"><label>Part of Case / Passage (optional)</label>
+      <select onchange="updateQuestionField('${q.id}','caseId',this.value)">
+        <option value="">— None —</option>${caseOptions}
+      </select>
+    </div>`;
+}
+
 function renderQuestionEditor(q, container) {
+  if (q.type === 'MATCH') { renderMatchQuestionEditor(q, container); return; }
+
   let optsHtml = '';
   if (q.type !== 'NAT') {
     q.optionImages = q.optionImages || (q.options || []).map(() => '');
     (q.options || []).forEach((opt, i) => {
       const checked = (q.answer || []).includes(i);
-      const inputType = q.type === 'MCQ' ? 'radio' : 'checkbox';
+      const inputType = (q.type === 'MCQ' || q.type === 'AR') ? 'radio' : 'checkbox';
       const optImg = q.optionImages[i] || '';
       optsHtml += `<div class="b-opt-row" style="display:flex;align-items:center;gap:8px;margin-bottom:${optImg ? '2px' : '7px'}">
         <span style="width:22px;height:22px;border-radius:6px;background:#f3f4f6;color:#6b7280;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center">${String.fromCharCode(65 + i)}</span>
-        <input type="text" style="flex:1" value="${escAttr(opt)}" oninput="updateOptionText('${q.id}',${i},this.value)" placeholder="Option ${String.fromCharCode(65 + i)} (leave blank for image-only)">
+        <input type="text" style="flex:1" value="${escAttr(opt)}" oninput="updateOptionText('${q.id}',${i},this.value)" placeholder="Option ${String.fromCharCode(65 + i)}">
         <input type="${inputType}" name="correct-${q.id}" ${checked ? 'checked' : ''} onchange="toggleOptionCorrect('${q.id}',${i},this.checked)" title="Mark as correct">
         <label class="b-icon-btn" title="Add/replace option image" style="cursor:pointer">🖼<input type="file" accept="image/*" style="display:none" onchange="handleOptionImageUpload('${q.id}',${i},this)"></label>
         <button class="b-icon-btn danger" onclick="removeOption('${q.id}',${i})" title="Remove option">✕</button>
@@ -654,8 +805,17 @@ function renderQuestionEditor(q, container) {
     </div>
     <div class="b-field"><label>Unit (optional)</label><input type="text" value="${escAttr(q.unit || '')}" oninput="updateNatField('${q.id}','unit',this.value)"></div>`;
   }
+  let arHtml = '';
+  if (q.type === 'AR') {
+    arHtml = `
+      <div class="b-field"><label>Assertion (A)</label><textarea rows="2" oninput="updateQuestionField('${q.id}','assertion',this.value)">${escHtml(q.assertion || '')}</textarea></div>
+      <div class="b-field"><label>Reason (R)</label><textarea rows="2" oninput="updateQuestionField('${q.id}','reason',this.value)">${escHtml(q.reason || '')}</textarea></div>`;
+  }
+
   container.innerHTML = `
-    <div class="b-field"><label>Question Text</label><textarea rows="2" oninput="updateQuestionField('${q.id}','question',this.value)">${escHtml(q.question)}</textarea></div>
+    ${caseSelectHtml(q)}
+    <div class="b-field"><label>${q.type === 'AR' ? 'Instructions (optional)' : 'Question Text'}</label><textarea rows="2" oninput="updateQuestionField('${q.id}','question',this.value)">${escHtml(q.question)}</textarea></div>
+    ${arHtml}
     <div class="b-field"><label><input type="checkbox" ${q.latex ? 'checked' : ''} onchange="updateQuestionField('${q.id}','latex',this.checked)" style="width:auto;margin-right:6px"> Enable LaTeX</label></div>
     <div class="b-field">
       <label>Question Image (optional)</label>
@@ -669,30 +829,55 @@ function renderQuestionEditor(q, container) {
         <option value="below" ${q.imagePosition === 'below' ? 'selected' : ''}>Below the question text</option>
       </select></div>` : ''}
     </div>
-    ${q.type !== 'NAT' ? `<div class="b-field"><label>Options ${q.type === 'MCQ' ? '(select the one correct radio)' : '(check all correct boxes)'}</label>${optsHtml}<button class="b-btn b-btn-outline b-btn-sm" onclick="addOption('${q.id}')">+ Add Option</button><div class="b-field-hint">An option can be text, an image, or both — leave the text box empty for an image-only option.</div></div>` : natHtml}
-    <div class="b-field"><label>Explanation (text)</label><textarea rows="2" oninput="updateQuestionField('${q.id}','explanation',this.value)">${escHtml(q.explanation)}</textarea></div>
-    <div class="b-field">
-      <label>Explanation Image (optional)</label>
-      <input type="text" value="${escAttr(q.explanationImage || '')}" oninput="updateQuestionField('${q.id}','explanationImage',this.value)">
-      <div class="b-upload-row">
-        <input type="file" accept="image/*" onchange="handleExplanationImageUpload('${q.id}',this)">
-        ${q.explanationImage ? `<img src="${escAttr(q.explanationImage)}" class="b-thumb" style="max-width:160px;max-height:110px;border-radius:8px;border:1px solid #e5e7eb;object-fit:cover" onerror="this.style.display='none'"><button class="b-icon-btn danger b-btn-sm" onclick="clearExplanationImage('${q.id}')">Remove image</button>` : ''}
-      </div>
-    </div>
-    <div class="b-field"><label>Explanation Video (YouTube URL, optional)</label><input type="text" value="${escAttr(q.explanationVideo || '')}" oninput="updateQuestionField('${q.id}','explanationVideo',this.value)"></div>
-    <div class="b-field"><label>Explanation Link (optional)</label><input type="text" value="${escAttr(q.explanationLink || '')}" oninput="updateQuestionField('${q.id}','explanationLink',this.value)"></div>`;
+    ${q.type !== 'NAT' ? `<div class="b-field"><label>Options ${(q.type === 'MCQ' || q.type === 'AR') ? '(select the one correct radio)' : '(check all correct boxes)'}</label>${optsHtml}<button class="b-btn b-btn-outline b-btn-sm" onclick="addOption('${q.id}')">+ Add Option</button></div>` : natHtml}
+    ${explanationFieldsHtml(q)}`;
 }
+
+function renderMatchQuestionEditor(q, container) {
+  q.pairs = q.pairs || [];
+  const rows = q.pairs.map((p, i) => `
+    <div class="b-list-item" style="display:flex;gap:8px;align-items:center">
+      <span style="width:20px;color:#9ca3af;font-size:11px;font-weight:700">${i + 1}</span>
+      <input type="text" style="flex:1" value="${escAttr(p.left)}" oninput="updateMatchPair('${q.id}',${i},'left',this.value)" placeholder="Column A item">
+      <span style="color:#9ca3af">↔</span>
+      <input type="text" style="flex:1" value="${escAttr(p.right)}" oninput="updateMatchPair('${q.id}',${i},'right',this.value)" placeholder="Column B item">
+      <button class="b-icon-btn danger" onclick="removeMatchPair('${q.id}',${i})">✕</button>
+    </div>`).join('');
+
+  container.innerHTML = `
+    ${caseSelectHtml(q)}
+    <div class="b-field"><label>Instructions (optional)</label><textarea rows="2" oninput="updateQuestionField('${q.id}','question',this.value)" placeholder="e.g. Match the Accounting Standards with their subject matter">${escHtml(q.question)}</textarea></div>
+    <div class="b-field"><label><input type="checkbox" ${q.latex ? 'checked' : ''} onchange="updateQuestionField('${q.id}','latex',this.checked)" style="width:auto;margin-right:6px"> Enable LaTeX</label></div>
+    <div class="b-field-row">
+      <div class="b-field"><label>Column A Title</label><input type="text" value="${escAttr(q.columnATitle || 'Column A')}" oninput="updateQuestionField('${q.id}','columnATitle',this.value)"></div>
+      <div class="b-field"><label>Column B Title</label><input type="text" value="${escAttr(q.columnBTitle || 'Column B')}" oninput="updateQuestionField('${q.id}','columnBTitle',this.value)"></div>
+    </div>
+    <div class="b-field"><label>Pairs (each row is one correct match)</label>${rows}<button class="b-btn b-btn-outline b-btn-sm" onclick="addMatchPair('${q.id}')">+ Add Pair</button></div>
+    ${explanationFieldsHtml(q)}`;
+}
+function updateMatchPair(qid, i, side, val) { const q = findQuestion(qid); if (!q) return; q.pairs[i][side] = val; markDirty(); }
+function addMatchPair(qid) {
+  const q = findQuestion(qid); if (!q) return;
+  q.pairs = q.pairs || []; q.pairs.push({ left: '', right: '' });
+  renderQuestionEditor(q, document.getElementById(`qbody-${qid}`)); markDirty();
+}
+function removeMatchPair(qid, i) {
+  const q = findQuestion(qid); if (!q) return;
+  q.pairs.splice(i, 1);
+  renderQuestionEditor(q, document.getElementById(`qbody-${qid}`)); markDirty();
+}
+
 function updateQuestionField(qid, field, val) {
   const q = findQuestion(qid); if (!q) return;
   q[field] = val;
-  if (field === 'question') renderQuestionsList(getActiveChapterObj());
+  if (field === 'question' || field === 'assertion') renderQuestionsList(getActiveChapterObj());
   markDirty();
 }
 function updateNatField(qid, field, val) { const q = findQuestion(qid); if (!q) return; q[field] = isNaN(val) ? 0 : val; markDirty(); }
 function updateOptionText(qid, idx, val) { const q = findQuestion(qid); if (!q) return; q.options[idx] = val; markDirty(); }
 function toggleOptionCorrect(qid, idx, checked) {
   const q = findQuestion(qid); if (!q) return;
-  if (q.type === 'MCQ') q.answer = checked ? [idx] : [];
+  if (q.type === 'MCQ' || q.type === 'AR') q.answer = checked ? [idx] : [];
   else { q.answer = q.answer || []; if (checked) { if (!q.answer.includes(idx)) q.answer.push(idx); } else q.answer = q.answer.filter(a => a !== idx); }
   markDirty();
 }
@@ -709,24 +894,7 @@ function removeOption(qid, idx) {
   renderQuestionEditor(q, document.getElementById(`qbody-${qid}`)); markDirty();
 }
 
-async function handleExplanationImageUpload(qid, inputEl) {
-  const file = inputEl.files[0]; if (!file) return;
-  const q = findQuestion(qid); if (!q) return;
-  try {
-    const dataUrl = await fileToBase64(file);
-    q.explanationImage = dataUrl;
-    renderQuestionEditor(q, document.getElementById(`qbody-${qid}`));
-    markDirty();
-  } catch { alert('Could not read that image file.'); }
-}
-function clearExplanationImage(qid) {
-  const q = findQuestion(qid); if (!q) return;
-  q.explanationImage = '';
-  renderQuestionEditor(q, document.getElementById(`qbody-${qid}`));
-  markDirty();
-}
-
-// ── Question / option image uploads (base64-embedded, same pattern as concept-block images) ──
+// ── Question / option / explanation image uploads (base64-embedded, same pattern as concept-block images) ──
 async function handleQuestionImageUpload(qid, inputEl) {
   const file = inputEl.files[0]; if (!file) return;
   const q = findQuestion(qid); if (!q) return;
@@ -760,6 +928,22 @@ function clearOptionImage(qid, idx) {
   renderQuestionEditor(q, document.getElementById(`qbody-${qid}`));
   markDirty();
 }
+async function handleExplanationImageUpload(qid, inputEl) {
+  const file = inputEl.files[0]; if (!file) return;
+  const q = findQuestion(qid); if (!q) return;
+  try {
+    const dataUrl = await fileToBase64(file);
+    q.explanationImage = dataUrl;
+    renderQuestionEditor(q, document.getElementById(`qbody-${qid}`));
+    markDirty();
+  } catch { alert('Could not read that image file.'); }
+}
+function clearExplanationImage(qid) {
+  const q = findQuestion(qid); if (!q) return;
+  q.explanationImage = '';
+  renderQuestionEditor(q, document.getElementById(`qbody-${qid}`));
+  markDirty();
+}
 
 // ── Save / Export ──
 async function saveSubjectContent() {
@@ -772,12 +956,17 @@ async function saveSubjectContent() {
   btn.disabled = true;
   setBuilderStatus('Saving…', '');
   try {
+    // api/content.js expects `subjectTitle` at the top level (saved to the
+    // subject_title column) and `requesterId` so editor saves pass the
+    // can_edit mapping check — both were missing before this fix.
+    const requesterId = builder.session?.user?.id ?? builder.session?.id ?? null;
     const res = await Api.post('/api/content', {
       code: builder.activeData.code,
       subject: builder.activeData.subject,
       subjectTitle: builder.activeData.subjectTitle || '',
       color: builder.activeData.color,
       data: builder.activeData,
+      requesterId,
     });
     if (res && res.success) { builder.dirty = false; setBuilderStatus('✓ Saved to database', 'success'); }
     else setBuilderStatus('⚠ ' + (res?.error || 'Save failed'), 'error');
@@ -794,29 +983,31 @@ function downloadSubjectJson() {
 window.addEventListener('beforeunload', (e) => { if (builder.dirty) { e.preventDefault(); e.returnValue = ''; } });
 
 // ── New Subject modal ──
-let ns_codeEdited = false;
-let ns_existingMatch = null;  // set (informationally) when the typed name matches an existing subject
-let ns_nameDebounce = null;
-
+// Subject Name is picked from a fixed dropdown; the Subject Code is always
+// auto-generated per subject name (AC0001, AC0002, ...) — no duplicate-name
+// check is needed since the code is the real unique key, so the same
+// subject name can be picked again and just gets the next code.
 function openNewSubjectPrompt() {
   document.getElementById('ns-name').value = '';
   document.getElementById('ns-subtopic').value = '';
   document.getElementById('ns-code').value = '';
-  document.getElementById('ns-code').disabled = true; // always auto-generated — code follows the subject name, not typed by hand
   document.getElementById('ns-color').value = '#9333EA';
   document.getElementById('ns-err').textContent = '';
-  document.getElementById('ns-existing-info').innerHTML = '';
-  ns_codeEdited = false;
-  ns_existingMatch = null;
   document.getElementById('subject-modal-overlay').classList.add('open');
 }
 function closeNewSubjectModal() {
   document.getElementById('subject-modal-overlay').classList.remove('open');
 }
-// Suggests "AC0001"-style codes: first 2 letters of the name (uppercase),
-// then the next free 4-digit number among subjects sharing that prefix —
-// increments independently per subject name (Accounts → AC0001, AC0002...;
-// Economics → EC0001, EC0002...).
+function updateCodePreview() {
+  const name = document.getElementById('ns-name').value;
+  document.getElementById('ns-code').value = name ? suggestSubjectCode(name) : '';
+}
+// Suggests "PH0001"-style codes: first 2 letters of the name (uppercase),
+// then the next free 4-digit number among subjects sharing that prefix.
+// NOTE: computed client-side from whatever subjects are currently loaded —
+// two admins creating a subject with the same name at the exact same
+// moment could in theory get the same code. If that's a real risk for your
+// team size, this generation should move server-side into api/content.js.
 function suggestSubjectCode(name) {
   const letters = (name || '').replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 2) || 'SB';
   let n = 1, code;
@@ -826,47 +1017,6 @@ function suggestSubjectCode(name) {
     n++;
   } while (existing.has(code));
   return code;
-}
-
-// Purely informational — shows existing topics under the same subject
-// name as you type, so people know what's already there before adding
-// their own. Never blocks or merges: submitting always creates a new row
-// with a freshly generated code, per your instruction that duplicate
-// subject names are fine (the code is what's unique).
-function onNewSubjectNameInput() {
-  const name = document.getElementById('ns-name').value.trim();
-  document.getElementById('ns-code').value = name ? suggestSubjectCode(name) : '';
-  clearTimeout(ns_nameDebounce);
-  ns_nameDebounce = setTimeout(() => checkExistingSubjectByName(name), 200);
-}
-
-async function checkExistingSubjectByName(name) {
-  const infoEl = document.getElementById('ns-existing-info');
-  const matches = name ? builder.subjects.filter(s => s.subject.trim().toLowerCase() === name.trim().toLowerCase()) : [];
-
-  if (!matches.length) {
-    ns_existingMatch = null;
-    infoEl.innerHTML = '';
-    return;
-  }
-  ns_existingMatch = matches[0];
-  infoEl.innerHTML = `<div class="b-field-hint">Checking existing topics…</div>`;
-
-  let mappedByCode = {};
-  try {
-    const mapRes = await Api.get('/api/users', { resource: 'mappings' });
-    (mapRes.mappings || []).forEach(m => {
-      (mappedByCode[m.code] = mappedByCode[m.code] || []).push(m.admin_name);
-    });
-  } catch { /* editors can't list all mappings — fine, just skip names */ }
-
-  if (document.getElementById('ns-name').value.trim().toLowerCase() !== name.trim().toLowerCase()) return;
-
-  infoEl.innerHTML = `<div class="b-note">
-    <strong>${escHtml(name)}</strong> already has ${matches.length} topic(s):
-    <ul>${matches.map(m => `<li>${escHtml(m.code)} — ${escHtml(m.subject_title || '(untitled)')}${mappedByCode[m.code] ? ' — mapped to ' + mappedByCode[m.code].map(escHtml).join(', ') : ''}</li>`).join('')}</ul>
-    Submitting below adds a new topic alongside these, with its own code.
-  </div>`;
 }
 
 function submitNewSubject() {
@@ -896,9 +1046,6 @@ function submitNewSubject() {
   markDirty();
   setBuilderStatus(`New subject "${code}" created — add a unit, then Save.`, '');
   closeNewSubjectModal();
-  // Lets other UI (e.g. the Map Subject modal) refresh its subject list
-  // without this file needing to know about them directly.
-  document.dispatchEvent(new CustomEvent('unic:subjectCreated', { detail: newSubject }));
 }
 
 // ── Live Preview / Raw JSON modal ──
@@ -941,11 +1088,27 @@ function pvBodyItemHtml(item) {
     default: return '';
   }
 }
+function pvCaseCard(caseObj) {
+  if (!caseObj) return '';
+  return `<div style="border:1.5px solid #ddd6fe;background:#f5f3ff;border-radius:12px;padding:14px 16px;margin:14px 0 10px">
+    ${caseObj.title ? `<div style="font-weight:800;color:#5b21b6;font-size:13px;margin-bottom:6px">📋 ${escHtml(caseObj.title)}</div>` : ''}
+    ${caseObj.image ? `<img src="${escAttr(caseObj.image)}" style="max-width:100%;border-radius:8px;margin-bottom:8px" onerror="this.style.display='none'">` : ''}
+    <div style="font-size:13px;color:#4c1d95;white-space:pre-wrap;line-height:1.7">${escHtml(caseObj.passage || '')}</div>
+  </div>`;
+}
 function renderChapterPreviewHtml(chapter) {
   const concept = normalizeConcept(chapter.concept, chapter.title);
   let html = `<div style="font-size:18px;font-weight:800;margin-bottom:14px">${escHtml(concept.title)}</div>`;
   (concept.body || []).forEach(item => { html += pvBodyItemHtml(item); });
   if (!(concept.body || []).length) html += '<div style="color:#9ca3af;font-size:13px">No concept content yet.</div>';
+
+  const formulas = concept.formulas || [];
+  if (formulas.length) {
+    html += `<div style="margin-top:16px;padding:16px 18px;border-radius:12px;background:#f9fafb;border:1px solid #f0f0f0">
+      <div style="font-size:11.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;margin-bottom:10px">Key Formulas</div>
+      ${formulas.map(f => `<span style="display:inline-block;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:8px 14px;margin:0 7px 7px 0;font-size:14.5px;color:#1f2937">${escHtml(f)}</span>`).join('')}
+    </div>`;
+  }
 
   const pg = chapter.playground;
   if (pg && (pg.schema || (pg.sampleQueries || []).length)) {
@@ -957,25 +1120,40 @@ function renderChapterPreviewHtml(chapter) {
   const questions = chapter.questions || [];
   if (questions.length) {
     html += `<div style="font-size:15px;font-weight:800;margin:18px 0 8px">Practice Questions (${questions.length})</div>`;
+    let lastCaseId = null;
     questions.forEach((q, qi) => {
+      if (q.caseId && q.caseId !== lastCaseId) {
+        const c = (chapter.cases || []).find(x => x.id === q.caseId);
+        if (c) html += pvCaseCard(c);
+      }
+      lastCaseId = q.caseId || null;
+
       const qImgHtml = q.image ? `<img src="${escAttr(q.image)}" style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid #e5e7eb;display:block;margin:8px 0;object-fit:contain" onerror="this.style.display='none'">` : '';
       const qImgAbove = (q.imagePosition || 'above') === 'above';
-      html += `<div style="border:1px solid #e5e7eb;border-radius:10px;padding:12px 14px;margin-bottom:10px"><div style="font-size:11px;color:#9ca3af;margin-bottom:6px">Q${qi + 1} · ${q.type}</div>${qImgAbove ? qImgHtml : ''}<div style="font-size:13.5px;margin-bottom:8px">${escHtml(q.question || '(empty)')}</div>${qImgAbove ? '' : qImgHtml}`;
+      html += `<div style="border:1px solid #e5e7eb;border-radius:10px;padding:12px 14px;margin-bottom:10px"><div style="font-size:11px;color:#9ca3af;margin-bottom:6px">Q${qi + 1} · ${q.type}</div>${qImgAbove ? qImgHtml : ''}`;
+
+      if (q.type === 'AR') {
+        html += `<div style="font-size:12.5px;margin-bottom:4px"><strong>Assertion (A):</strong> ${escHtml(q.assertion || '')}</div>`;
+        html += `<div style="font-size:12.5px;margin-bottom:8px"><strong>Reason (R):</strong> ${escHtml(q.reason || '')}</div>`;
+      }
+      if (q.question) html += `<div style="font-size:13.5px;margin-bottom:8px">${escHtml(q.question)}</div>`;
+      html += qImgAbove ? '' : qImgHtml;
+
       if (q.type === 'NAT') {
         html += `<div style="font-size:12.5px;color:#16a34a">Answer: ${q.answer ?? 0}${q.tolerance ? ` (± ${q.tolerance})` : ''}</div>`;
+      } else if (q.type === 'MATCH') {
+        html += `<table style="width:100%;border-collapse:collapse;margin-top:6px;font-size:12.5px">
+          <tr><th style="text-align:left;padding:4px 6px;border-bottom:1px solid #e5e7eb">${escHtml(q.columnATitle || 'Column A')}</th><th style="text-align:left;padding:4px 6px;border-bottom:1px solid #e5e7eb">${escHtml(q.columnBTitle || 'Column B')}</th></tr>
+          ${(q.pairs || []).map((p, pi) => `<tr><td style="padding:4px 6px;border-bottom:1px solid #f3f4f6">${pi + 1}. ${escHtml(p.left)}</td><td style="padding:4px 6px;border-bottom:1px solid #f3f4f6">${String.fromCharCode(65 + pi)}. ${escHtml(p.right)}</td></tr>`).join('')}
+        </table>`;
       } else {
         (q.options || []).forEach((opt, oi) => {
           const isCorrect = (q.answer || []).includes(oi);
           const optImg = (q.optionImages || [])[oi];
-          const hasText = !!(opt && opt.trim());
-          html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:7px;margin-bottom:4px;font-size:12.5px;${isCorrect ? 'background:#f0fdf4;color:#15803d;font-weight:600' : 'background:#f9fafb'}">
-            <span style="flex-shrink:0">${String.fromCharCode(65 + oi)}.</span>
-            ${hasText ? `<span>${escHtml(opt)}</span>` : ''}
-            ${optImg ? `<img src="${escAttr(optImg)}" style="max-width:60px;max-height:40px;border-radius:5px;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'">` : ''}
-            ${isCorrect ? '<span>✓</span>' : ''}
-          </div>`;
+          html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:7px;margin-bottom:4px;font-size:12.5px;${isCorrect ? 'background:#f0fdf4;color:#15803d;font-weight:600' : 'background:#f9fafb'}">${optImg ? `<img src="${escAttr(optImg)}" style="max-width:60px;max-height:40px;border-radius:5px;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'">` : ''}<span>${String.fromCharCode(65 + oi)}. ${escHtml(opt)}${isCorrect ? ' ✓' : ''}</span></div>`;
         });
       }
+
       const hasExplanation = q.explanation || q.explanationImage || q.explanationVideo || q.explanationLink;
       if (hasExplanation) {
         html += `<div style="font-size:12px;color:#6b7280;background:#f9fafb;border-radius:8px;padding:8px 10px;margin-top:8px">`;
@@ -1097,14 +1275,15 @@ async function jumpToSearchResult(code, unitId, chapterId) {
 
 // ── Import from JSON (for people authoring offline in their own editor) ──
 // Accepted shapes, in order of preference:
-//   1) A full subject:      { code, subject, subject_title, color, units: [...] }
+//   1) A full subject:      { code, subject, color, units: [...] }
 //   2) Units to append:     { units: [...] }
 //   3) A bare array of units: [ { title, chapters: [...] }, ... ]
 //   4) A single chapter:    { title, concept, questions, playground }
-// IDs are always regenerated on import so two people's offline files never
-// collide when merged in. Nothing touches the database until you press
-// "Save Subject to Database" afterwards — import only edits the in-memory
-// copy, same as every other change in this editor.
+// IDs are always regenerated on import (including case IDs, which are
+// remapped and re-linked to their questions' caseId) so two people's
+// offline files never collide when merged in. Nothing touches the database
+// until you press "Save Subject to Database" afterwards — import only
+// edits the in-memory copy, same as every other change in this editor.
 function openImportJson() {
   const input = document.createElement('input');
   input.type = 'file';
@@ -1126,17 +1305,28 @@ function normalizeImportedUnits(rawUnits) {
   return (rawUnits || []).map(u => ({
     id: uid('u'),
     title: u.title || 'Untitled Unit',
-    chapters: (u.chapters || []).map(c => ({
-      id: uid('c'),
-      title: c.title || 'Untitled Chapter',
-      concept: normalizeConcept(c.concept, c.title),
-      questions: (c.questions || []).map(q => ({
-        latex: false, options: [], optionImages: [], answer: [],
-        explanation: '', explanationImage: '', explanationVideo: '', explanationLink: '',
-        ...q, id: uid('q'),
-      })),
-      playground: { schema: '', sampleQueries: [], ...(c.playground || {}) },
-    })),
+    chapters: (u.chapters || []).map(c => {
+      const caseIdMap = {};
+      const newCases = (c.cases || []).map(cs => {
+        const newId = uid('case');
+        if (cs.id) caseIdMap[cs.id] = newId;
+        return { ...cs, id: newId };
+      });
+      return {
+        id: uid('c'),
+        title: c.title || 'Untitled Chapter',
+        concept: normalizeConcept(c.concept, c.title),
+        cases: newCases,
+        questions: (c.questions || []).map(q => ({
+          latex: false, options: [], optionImages: [], answer: [],
+          explanation: '', explanationImage: '', explanationVideo: '', explanationLink: '', caseId: '',
+          ...q,
+          id: uid('q'),
+          caseId: q.caseId && caseIdMap[q.caseId] ? caseIdMap[q.caseId] : '',
+        })),
+        playground: { schema: '', sampleQueries: [], ...(c.playground || {}) },
+      };
+    }),
   }));
 }
 
@@ -1160,7 +1350,7 @@ function handleImportedJson(json) {
 
   if (asNewSubject) {
     const makeNew = confirm(
-      `This file looks like a full subject: "${asNewSubject.subject}" (${(asNewSubject.code || '').toUpperCase()}) — ` +
+      `This file looks like a full subject: "${asNewSubject.subject}" (${asNewSubject.code.toUpperCase()}) — ` +
       `${units.length} unit(s), ${totalChapters} chapter(s), ${totalQuestions} question(s).\n\n` +
       `OK = create it as a NEW subject\nCancel = append its content into the CURRENTLY SELECTED subject instead`
     );
@@ -1174,7 +1364,8 @@ function handleImportedJson(json) {
 }
 
 function createSubjectFromImport(meta, units) {
-  const code = (meta.code || '').trim().toUpperCase() || suggestSubjectCode(meta.subject);
+  const code = (meta.code || '').trim().toUpperCase();
+  if (!code) { alert('The file is missing a subject "code".'); return; }
   const existing = builder.subjects.find(s => s.code === code);
   if (existing) {
     if (!confirm(`A subject with code "${code}" already exists ("${existing.subject}"). Load it and append this content instead?`)) return;
@@ -1196,7 +1387,7 @@ function createSubjectFromImport(meta, units) {
 function appendUnitsToActiveSubject(rawUnits) {
   const normalized = normalizeImportedUnits(rawUnits);
   const container = getUnitsContainer();
-  if (!container) { alert('Select or create a subject first.'); return; }
+  if (!container) { alert('Select or add a subject first.'); return; }
   container.units = container.units || [];
   container.units.push(...normalized);
   renderBuilderTree();
@@ -1212,7 +1403,7 @@ function downloadTemplateJson() {
   const template = {
     code: 'NEW',
     subject: 'New Subject Name',
-    subject_title: 'Concept of Subject',
+    subject_title: 'Example Topic Title',
     color: '#6C3FF5',
     units: [
       {
@@ -1229,7 +1420,20 @@ function downloadTemplateJson() {
                 { type: 'note', text: 'Optional callout / tip shown in a highlighted box.' },
                 { type: 'list', items: ['First point', 'Second point'] },
               ],
+              // Key Formulas — shown as a row of chips at the end of the
+              // concept, separate from the body blocks above. LaTeX works
+              // here too when concept.latex is true.
+              formulas: [
+                'Dimensional formula: $[M^a L^b T^c]$',
+                'Absolute error $\\Delta a = |a_{measured} - a_{true}|$',
+                'Relative error $= \\Delta a/a$, Percentage error $= (\\Delta a/a) \\times 100$',
+              ],
             },
+            // Optional shared passages — assign a question to one via its
+            // "caseId" field to group them together on the learner page.
+            cases: [
+              { id: 'case_example', title: 'Case Study 1', passage: 'Read the following scenario and answer the questions that follow: ...', image: '' },
+            ],
             // Optional — only meaningful for interactive subjects like SQL,
             // but any subject can include it.
             playground: {
@@ -1238,12 +1442,44 @@ function downloadTemplateJson() {
             },
             questions: [
               {
-                type: 'MCQ', // MCQ | MSQ | NAT
+                type: 'MCQ', // MCQ | MSQ | NAT | AR | MATCH
                 latex: false,
                 question: 'Sample question text goes here?',
                 options: ['Option A', 'Option B', 'Option C', 'Option D'],
                 answer: [0], // index/indices of the correct option(s); MSQ can have more than one
                 explanation: 'Why the correct answer is correct.',
+                explanationImage: '', explanationVideo: '', explanationLink: '',
+                caseId: '',
+              },
+              {
+                type: 'AR',
+                latex: false,
+                question: 'Read Assertion (A) and Reason (R) and choose the correct option.',
+                assertion: 'Depreciation is a non-cash expense.',
+                reason: 'It represents the allocation of the cost of a fixed asset over its useful life.',
+                options: [
+                  'Both A and R are true and R is the correct explanation of A',
+                  'Both A and R are true but R is not the correct explanation of A',
+                  'A is true but R is false',
+                  'A is false but R is true',
+                ],
+                answer: [0],
+                explanation: 'R correctly explains why A is true.',
+                caseId: '',
+              },
+              {
+                type: 'MATCH',
+                latex: false,
+                question: 'Match the Accounting Standard with what it covers.',
+                columnATitle: 'Accounting Standard',
+                columnBTitle: 'Covers',
+                pairs: [
+                  { left: 'AS 1', right: 'Disclosure of Accounting Policies' },
+                  { left: 'AS 2', right: 'Valuation of Inventories' },
+                  { left: 'AS 6', right: 'Depreciation Accounting' },
+                ],
+                explanation: 'Standard AS numbering as per ICAI.',
+                caseId: 'case_example',
               },
             ],
           },
