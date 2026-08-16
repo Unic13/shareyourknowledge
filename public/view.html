@@ -2382,6 +2382,8 @@ function submitAnswer(qid) {
 
   if (q.type === 'NAT') {
     if (selected === undefined || selected === null || String(selected).trim() === '') return;
+  } else if (q.type === 'MATCH') {
+    if (!selected || !q.pairs.every((_, i) => selected[i] !== undefined)) return;
   } else {
     if (!selected || !selected.length) return;
   }
