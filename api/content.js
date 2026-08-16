@@ -201,7 +201,7 @@ module.exports = async (req, res) => {
           namesById = Object.fromEntries(admin_users.map(u => [u.id, u.name]));
         } catch { /* attribution is a nice-to-have, don't fail the whole list over it */ }
       }
-      const subjects = rows.map(r => ({ ...r, created_by_name: r.created_by ? namesById[r.created_by] : null }));
+      const subjects = rows.map(r => ({ ...r, created_by_name: r.updated_by ? namesById[r.updated_by] : null }));
       return res.status(200).json({ subjects });
     } catch (err) {
       console.error('[CONTENT ERROR]', err.message);
