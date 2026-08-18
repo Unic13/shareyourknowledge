@@ -20,7 +20,7 @@
     <div class="brand-tagline">Learn • Create • Share</div>
   </div>
   <div class="header-right">
-    <a href="admin-guide.html" class="btn-logout" style="text-decoration:none" id="guide-link">📘 Guide</a>
+    <a href="question-builder-guide.html" class="btn-logout" style="text-decoration:none" id="guide-link">📘 Guide</a>
     <a href="view.html" target="_blank" class="btn-logout" style="text-decoration:none">👁 View Live Content</a>
     <span class="role-badge" id="role-badge"></span>
     <span class="user-name" id="user-name"></span>
@@ -38,7 +38,7 @@
   </div>
 
   <div class="section-tabs">
-    <button class="section-tab active" id="sec-tab-builder" onclick="switchSection('builder')">✏️ Question Builder</button>
+    <button class="section-tab active" id="sec-tab-builder" onclick="switchSection('builder')">✏️ Subject Concept and Question Builder</button>
     <button class="section-tab" id="sec-tab-data" onclick="switchSection('data')">📊 Data</button>
     <button class="section-tab" id="sec-tab-stats" onclick="switchSection('stats')">📈 Statistics</button>
     <button class="section-tab" id="sec-tab-feedback" onclick="switchSection('feedback')">💬 Feedback</button>
@@ -71,7 +71,7 @@
 
     <div class="builder-grid">
       <div class="builder-col">
-        <div class="builder-col-header"><span class="builder-col-title" id="builder-tree-subject-label">Units &amp; Chapters</span></div>
+        <div class="builder-col-header"><span class="builder-col-title" id="builder-tree-subject-label">Unit, Chapter, Week & Day-wise Planner</span></div>
         <div id="builder-variant-pills"></div>
         <div class="builder-col-body" id="builder-tree">
           <div class="editor-empty"><div class="big">📚</div><p style="font-size:12px">Select a subject</p></div>
@@ -84,7 +84,7 @@
           <button class="b-btn b-btn-outline b-btn-sm" onclick="showJsonPreview()">👁 Preview</button>
         </div>
         <div id="builder-editor">
-          <div class="editor-empty"><div class="big">👈</div><p style="font-size:12px">Select a chapter to edit its concept &amp; questions</p></div>
+          <div class="editor-empty"><div class="big">👈</div><p style="font-size:12px">Select a Unit/Chapter/Week/Day to edit its concept &amp; questions</p></div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;padding:14px 20px;border-top:1px solid #f3f4f6;flex-wrap:wrap">
           <button class="b-btn b-btn-primary" id="btn-save-subject" onclick="saveSubjectContent()">💾 Save Subject to Database</button>
