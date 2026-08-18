@@ -8,24 +8,56 @@
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'Inter',system-ui,sans-serif;background:#f4f5fb;color:#1a1a2e;line-height:1.6}
-  :root{--brand:#6C3FF5;--brand-dark:#4f46e5;--ink:#1a1a2e;--muted:#6b7280}
+  :root{--brand:#6C3FF5;--brand-dark:#4f46e5;--brand-light:#a78bfa;--ink:#1a1a2e;--muted:#6b7280}
 
-  /* ── Top hero ── */
-  .hero{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:56px 24px 64px;text-align:center}
-  .hero-badge{width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;margin:0 auto 16px}
-  .hero h1{font-size:30px;font-weight:800;margin-bottom:8px}
-  .hero p{font-size:15px;opacity:.9;max-width:560px;margin:0 auto}
+  /* ── Sticky nav (back to builder) ── */
+  .guide-nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+  .guide-nav-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:14px;color:var(--ink)}
+  .guide-nav-brand .mini-logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--brand),var(--brand-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+  .guide-nav a.back-link{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--brand);text-decoration:none;padding:8px 16px;border-radius:9px;background:#f0ebff;transition:background .15s,transform .15s}
+  .guide-nav a.back-link:hover{background:#e5d9ff;transform:translateX(-2px)}
+
+  /* ── Hero ── */
+  .hero{
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,255,255,.14) 0%, transparent 45%),
+      radial-gradient(circle at 85% 75%, rgba(255,255,255,.10) 0%, transparent 50%),
+      linear-gradient(135deg,#7c3aed 0%,#6C3FF5 45%,#4338ca 100%);
+    color:#fff;
+    padding:60px 24px 88px;
+    text-align:center;
+  }
+  .hero::before{
+    content:'';
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
+    background-size:34px 34px;
+    mask-image:radial-gradient(ellipse at center, #000 0%, transparent 75%);
+    pointer-events:none;
+  }
+  .hero-inner{position:relative;z-index:1}
+  .hero-badge{width:60px;height:60px;border-radius:18px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px;margin:0 auto 18px;box-shadow:0 8px 24px rgba(76,29,149,.35)}
+  .hero-eyebrow{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#ede9fe;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);padding:5px 14px;border-radius:20px;margin-bottom:16px}
+  .hero h1{font-size:32px;font-weight:800;margin-bottom:10px;letter-spacing:-.02em}
+  .hero p{font-size:15.5px;opacity:.92;max-width:580px;margin:0 auto 26px}
+  .hero-stats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .hero-stat{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(6px);border-radius:12px;padding:9px 16px;font-size:12.5px;font-weight:700;color:#fff;display:flex;align-items:center;gap:7px}
+  .hero-stat .num{font-size:14.5px;font-weight:800}
 
   /* ── Layout ── */
-  .wrap{max-width:880px;margin:-32px auto 60px;padding:0 20px}
-  .card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;box-shadow:0 4px 20px rgba(0,0,0,.06);padding:28px 30px;margin-bottom:22px}
+  .wrap{max-width:880px;margin:-44px auto 60px;padding:0 20px;position:relative;z-index:2}
+  .card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;box-shadow:0 4px 20px rgba(17,12,46,.06);padding:28px 30px;margin-bottom:22px}
   .toc{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px}
   .toc a{font-size:13.5px;font-weight:600;color:var(--brand);text-decoration:none;display:flex;gap:8px;padding:4px 0}
   .toc a:hover{text-decoration:underline}
   @media(max-width:600px){.toc{grid-template-columns:1fr}}
 
   h2{font-size:20px;font-weight:800;color:var(--ink);margin-bottom:4px;display:flex;align-items:center;gap:10px}
-  .step-num{width:28px;height:28px;border-radius:9px;background:var(--brand);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .step-num{width:28px;height:28px;border-radius:9px;background:linear-gradient(135deg,var(--brand),var(--brand-dark));color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
   .section-sub{font-size:13px;color:var(--muted);margin:2px 0 18px 38px}
   h3{font-size:15px;font-weight:700;color:var(--ink);margin:20px 0 8px}
   p{font-size:14.5px;color:#374151;margin-bottom:10px}
@@ -65,15 +97,28 @@
   .checklist li{list-style:none;margin-bottom:8px;display:flex;gap:8px;font-size:13.5px}
   .checklist li::before{content:'☐';color:var(--brand);font-weight:800;flex-shrink:0}
 
-  footer{text-align:center;font-size:12px;color:#9ca3af;padding:20px}
+  footer{text-align:center;font-size:12px;color:#9ca3af;padding:24px}
 </style>
 </head>
 <body>
 
+<div class="guide-nav">
+  <div class="guide-nav-brand"><span class="mini-logo">UN</span> UNIC Academic — Producer Guide</div>
+  <a href="admin.html" class="back-link">← Back to Content Builder</a>
+</div>
+
 <div class="hero">
-  <div class="hero-badge">UN</div>
-  <h1>Content Producer Guide</h1>
-  <p>How to build a chapter — theory, questions, and everything else — in the Question Builder tab.</p>
+  <div class="hero-inner">
+    <div class="hero-badge">UN</div>
+    <div class="hero-eyebrow">Question Builder · Producer Guide</div>
+    <h1>Content Producer Guide</h1>
+    <p>How to build a chapter — theory, questions, and everything else — in the Question Builder tab.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="num">5</span> question types</div>
+      <div class="hero-stat"><span class="num">13</span> content block types</div>
+      <div class="hero-stat"><span class="num">12</span> sections in this guide</div>
+    </div>
+  </div>
 </div>
 
 <div class="wrap">
@@ -87,6 +132,8 @@
       <a href="#tree">3. Units &amp; chapters</a>
       <a href="#concept">4. Writing the concept (theory)</a>
       <a href="#blocks">5. Content block reference</a>
+      <a href="#formulas">5b. Key Formulas</a>
+      <a href="#cases">5c. Case Studies / passages</a>
       <a href="#playground">6. SQL Playground (SQL subjects only)</a>
       <a href="#questions">7. Adding practice questions</a>
       <a href="#options">8. Text vs. image options — the rules</a>
@@ -118,7 +165,7 @@
       <li>Pick the <strong>Subject Name</strong> from the dropdown (e.g. Accounts, Economics, Physics).</li>
       <li>Type a <strong>Subject Topic Name</strong> — this is the specific version you're authoring, e.g. <em>"Introduction to Journal Entries"</em>. It's required.</li>
       <li>The <strong>Subject Code</strong> fills in automatically — you don't type it. It's generated from the subject name and a running number, e.g. <code>AC0001</code>, then <code>AC0002</code>, then <code>AC0003</code>.</li>
-      <li>Pick a color (used for badges/highlights across the app) and click <strong>Create</strong>.</li>
+      <li>Pick a color (used for badges/highlights across the app) and click <strong>Create</strong> — this creates <em>and</em> saves the subject in one step, so it's safely in the database right away.</li>
     </ol>
     <div class="note">Picking the same Subject Name again (e.g. Accounts a second time) is completely fine — it just creates a new row with the next code (<code>AC0002</code>) and its own Subject Topic Name. You don't need to worry about "duplicates."</div>
   </div>
@@ -127,12 +174,17 @@
   <div class="card" id="tree">
     <h2><span class="step-num">3</span> Units &amp; chapters</h2>
     <p class="section-sub">The tree on the left — your table of contents</p>
+    <div class="note">📎 "Unit" and "Chapter" are just the field labels in this tool — what they represent is entirely up to your subject. Use whatever structure fits your programme: a school subject might use <strong>Unit 1 → Chapter 1</strong>, a course might use <strong>Week 1 → Day 1</strong>, a certification track might use <strong>Module A → Lesson 1</strong>. The learner only ever sees your titles, never the words "Unit" or "Chapter."</div>
     <ul>
-      <li><strong>Units</strong> are the big groupings a learner sees in the sidebar (e.g. "Unit 1: Fundamentals").</li>
-      <li><strong>Chapters</strong> live inside a unit — each chapter gets its own theory (concept) and its own set of practice questions.</li>
+      <li><strong>Units</strong> are the top-level grouping a learner sees in the sidebar — name it to match your programme (e.g. "Unit 1: Fundamentals", "Week 1", "Module A: Getting Started").</li>
+      <li><strong>Chapters</strong> live inside a unit — each one gets its own theory (concept) and its own set of practice questions. Name it to fit too (e.g. "Chapter 1", "Day 1: Introduction", "Lesson 1").</li>
       <li>Click <strong>+ Add Unit</strong> or <strong>+ Add Chapter</strong> and type a title. Click any chapter row to open it in the editor on the right.</li>
       <li>Use ✎ to rename, 🗑/✕ to delete. Deleting a unit deletes every chapter (and every question) inside it — there's a confirm prompt, but there's no undo after you save.</li>
     </ul>
+    <div class="do-dont">
+      <div class="do"><div class="do-title">✓ Do</div>Pick one naming convention per subject and stick with it — mixing "Week 1" and "Unit 2" in the same subject confuses learners scanning the sidebar.</div>
+      <div class="dont"><div class="dont-title">✗ Don't</div>Feel locked into "Unit/Chapter" wording — it's a label in this tool, not a requirement for how you structure your content.</div>
+    </div>
   </div>
 
   <!-- 4. Writing the concept -->
@@ -217,6 +269,33 @@
 }</pre>
   </div>
 
+  <!-- 5b. Key Formulas -->
+  <div class="card" id="formulas">
+    <h2><span class="step-num">5b</span> Key Formulas</h2>
+    <p class="section-sub">A highlighted recap box at the end of the concept — separate from the body blocks</p>
+    <p>Use this when a chapter has a small set of formulas worth a learner glancing back at, without hunting through the paragraph blocks. Each entry becomes its own chip in a "Key Formulas" box, rendered after all the content blocks. Add entries with <strong>+ Add Key Formula</strong> under the 🧮 Key Formulas section — LaTeX works here too when it's enabled on the concept.</p>
+    <pre>{
+  <span class="k">"formulas"</span>: [
+    <span class="s">"Dimensional formula: $[M^a L^b T^c]$"</span>,
+    <span class="s">"Absolute error $\\Delta a = |a_{measured} - a_{true}|$"</span>,
+    <span class="s">"Percentage error $= (\\Delta a/a) \\times 100$"</span>
+  ]
+}</pre>
+    <div class="do-dont">
+      <div class="do"><div class="do-title">✓ Use it for</div>2–5 formulas the learner should memorize or reference repeatedly through the chapter's questions.</div>
+      <div class="dont"><div class="dont-title">✗ Don't use it for</div>A one-off equation used in a single worked example — that belongs in a <code>formula</code> content block, or inside an <code>example</code> block instead.</div>
+    </div>
+  </div>
+
+  <!-- 5c. Case Studies -->
+  <div class="card" id="cases">
+    <h2><span class="step-num">5c</span> Case Studies / shared passages</h2>
+    <p class="section-sub">One passage, reused across a group of questions</p>
+    <p>Create a case once under <strong>📋 Case Studies / Shared Passages</strong> — a title, a passage, and an optional image — then assign it to any question via that question's <strong>"Part of Case / Passage"</strong> dropdown in the question editor. Every question sharing a case shows the passage once, right before that group of questions, instead of repeating it per question.</p>
+    <div class="note">Use this for comprehension-style or scenario-based questions — e.g. a paragraph describing a company's transactions, followed by 3–4 questions about it — rather than pasting the same passage into each question's own text.</div>
+    <div class="warn">Deleting a case clears the <code>caseId</code> on any question that referenced it (they just become standalone questions again) — it won't delete the questions themselves.</div>
+  </div>
+
   <!-- 6. SQL Playground -->
   <div class="card" id="playground">
     <h2><span class="step-num">6</span> SQL Playground <span style="font-size:12px;font-weight:600;color:var(--muted)">— only shown for the SQL subject</span></h2>
@@ -236,20 +315,25 @@
   <!-- 7. Questions -->
   <div class="card" id="questions">
     <h2><span class="step-num">7</span> Adding practice questions</h2>
-    <p class="section-sub">MCQ, MSQ, and NAT — three question types</p>
+    <p class="section-sub">Five question types — pick whichever fits what you're testing</p>
     <table class="ref">
       <tr><th>Type</th><th>What it is</th><th>Answer shape</th></tr>
       <tr><td><span class="badge" style="background:#6C3FF5">MCQ</span></td><td>Single correct option</td><td>Exactly one option checked</td></tr>
       <tr><td><span class="badge" style="background:#0891b2">MSQ</span></td><td>Multiple correct options</td><td>One or more options checked</td></tr>
       <tr><td><span class="badge" style="background:#d97706">NAT</span></td><td>Numeric-answer type</td><td>A number, optionally within a tolerance, with an optional unit</td></tr>
+      <tr><td><span class="badge" style="background:#be123c">AR</span></td><td>Assertion-Reason — a statement (A) and a reason (R); learner picks how they relate</td><td>One of 4 fixed relationship options checked</td></tr>
+      <tr><td><span class="badge" style="background:#7c3aed">MATCH</span></td><td>Match items in Column A to Column B</td><td>A list of correct left ↔ right pairs</td></tr>
     </table>
     <ol>
-      <li>In the <strong>Practice Questions</strong> section, click <strong>+ MCQ</strong>, <strong>+ MSQ</strong>, or <strong>+ NAT</strong>.</li>
-      <li>Type the <strong>Question Text</strong>. Check <strong>Enable LaTeX</strong> if it contains math.</li>
+      <li>In the <strong>Practice Questions</strong> section, click <strong>+ MCQ</strong>, <strong>+ MSQ</strong>, <strong>+ NAT</strong>, <strong>+ Assertion-Reason</strong>, or <strong>+ Match the Following</strong>.</li>
+      <li>For MCQ/MSQ/AR: fill in each <strong>Option</strong> and mark the correct one(s) with the radio/checkbox next to it. AR's four options come pre-filled with the standard "Both A and R are true and R explains A" wording — you just fill in the <strong>Assertion</strong> and <strong>Reason</strong> text above them and pick the correct relationship.</li>
+      <li>For NAT: enter the <strong>Correct Answer</strong>, an optional <strong>Tolerance</strong>, and an optional <strong>Unit</strong>.</li>
+      <li>For MATCH: rename the <strong>Column A / Column B</strong> titles if useful (e.g. "Standard" / "Covers"), then add each correct <strong>pair</strong> with <strong>+ Add Pair</strong> — order doesn't matter, the learner sees them shuffled.</li>
       <li>Optionally attach a <strong>Question Image</strong> and choose whether it appears above or below the question text.</li>
-      <li>For MCQ/MSQ: fill in each <strong>Option</strong>, and mark the correct one(s) with the radio/checkbox next to it. For NAT: enter the <strong>Correct Answer</strong>, an optional <strong>Tolerance</strong>, and an optional <strong>Unit</strong>.</li>
-      <li>Write an <strong>Explanation</strong> — see the next section for adding media to it.</li>
+      <li>If this question belongs with a shared passage, pick it from <strong>Part of Case / Passage</strong> at the top of the question editor (see §5c).</li>
+      <li>Write an <strong>Explanation</strong> — see §9 for adding media to it.</li>
     </ol>
+    <div class="note">Choosing a type: use <strong>MCQ</strong> for one right answer, <strong>MSQ</strong> when more than one option can be correct, <strong>NAT</strong> for a calculated number, <strong>AR</strong> to test whether a learner understands <em>why</em> something is true (not just whether it is), and <strong>MATCH</strong> for pairing/classification-style knowledge (standards ↔ definitions, terms ↔ meanings, causes ↔ effects).</div>
   </div>
 
   <!-- 8. Options rules -->
@@ -299,7 +383,7 @@
   <div class="card" id="save">
     <h2><span class="step-num">11</span> Saving &amp; permissions</h2>
     <ul>
-      <li>Nothing is written to the database until you click <strong>Save</strong> — everything before that is a local, in-browser draft.</li>
+      <li>Nothing is written to the database until you click <strong>Save</strong> (or <strong>Create</strong> when making a brand-new subject) — everything before that is a local, in-browser draft.</li>
       <li>Every save is logged with your name and the time, so changes are always traceable.</li>
       <li>If you navigate away with unsaved changes, the browser will warn you before leaving the page.</li>
       <li>Editors can only save subjects an admin has explicitly mapped to them with edit access — admins and super admins can save any subject.</li>
@@ -315,9 +399,11 @@
         <li>Concept has at least a heading + paragraph — not left empty</li>
         <li>Any math uses <code>$...$</code> / <code>$$...$$</code> and LaTeX is enabled</li>
         <li>Images are uploaded directly, not linked to an external page that could go down</li>
-        <li>Every question has at least one option (or a NAT answer) and a correct answer marked</li>
+        <li>Every question has at least one option (or a NAT answer/AR relationship/MATCH pairs) and a correct answer marked</li>
         <li>Option text boxes are left blank where an option is image-only</li>
         <li>Explanation is filled in for every question — text, or text + media</li>
+        <li>Key Formulas box only has formulas worth repeated reference, not one-off working</li>
+        <li>Case Studies are assigned to the right group of questions, not left orphaned</li>
         <li>SQL subjects: schema and sample queries are filled in, not left default</li>
         <li>Previewed the chapter (👁 Preview) before saving</li>
       </ul>
