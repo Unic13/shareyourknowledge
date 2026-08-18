@@ -1018,7 +1018,7 @@ function suggestSubjectCode(name) {
   } while (existing.has(code));
   return code;
 }
-
+/*
 function submitNewSubject() {
   const name = document.getElementById('ns-name').value.trim();
   const subtopic = document.getElementById('ns-subtopic').value.trim();
@@ -1047,6 +1047,72 @@ function submitNewSubject() {
   setBuilderStatus(`New subject "${code}" created — add a unit, then Save.`, '');
   closeNewSubjectModal();
 }
+*/
+async function submitNewSubject() {
+  const name = document.getElementById('ns-name').value.trim();
+  const subtopic = document.getElementById('ns-subtopic').value.trim();
+  const color = document.getElementById('ns-color').value || '#9333EA';
+  const errEl = document.getElementById('ns-err');
+  errEl.textContent = '';
+
+  if (!name) { errEl.textContent = 'Please select a Subject Name.'; return; }
+  if (!subtopic) { errEl.textContent = 'Subject Topic Name is required.'; return; }
+
+  const code = suggestSubjectCode(name);
+  const newSubject = { code, subject: name, subject_title: subtopic, color };
+  builder.subjects.push(newSubject);
+  builder.activeCode = code;
+  builder.activeData = { subject: name, code, color, subjectTitle: subtopic, units: [] };
+  builder.activeUnitId = null; builder.activeChapterId = null; builder.openBodyIndex = null;
+
+  renderSubjectPills();
+  document.getElementById('builder-tree-subject-label').textContent = `${name} — Units & Chapters`;
+  document.getElementById('btn-save-subject').disabled = false;
+  document.getElementById('builder-lock-note').textContent = '';
+  renderTopicInfo(newSubject);
+  renderBuilderTree();
+  renderBuilderEditor();
+
+  // "Create Subject" now does the same thing as clicking
+  // "💾 Save Subject to Database" itself — one click, actually persisted,
+  // instead of leaving it dirty-in-memory and hoping the user remembers.
+  const createBtn = document.querySelector('#subject-modal-overlay .b-btn-primary');
+  if (createBtn) createBtn.disabled = true;
+  errEl.textContent = 'Creating & saving…';
+
+  const requesterId = builder.session?.user?.id ?? builder.session?.id ?? null;
+  let res;
+  try {
+    res = await Api.post('/api/content', {
+      code, subject: name, subjectTitle: subtopic, color,
+      data: builder.activeData, requesterId,
+    });
+  } catch {
+    res = { success: false, error: 'Network error while saving' };
+  }
+  if (createBtn) createBtn.disabled = false;
+
+  if (!res || !res.success) {
+    errEl.textContent = res?.error || 'Could not save the new subject — please try again.';
+    return; // keep modal open, keep in-memory subject so nothing is lost
+  }
+
+  builder.dirty = false;
+  setBuilderStatus('✓ Saved to database', 'success');
+  closeNewSubjectModal();
+
+  // Success — guide them straight into what to do next instead of just
+  // dropping them back into an empty editor.
+  alert(
+    `✅ "${name} — ${subtopic}" (${code}) has been created and saved.\n\n` +
+    `Next steps:\n` +
+    `1. Check the 📘 Guide (top right) if this is your first time here.\n` +
+    `2. Click "+ Add Unit" on the left to start structuring content — e.g. one unit per week or topic.\n` +
+    `3. Inside each unit, "+ Add Chapter" for each lesson/day, then fill in its Concept, Key Formulas, and Practice Questions.\n\n` +
+    `Your progress after this point is unsaved until you click "💾 Save Subject to Database" again.`
+  );
+}
+
 
 // ── Live Preview / Raw JSON modal ──
 function pvBodyItemHtml(item) {
