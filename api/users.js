@@ -117,7 +117,7 @@ async function getEditorScope(adminId) {
     color: byId[m.subject_id]?.color,
     can_edit: m.can_edit,
     can_publish: m.can_publish,
-    variant_title: m.subject_title,
+    variant_title: byId[m.subject_id]?.subject_title,
   }));
 }
 
@@ -186,7 +186,7 @@ module.exports = async (req, res) => {
           color: subjectsById[m.subject_id]?.color,
           can_edit: m.can_edit,
           can_publish: m.can_publish,
-          variant_title: m.subject_title,
+          variant_title: subjectsById[m.subject_id]?.subject_title,
         }));
         if (adminId) mappings = mappings.filter((m) => String(m.admin_id) === String(adminId));
         return res.status(200).json({ mappings });
