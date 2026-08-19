@@ -5,12 +5,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>UnicKnowledge Sharing — Learn • Create • Share</title>
 <meta name="description" content="UnicKnowledge Sharing — practice questions, chapter theory, and a live SQL playground. Learn, create, and share knowledge.">
+<link rel="canonical" href="https://unicknowledgesharing.vercel.app/">
+<meta name="theme-color" content="#6C3FF5">
+
+<!-- Open Graph / social share preview -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="UnicKnowledge Sharing — Learn • Create • Share">
+<meta property="og:description" content="Practice questions, chapter theory — free to browse, no account needed.">
+<meta property="og:image" content="img/logo.png">
+<meta property="og:url" content="https://unicknowledgesharing.vercel.app/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="UnicKnowledge Sharing — Learn • Create • Share">
+<meta name="twitter:description" content="Practice questions, chapter theory — free to browse, no account needed.">
+<meta name="twitter:image" content="img/logo.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/admin.css">
 <link rel="icon" href="img/logo.png">
+<link rel="apple-touch-icon" href="img/logo.png">
 <style>
   body{min-height:100vh;display:flex;flex-direction:column}
   .hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px}
+
+  /* ── Skip link (keyboard/screen-reader users can bypass the header) ── */
+  .skip-link{position:absolute;left:-9999px;top:auto;background:#111;color:#fff;padding:10px 18px;border-radius:0 0 8px 0;font-size:13px;font-weight:700;z-index:100;text-decoration:none}
+  .skip-link:focus{left:0;top:0}
+
+  /* ── Consistent keyboard focus ring, since admin.css may reset outlines ── */
+  a:focus-visible,button:focus-visible{outline:2.5px solid #7c3aed;outline-offset:3px;border-radius:4px}
 
   /* ── Logo placement ── */
   .brand-logo-img{display:block;object-fit:contain}
@@ -26,14 +50,15 @@
   .hero-tagline{font-size:13px;font-weight:700;letter-spacing:.06em;color:#7c3aed;text-transform:uppercase;margin-bottom:2px}
   .hero-tagline-sub{font-size:11px;font-weight:600;letter-spacing:.1em;color:#a78bfa;text-transform:uppercase;margin-bottom:36px}
 
-  .hero-cards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:680px}
-  .hero-card{width:270px;background:#fff;border:1.5px solid #e5e7eb;border-radius:18px;padding:28px 24px;text-align:left;text-decoration:none;color:inherit;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .hero-cards{display:grid;grid-template-columns:repeat(2,270px);gap:16px;justify-content:center;max-width:680px}
+  @media (max-width:600px){.hero-cards{grid-template-columns:1fr;max-width:320px}}
+  .hero-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:18px;padding:28px 24px;text-align:left;text-decoration:none;color:inherit;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.06)}
   .hero-card:hover{border-color:#c4b5fd;box-shadow:0 8px 24px rgba(124,58,237,.12);transform:translateY(-2px)}
   .hero-card-icon{font-size:28px;margin-bottom:12px}
   .hero-card-title{font-size:16px;font-weight:800;color:#111;margin-bottom:6px}
   .hero-card-desc{font-size:12.5px;color:#6b7280;line-height:1.6;margin-bottom:14px}
   .hero-card-cta{font-size:12.5px;font-weight:700;color:#7c3aed;display:flex;align-items:center;gap:4px}
-  .hero-stats{display:flex;gap:28px;margin-top:36px;flex-wrap:wrap;justify-content:center}
+  .hero-stats{display:flex;gap:28px;margin-top:36px;flex-wrap:wrap;justify-content:center;min-height:1px}
   .hero-stat{text-align:center}
   .hero-stat-value{font-size:22px;font-weight:800;color:#111}
   .hero-stat-label{font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:.04em}
@@ -66,17 +91,20 @@
 </head>
 <body>
 
+<a href="#main-content" class="skip-link">Skip to content</a>
+
 <header>
-  <button id="brand-home-link" class="brand-lockup" style="background:none;border:none;cursor:pointer;padding:0" onclick="window.location.href='index.html'">
+  <a href="index.html" class="brand-lockup" aria-label="UnicKnowledge Sharing — home">
     <img src="img/logo.png" alt="UnicKnowledge Sharing" class="brand-logo-img">
-  </button>
-  <div class="header-right">
-    <a href="view.html" class="btn-logout" style="text-decoration:none">📖 Browse</a>
+  </a>
+  <nav class="header-right" aria-label="Primary">
+    <a href="view.html" class="btn-logout" style="text-decoration:none">📖 Browse Content</a>
     <a href="career.html" class="btn-logout" style="text-decoration:none">🎓 Careers & Exams</a>
     <a href="login.html" class="btn-logout" style="text-decoration:none">Admin Login →</a>
-  </div>
+  </nav>
 </header>
 
+<main id="main-content">
 <div class="hero">
   <img src="img/logo.png" alt="UnicKnowledge Sharing" class="brand-logo-img">
   <div class="hero-tagline">Learn • Create • Share</div>
@@ -84,25 +112,25 @@
 
   <div class="hero-cards">
     <a class="hero-card" href="view.html">
-      <div class="hero-card-icon">📖</div>
+      <div class="hero-card-icon" aria-hidden="true">📖</div>
       <div class="hero-card-title">Start Learning</div>
-      <div class="hero-card-desc">Browse subjects, read chapters, practice questions, and try the SQL playground — no account needed.</div>
+      <div class="hero-card-desc">Browse subjects, read chapters, practice questions — no account needed.</div>
       <div class="hero-card-cta">Browse content →</div>
     </a>
     <a class="hero-card" href="career.html">
-      <div class="hero-card-icon">🎓</div>
+      <div class="hero-card-icon" aria-hidden="true">🎓</div>
       <div class="hero-card-title">Careers &amp; Exams</div>
       <div class="hero-card-desc">Entrance exams, admission steps, employment news, and free education resources — all official sources.</div>
       <div class="hero-card-cta">Explore →</div>
     </a>
     <a class="hero-card" href="login.html">
-      <div class="hero-card-icon">✏️</div>
+      <div class="hero-card-icon" aria-hidden="true">✏️</div>
       <div class="hero-card-title">Create &amp; Manage</div>
       <div class="hero-card-desc">Sign in as an editor or admin to build chapters, questions, and manage subjects.</div>
       <div class="hero-card-cta">Admin login →</div>
     </a>
     <a class="hero-card" href="become-editor.html">
-      <div class="hero-card-icon">🙋</div>
+      <div class="hero-card-icon" aria-hidden="true">🙋</div>
       <div class="hero-card-title">Become an Editor</div>
       <div class="hero-card-desc">Know a subject well or teach a class? Request editor access and contribute your own content.</div>
       <div class="hero-card-cta">Request access →</div>
@@ -127,7 +155,7 @@
           </li>
           <li class="process-step">
             <div class="process-step-num" style="background:#6C3FF5">2</div>
-            <div><div class="process-step-title">Read the chapter</div><div class="process-step-desc">Concepts, formulas, examples, videos, and the SQL playground where relevant.</div></div>
+            <div><div class="process-step-title">Read the chapter</div><div class="process-step-desc">Concepts, formulas, examples, and videos where relevant.</div></div>
           </li>
           <li class="process-step">
             <div class="process-step-num" style="background:#6C3FF5">3</div>
@@ -164,6 +192,7 @@
     </div>
   </div>
 </div>
+</main>
 
 <footer>
   <div class="site-footer">
@@ -173,17 +202,17 @@
       </div>
       <div class="footer-tagline">Learn • Create • Share — Practice • Grow.<br>Built for learners and contributors alike.</div>
     </div>
-    <div class="footer-col">
+    <nav class="footer-col" aria-label="Learn">
       <div class="footer-col-title">Learn</div>
       <a href="view.html">Browse Subjects</a>
       <a href="career.html">Careers &amp; Exams</a>
-    </div>
-    <div class="footer-col">
+    </nav>
+    <nav class="footer-col" aria-label="Contribute and manage">
       <div class="footer-col-title">Contribute &amp; Manage</div>
       <a href="become-editor.html">Become an Editor</a>
       <a href="login.html">Admin Login</a>
       <a href="legal.html">Disclaimer &amp; Terms</a>
-    </div>
+    </nav>
   </div>
   <div class="footer-bottom">© UnicKnowledge Sharing — some content may be AI-assisted and can sometimes be inaccurate.</div>
 </footer>
