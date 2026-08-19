@@ -20,6 +20,7 @@ const UsersModule = (() => {
           <div class="b-field"><label>Name</label><input type="text" value="${esc(session.user.name)}" disabled></div>
           <div class="b-field"><label>Email</label><input type="text" value="${esc(session.user.email)}" disabled></div>
           <div class="b-field"><label>Role</label><input type="text" value="${esc(session.user.role)}" disabled></div>
+          <a href="question-builder-guide.html" class="b-btn b-btn-outline b-btn-sm" style="display:inline-flex;text-decoration:none;margin-top:6px">📘 Content Producer Guide</a>
         </div>
       </div>
       <div class="builder-col">
