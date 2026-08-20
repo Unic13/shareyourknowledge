@@ -1,0 +1,2602 @@
+{
+  "subject": "SQL",
+  "code": "SQL",
+  "color": "#0F9D8C",
+  "duration_days": 30,
+  "units": [
+    {
+      "id": "sql_u1",
+      "title": "Unit 1: SQL Fundamentals",
+      "chapters": [
+        {
+          "id": "sql_u1_c1",
+          "title": "Ch 1: Introduction to Databases & SQL",
+          "concept": {
+            "title": "What is a Database and SQL",
+            "body": [
+              "A database is an organized collection of data stored electronically. A Relational Database Management System (RDBMS) stores data in tables made of rows and columns.",
+              "SQL (Structured Query Language) is the standard language used to create, read, update, and delete data in an RDBMS (e.g. MySQL, PostgreSQL, SQL Server, SQLite).",
+              "SQL commands fall into categories: DDL (Data Definition Language - CREATE, ALTER, DROP), DML (Data Manipulation Language - SELECT, INSERT, UPDATE, DELETE), DCL (Data Control Language - GRANT, REVOKE), and TCL (Transaction Control Language - COMMIT, ROLLBACK).",
+              "A table is made of columns (fields, with a data type) and rows (records). A Primary Key uniquely identifies each row."
+            ],
+            "syntax": [
+              "-- Example table\nCREATE TABLE students (\n  id INT PRIMARY KEY,\n  name VARCHAR(50),\n  age INT\n);"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q001",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Which SQL command category does SELECT belong to?",
+              "options": [
+                "DDL",
+                "DML",
+                "DCL",
+                "TCL"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "SELECT retrieves/manipulates data, making it part of DML (Data Manipulation Language)."
+            },
+            {
+              "id": "sql_q002",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What is the purpose of a Primary Key?",
+              "options": [
+                "To store text data",
+                "To uniquely identify each row in a table",
+                "To sort a table",
+                "To delete duplicate tables"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "A Primary Key uniquely identifies each row and cannot contain NULL or duplicate values."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Student (\n  Roll_No INT PRIMARY KEY,\n  Name VARCHAR(30),\n  Class VARCHAR(5)\n);\n\nCREATE TABLE Marks_Table (\n  Roll_No INT,\n  Subject VARCHAR(20),\n  Score INT\n);\n\nINSERT INTO Student VALUES (1, 'Riya', '10A');\nINSERT INTO Student VALUES (2, 'Aman', '10B');\nINSERT INTO Student VALUES (3, 'Zoya', '10A');\n\nINSERT INTO Marks_Table VALUES (1, 'Physics', 88);\nINSERT INTO Marks_Table VALUES (1, 'Chemistry', 91);\nINSERT INTO Marks_Table VALUES (2, 'Physics', 72);\nINSERT INTO Marks_Table VALUES (3, 'Physics', 95);",
+            "sampleQueries": [
+              "SELECT * FROM Student;",
+              "SELECT * FROM Marks_Table;",
+              "SELECT Roll_No FROM Student;  -- Primary Key column",
+              "SELECT Roll_No FROM Marks_Table;  -- Foreign Key referencing Student"
+            ]
+          }
+        },
+        {
+          "id": "sql_u1_c2",
+          "title": "Ch 2: The SELECT Statement",
+          "concept": {
+            "title": "Retrieving Data with SELECT",
+            "body": [
+              "SELECT is used to query data from one or more tables. The most basic form is SELECT column_name(s) FROM table_name.",
+              "Use SELECT * to retrieve all columns, though it's best practice to name only the columns you need for performance.",
+              "The AS keyword renames a column or table in the output (an alias) without changing the underlying data."
+            ],
+            "syntax": [
+              "SELECT name, age FROM students;",
+              "SELECT name AS student_name FROM students;",
+              "SELECT * FROM students;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q003",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Which statement retrieves only the 'name' and 'age' columns?",
+              "options": [
+                "SELECT * FROM students;",
+                "SELECT name, age FROM students;",
+                "GET name, age FROM students;",
+                "SELECT name age FROM students;"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Listing specific column names after SELECT, separated by commas, retrieves only those columns."
+            },
+            {
+              "id": "sql_q004",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does 'SELECT name AS student_name FROM students;' do?",
+              "options": [
+                "Renames the table",
+                "Creates a new column in the table",
+                "Displays the 'name' column with the alias 'student_name' in the output",
+                "Deletes the name column"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "AS creates a temporary alias for display purposes only; it does not alter the table structure."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Student (\n  Roll_No INT PRIMARY KEY,\n  Name VARCHAR(30),\n  Class VARCHAR(5),\n  Age INT\n);\n\nINSERT INTO Student VALUES (1, 'Riya', '10A', 15);\nINSERT INTO Student VALUES (2, 'Aman', '10B', 16);\nINSERT INTO Student VALUES (3, 'Zoya', '10A', 15);",
+            "sampleQueries": [
+              "SELECT * FROM Student;",
+              "SELECT Name, Age FROM Student;",
+              "SELECT Name AS student_name FROM Student;",
+              "SELECT Name, Class AS section FROM Student;"
+            ]
+          }
+        },
+        {
+          "id": "sql_u1_c3",
+          "title": "Ch 3: Filtering with WHERE",
+          "concept": {
+            "title": "The WHERE Clause & Operators",
+            "body": [
+              "WHERE filters rows based on a condition, applied before grouping or sorting.",
+              "Comparison operators: = , != (or <>), >, <, >=, <=.",
+              "Logical operators AND, OR, NOT combine multiple conditions. AND requires all conditions true; OR requires at least one."
+            ],
+            "syntax": [
+              "SELECT * FROM students WHERE age > 18;",
+              "SELECT * FROM students WHERE age >= 18 AND age <= 25;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q005",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Which query returns students older than 20?",
+              "options": [
+                "SELECT * FROM students WHERE age > 20;",
+                "SELECT * FROM students WHERE age = 20;",
+                "SELECT * FROM students WHERE age < 20;",
+                "SELECT * FROM students HAVING age > 20;"
+              ],
+              "answer": [
+                0
+              ],
+              "explanation": "The '>' operator combined with WHERE filters rows where age is strictly greater than 20."
+            },
+            {
+              "id": "sql_q006",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does 'WHERE age >= 18 AND age <= 25' select?",
+              "options": [
+                "Students younger than 18 or older than 25",
+                "Students aged exactly 18 or 25",
+                "Students between 18 and 25 inclusive",
+                "All students"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "AND requires both conditions to be true simultaneously, giving the inclusive range 18-25."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Student (\n  Roll_No INT PRIMARY KEY,\n  Name VARCHAR(30),\n  Class VARCHAR(5),\n  Age INT\n);\n\nINSERT INTO Student VALUES (1, 'Riya', '10A', 15);\nINSERT INTO Student VALUES (2, 'Aman', '10B', 16);\nINSERT INTO Student VALUES (3, 'Zoya', '10A', 17);\nINSERT INTO Student VALUES (4, 'Kabir', '10B', 14);",
+            "sampleQueries": [
+              "SELECT * FROM Student WHERE Age > 15;",
+              "SELECT * FROM Student WHERE Class = '10A';",
+              "SELECT * FROM Student WHERE Age >= 15 AND Age <= 16;",
+              "SELECT * FROM Student WHERE Class = '10A' OR Age < 15;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "sql_u2",
+      "title": "Unit 2: Sorting, Filtering & Aggregates",
+      "chapters": [
+        {
+          "id": "sql_u2_c1",
+          "title": "Ch 1: ORDER BY, LIMIT & DISTINCT",
+          "concept": {
+            "title": "Sorting and Limiting Results",
+            "body": [
+              "ORDER BY sorts the result set by one or more columns; ASC (default) for ascending, DESC for descending.",
+              "LIMIT (MySQL/PostgreSQL) or TOP (SQL Server) restricts the number of rows returned - useful for pagination or 'top N' queries.",
+              "DISTINCT removes duplicate rows from the result set, based on the selected column(s)."
+            ],
+            "syntax": [
+              "SELECT * FROM students ORDER BY age DESC;",
+              "SELECT * FROM students ORDER BY age LIMIT 5;",
+              "SELECT DISTINCT age FROM students;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q007",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Which clause sorts results from highest to lowest?",
+              "options": [
+                "ORDER BY column ASC",
+                "ORDER BY column DESC",
+                "SORT BY column",
+                "GROUP BY column"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "DESC sorts in descending order (highest to lowest); ASC is ascending and is the default."
+            },
+            {
+              "id": "sql_q008",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does SELECT DISTINCT age FROM students; return?",
+              "options": [
+                "Every row including duplicate ages",
+                "Only unique age values",
+                "The count of ages",
+                "An error"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "DISTINCT filters the result set down to unique values only, removing duplicates."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Marks_Table (\n  Roll_No INT,\n  Subject VARCHAR(20),\n  Score INT\n);\n\nINSERT INTO Marks_Table VALUES (1, 'Physics', 88);\nINSERT INTO Marks_Table VALUES (1, 'Chemistry', 91);\nINSERT INTO Marks_Table VALUES (2, 'Physics', 72);\nINSERT INTO Marks_Table VALUES (3, 'Physics', 95);\nINSERT INTO Marks_Table VALUES (3, 'Chemistry', 91);",
+            "sampleQueries": [
+              "SELECT * FROM Marks_Table ORDER BY Score DESC;",
+              "SELECT * FROM Marks_Table ORDER BY Score ASC LIMIT 2;",
+              "SELECT DISTINCT Subject FROM Marks_Table;",
+              "SELECT DISTINCT Score FROM Marks_Table;"
+            ]
+          }
+        },
+        {
+          "id": "sql_u2_c2",
+          "title": "Ch 2: Pattern Matching & NULL Handling",
+          "concept": {
+            "title": "LIKE, IN, BETWEEN, IS NULL",
+            "body": [
+              "LIKE matches patterns using wildcards: % (any sequence of characters) and _ (a single character). e.g. 'A%' matches names starting with A.",
+              "IN checks if a value matches any value in a list, a shorthand for multiple OR conditions.",
+              "BETWEEN selects values within an inclusive range.",
+              "NULL represents missing/unknown data. Use IS NULL or IS NOT NULL to test for it - never '= NULL'."
+            ],
+            "syntax": [
+              "SELECT * FROM students WHERE name LIKE 'A%';",
+              "SELECT * FROM students WHERE age IN (18, 19, 20);",
+              "SELECT * FROM students WHERE age BETWEEN 18 AND 25;",
+              "SELECT * FROM students WHERE email IS NULL;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q009",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Which query finds students whose name starts with 'S'?",
+              "options": [
+                "WHERE name LIKE '%S'",
+                "WHERE name LIKE 'S%'",
+                "WHERE name = 'S'",
+                "WHERE name IN 'S'"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "'S%' matches any string starting with 'S' followed by zero or more characters."
+            },
+            {
+              "id": "sql_q010",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "How do you correctly check for missing values in a column?",
+              "options": [
+                "WHERE column = NULL",
+                "WHERE column == NULL",
+                "WHERE column IS NULL",
+                "WHERE column != ''"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "NULL is not a value that can be compared with '=', so SQL requires the special IS NULL / IS NOT NULL syntax."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Student (\n  Roll_No INT PRIMARY KEY,\n  Name VARCHAR(30),\n  Class VARCHAR(5),\n  Age INT,\n  Email VARCHAR(50)\n);\n\nINSERT INTO Student VALUES (1, 'Riya', '10A', 15, 'riya@mail.com');\nINSERT INTO Student VALUES (2, 'Aman', '10B', 16, NULL);\nINSERT INTO Student VALUES (3, 'Sara', '10A', 17, 'sara@mail.com');\nINSERT INTO Student VALUES (4, 'Sameer', '10B', 14, NULL);",
+            "sampleQueries": [
+              "SELECT * FROM Student WHERE Name LIKE 'S%';",
+              "SELECT * FROM Student WHERE Age IN (15, 16);",
+              "SELECT * FROM Student WHERE Age BETWEEN 14 AND 16;",
+              "SELECT * FROM Student WHERE Email IS NULL;"
+            ]
+          }
+        },
+        {
+          "id": "sql_u2_c3",
+          "title": "Ch 3: Aggregate Functions",
+          "concept": {
+            "title": "COUNT, SUM, AVG, MIN, MAX",
+            "body": [
+              "Aggregate functions perform a calculation on a set of rows and return a single value: COUNT(), SUM(), AVG(), MIN(), MAX().",
+              "COUNT(*) counts all rows; COUNT(column) counts non-NULL values in that column.",
+              "Aggregate functions are commonly used with GROUP BY (covered next) but can also be used alone over an entire table."
+            ],
+            "syntax": [
+              "SELECT COUNT(*) FROM students;",
+              "SELECT AVG(age) FROM students;",
+              "SELECT MAX(age), MIN(age) FROM students;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q011",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does COUNT(*) FROM students; return?",
+              "options": [
+                "Sum of all ages",
+                "Total number of rows in the table",
+                "Number of columns",
+                "Average age"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "COUNT(*) counts every row in the table regardless of NULLs."
+            },
+            {
+              "id": "sql_q012",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Which function returns the average value of a numeric column?",
+              "options": [
+                "SUM()",
+                "COUNT()",
+                "AVG()",
+                "MAX()"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "AVG() computes the arithmetic mean of the specified numeric column."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Marks_Table (\n  Roll_No INT,\n  Subject VARCHAR(20),\n  Score INT\n);\n\nINSERT INTO Marks_Table VALUES (1, 'Physics', 88);\nINSERT INTO Marks_Table VALUES (1, 'Chemistry', 91);\nINSERT INTO Marks_Table VALUES (2, 'Physics', 72);\nINSERT INTO Marks_Table VALUES (3, 'Physics', 95);\nINSERT INTO Marks_Table VALUES (3, 'Chemistry', 60);",
+            "sampleQueries": [
+              "SELECT COUNT(*) FROM Marks_Table;",
+              "SELECT AVG(Score) FROM Marks_Table;",
+              "SELECT MAX(Score), MIN(Score) FROM Marks_Table;",
+              "SELECT SUM(Score) FROM Marks_Table WHERE Subject = 'Physics';"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "sql_u3",
+      "title": "Unit 3: Grouping Data",
+      "chapters": [
+        {
+          "id": "sql_u3_c1",
+          "title": "Ch 1: GROUP BY",
+          "concept": {
+            "title": "Grouping Rows",
+            "body": [
+              "GROUP BY groups rows that share the same values in specified columns, typically used with aggregate functions to summarize data per group.",
+              "Every non-aggregated column in SELECT must appear in the GROUP BY clause.",
+              "Common pattern: find a total/average/count 'per category', e.g. total sales per region."
+            ],
+            "syntax": [
+              "SELECT department, COUNT(*) FROM employees GROUP BY department;",
+              "SELECT department, AVG(salary) FROM employees GROUP BY department;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q013",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does GROUP BY department do in a query with COUNT(*)?",
+              "options": [
+                "Counts all employees regardless of department",
+                "Counts employees within each department separately",
+                "Sorts departments alphabetically",
+                "Deletes duplicate departments"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "GROUP BY partitions rows into groups by department; COUNT(*) is then computed per group."
+            },
+            {
+              "id": "sql_q014",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Why does 'SELECT department, name, COUNT(*) FROM employees GROUP BY department;' typically cause an error?",
+              "options": [
+                "COUNT(*) is invalid",
+                "'name' is not aggregated and not in GROUP BY",
+                "department cannot be grouped",
+                "GROUP BY needs an ORDER BY"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Every selected column that isn't wrapped in an aggregate function must appear in GROUP BY, or the engine won't know which row's 'name' to show."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Marks_Table (\n  Roll_No INT,\n  Subject VARCHAR(20),\n  Score INT\n);\n\nINSERT INTO Marks_Table VALUES (1, 'Physics', 88);\nINSERT INTO Marks_Table VALUES (2, 'Physics', 72);\nINSERT INTO Marks_Table VALUES (3, 'Physics', 95);\nINSERT INTO Marks_Table VALUES (1, 'Chemistry', 91);\nINSERT INTO Marks_Table VALUES (3, 'Chemistry', 60);",
+            "sampleQueries": [
+              "SELECT Subject, COUNT(*) FROM Marks_Table GROUP BY Subject;",
+              "SELECT Subject, AVG(Score) FROM Marks_Table GROUP BY Subject;",
+              "SELECT Subject, MAX(Score) FROM Marks_Table GROUP BY Subject;",
+              "-- Try adding Roll_No to SELECT without adding it to GROUP BY and see the error\nSELECT Subject, Roll_No, COUNT(*) FROM Marks_Table GROUP BY Subject;"
+            ]
+          }
+        },
+        {
+          "id": "sql_u3_c2",
+          "title": "Ch 2: HAVING",
+          "concept": {
+            "title": "Filtering Groups with HAVING",
+            "body": [
+              "HAVING filters groups AFTER aggregation, whereas WHERE filters individual rows BEFORE aggregation.",
+              "You cannot use an aggregate function (like COUNT()) inside WHERE - it must go in HAVING.",
+              "Logical order of execution: FROM -> WHERE -> GROUP BY -> HAVING -> SELECT -> ORDER BY."
+            ],
+            "syntax": [
+              "SELECT department, COUNT(*) FROM employees GROUP BY department HAVING COUNT(*) > 5;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q015",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What is the key difference between WHERE and HAVING?",
+              "options": [
+                "They are identical",
+                "WHERE filters rows before grouping; HAVING filters groups after aggregation",
+                "HAVING filters rows before grouping; WHERE filters after",
+                "WHERE only works with numbers"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "WHERE operates on individual rows before GROUP BY runs; HAVING operates on the aggregated groups."
+            },
+            {
+              "id": "sql_q016",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Which clause is required to filter 'departments with more than 5 employees'?",
+              "options": [
+                "WHERE COUNT(*) > 5",
+                "HAVING COUNT(*) > 5",
+                "GROUP BY COUNT(*) > 5",
+                "ORDER BY COUNT(*) > 5"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Since COUNT(*) is an aggregate computed per group, filtering on it requires HAVING, not WHERE."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Marks_Table (\n  Roll_No INT,\n  Subject VARCHAR(20),\n  Score INT\n);\n\nINSERT INTO Marks_Table VALUES (1, 'Physics', 88);\nINSERT INTO Marks_Table VALUES (2, 'Physics', 72);\nINSERT INTO Marks_Table VALUES (3, 'Physics', 95);\nINSERT INTO Marks_Table VALUES (1, 'Chemistry', 91);\nINSERT INTO Marks_Table VALUES (3, 'Chemistry', 60);",
+            "sampleQueries": [
+              "SELECT Subject, COUNT(*) FROM Marks_Table GROUP BY Subject HAVING COUNT(*) > 1;",
+              "SELECT Subject, AVG(Score) FROM Marks_Table GROUP BY Subject HAVING AVG(Score) > 75;",
+              "SELECT Subject, MAX(Score) FROM Marks_Table GROUP BY Subject HAVING MAX(Score) >= 90;",
+              "-- WHERE cannot use COUNT() directly, only HAVING can\nSELECT Subject, COUNT(*) FROM Marks_Table GROUP BY Subject HAVING COUNT(*) >= 2;"
+            ]
+          }
+        },
+        {
+          "id": "sql_u3_c3",
+          "title": "Ch 3: Combining Clauses (Review)",
+          "concept": {
+            "title": "Putting SELECT, WHERE, GROUP BY, HAVING, ORDER BY Together",
+            "body": [
+              "A full query can combine all clauses in this order: SELECT ... FROM ... WHERE ... GROUP BY ... HAVING ... ORDER BY ... LIMIT.",
+              "Practice reading queries clause by clause in execution order (FROM/WHERE first, SELECT/ORDER BY last) rather than the order they're written.",
+              "This chapter is a consolidation/practice checkpoint before moving to JOINs."
+            ],
+            "syntax": [
+              "SELECT department, AVG(salary) AS avg_sal\nFROM employees\nWHERE age > 25\nGROUP BY department\nHAVING AVG(salary) > 50000\nORDER BY avg_sal DESC\nLIMIT 3;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q017",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "In the query order FROM -> WHERE -> GROUP BY -> HAVING -> SELECT -> ORDER BY, which runs first?",
+              "options": [
+                "SELECT",
+                "ORDER BY",
+                "FROM",
+                "HAVING"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "SQL logically processes FROM (identifying the source table) before any filtering, grouping, or selecting happens."
+            },
+            {
+              "id": "sql_q018",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does 'HAVING AVG(salary) > 50000' filter?",
+              "options": [
+                "Individual employees earning over 50000",
+                "Departments whose average salary exceeds 50000",
+                "The FROM clause",
+                "Nothing, it is invalid"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Because AVG(salary) is grouped by department, HAVING filters out entire departments whose group average doesn't exceed 50000."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Marks_Table (\n  Roll_No INT,\n  Subject VARCHAR(20),\n  Score INT\n);\n\nINSERT INTO Marks_Table VALUES (1, 'Physics', 88);\nINSERT INTO Marks_Table VALUES (2, 'Physics', 72);\nINSERT INTO Marks_Table VALUES (3, 'Physics', 95);\nINSERT INTO Marks_Table VALUES (1, 'Chemistry', 91);\nINSERT INTO Marks_Table VALUES (3, 'Chemistry', 60);",
+            "sampleQueries": [
+              "SELECT Subject, AVG(Score) AS avg_score\nFROM Marks_Table\nWHERE Score > 60\nGROUP BY Subject\nHAVING AVG(Score) > 70\nORDER BY avg_score DESC;",
+              "SELECT Subject, COUNT(*) AS attempts FROM Marks_Table GROUP BY Subject ORDER BY attempts DESC LIMIT 1;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "sql_u4",
+      "title": "Unit 4: Joins",
+      "chapters": [
+        {
+          "id": "sql_u4_c1",
+          "title": "Ch 1: INNER JOIN",
+          "concept": {
+            "title": "Combining Tables with INNER JOIN",
+            "body": [
+              "A JOIN combines rows from two or more tables based on a related column between them.",
+              "INNER JOIN returns only the rows that have matching values in both tables.",
+              "The ON clause specifies the join condition, typically matching a foreign key to a primary key."
+            ],
+            "syntax": [
+              "SELECT orders.id, customers.name\nFROM orders\nINNER JOIN customers ON orders.customer_id = customers.id;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q019",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does INNER JOIN return?",
+              "options": [
+                "All rows from both tables regardless of match",
+                "Only rows with matching values in both tables",
+                "Only unmatched rows",
+                "A random sample of rows"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "INNER JOIN excludes rows that don't have a corresponding match in the other table."
+            },
+            {
+              "id": "sql_q020",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What is the purpose of the ON clause in a JOIN?",
+              "options": [
+                "To sort the joined result",
+                "To specify which columns to display",
+                "To define the condition that links the two tables",
+                "To filter groups"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "ON defines how rows from the two tables relate to each other, usually via a foreign key = primary key match."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Student (\n  Roll_No INT PRIMARY KEY,\n  Name VARCHAR(30),\n  Class VARCHAR(5)\n);\n\nCREATE TABLE Marks_Table (\n  Roll_No INT,\n  Subject VARCHAR(20),\n  Score INT\n);\n\nINSERT INTO Student VALUES (1, 'Riya', '10A');\nINSERT INTO Student VALUES (2, 'Aman', '10B');\nINSERT INTO Student VALUES (3, 'Zoya', '10A');\n\nINSERT INTO Marks_Table VALUES (1, 'Physics', 88);\nINSERT INTO Marks_Table VALUES (1, 'Chemistry', 91);\nINSERT INTO Marks_Table VALUES (2, 'Physics', 72);",
+            "sampleQueries": [
+              "SELECT Student.Name, Marks_Table.Subject, Marks_Table.Score\nFROM Student\nINNER JOIN Marks_Table ON Student.Roll_No = Marks_Table.Roll_No;",
+              "-- Notice Zoya (Roll_No 3) is missing - no matching row in Marks_Table\nSELECT * FROM Student INNER JOIN Marks_Table ON Student.Roll_No = Marks_Table.Roll_No;"
+            ]
+          }
+        },
+        {
+          "id": "sql_u4_c2",
+          "title": "Ch 2: LEFT JOIN & RIGHT JOIN",
+          "concept": {
+            "title": "Outer Joins - Keeping Unmatched Rows",
+            "body": [
+              "LEFT JOIN (LEFT OUTER JOIN) returns all rows from the left table, plus matched rows from the right table; unmatched right-side columns show NULL.",
+              "RIGHT JOIN does the mirror opposite: all rows from the right table, matched or not.",
+              "LEFT JOIN is far more commonly used in practice than RIGHT JOIN (you can usually swap table order instead)."
+            ],
+            "syntax": [
+              "SELECT customers.name, orders.id\nFROM customers\nLEFT JOIN orders ON customers.id = orders.customer_id;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q021",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "In a LEFT JOIN between customers and orders, what happens to customers with no orders?",
+              "options": [
+                "They are excluded entirely",
+                "They appear with NULL in the order columns",
+                "The query fails",
+                "They are duplicated"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "LEFT JOIN preserves every row from the left (customers) table, filling unmatched right-side columns with NULL."
+            },
+            {
+              "id": "sql_q022",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Which JOIN keeps all rows from the right-hand table even if unmatched?",
+              "options": [
+                "INNER JOIN",
+                "LEFT JOIN",
+                "RIGHT JOIN",
+                "SELF JOIN"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "RIGHT JOIN preserves all rows from the right table, matched or not, filling the left side with NULL when unmatched."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Student (\n  Roll_No INT PRIMARY KEY,\n  Name VARCHAR(30)\n);\n\nCREATE TABLE Marks_Table (\n  Roll_No INT,\n  Subject VARCHAR(20),\n  Score INT\n);\n\nINSERT INTO Student VALUES (1, 'Riya');\nINSERT INTO Student VALUES (2, 'Aman');\nINSERT INTO Student VALUES (3, 'Zoya');\n\nINSERT INTO Marks_Table VALUES (1, 'Physics', 88);\nINSERT INTO Marks_Table VALUES (2, 'Physics', 72);",
+            "sampleQueries": [
+              "-- Zoya has no marks, but still appears with NULL columns\nSELECT Student.Name, Marks_Table.Subject, Marks_Table.Score\nFROM Student\nLEFT JOIN Marks_Table ON Student.Roll_No = Marks_Table.Roll_No;",
+              "SELECT Marks_Table.Subject, Student.Name\nFROM Marks_Table\nRIGHT JOIN Student ON Marks_Table.Roll_No = Student.Roll_No;"
+            ]
+          }
+        },
+        {
+          "id": "sql_u4_c3",
+          "title": "Ch 3: FULL OUTER JOIN & CROSS JOIN",
+          "concept": {
+            "title": "FULL and CROSS Joins",
+            "body": [
+              "FULL OUTER JOIN returns all rows from both tables, matching where possible and filling NULL where there's no match on either side.",
+              "CROSS JOIN returns the Cartesian product - every row of table A paired with every row of table B (no ON condition needed).",
+              "CROSS JOIN result size = rows(A) x rows(B), so it's rarely used except for generating combinations."
+            ],
+            "syntax": [
+              "SELECT * FROM a FULL OUTER JOIN b ON a.id = b.a_id;",
+              "SELECT * FROM colors CROSS JOIN sizes;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q023",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does FULL OUTER JOIN return?",
+              "options": [
+                "Only matching rows",
+                "All rows from the left table only",
+                "All rows from both tables, with NULLs where there's no match",
+                "An error if tables differ in size"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "FULL OUTER JOIN is the union of LEFT and RIGHT JOIN results, keeping every row from both sides."
+            },
+            {
+              "id": "sql_q024",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "If 'colors' has 3 rows and 'sizes' has 4 rows, how many rows does CROSS JOIN produce?",
+              "options": [
+                "7",
+                "12",
+                "3",
+                "4"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "CROSS JOIN produces the Cartesian product: 3 x 4 = 12 rows, pairing every color with every size."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Colors (\n  Color VARCHAR(20)\n);\n\nCREATE TABLE Sizes (\n  Size VARCHAR(5)\n);\n\nINSERT INTO Colors VALUES ('Red'), ('Blue'), ('Green');\nINSERT INTO Sizes VALUES ('S'), ('M'), ('L'), ('XL');",
+            "sampleQueries": [
+              "SELECT * FROM Colors CROSS JOIN Sizes;",
+              "-- 3 colors x 4 sizes = 12 rows\nSELECT COUNT(*) FROM Colors CROSS JOIN Sizes;"
+            ]
+          }
+        },
+        {
+          "id": "sql_u4_c4",
+          "title": "Ch 4: Self Joins & Multi-Table Joins",
+          "concept": {
+            "title": "Joining a Table to Itself, and Multiple Tables",
+            "body": [
+              "A SELF JOIN joins a table to itself using table aliases, useful for hierarchical data (e.g. employees and their managers in the same table).",
+              "You can chain multiple JOINs in one query to combine 3+ tables.",
+              "Always use table aliases (e.g. e1, e2) in self joins to disambiguate columns with the same name."
+            ],
+            "syntax": [
+              "SELECT e1.name AS employee, e2.name AS manager\nFROM employees e1\nJOIN employees e2 ON e1.manager_id = e2.id;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q025",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Why are aliases (e.g. e1, e2) required in a self join?",
+              "options": [
+                "They are optional style choices",
+                "To distinguish the same table used twice in one query",
+                "To improve query speed",
+                "SQL requires aliases for all joins"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Since both sides of the join reference the same physical table, aliases are needed so SQL (and the reader) knows which instance a column belongs to."
+            },
+            {
+              "id": "sql_q026",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "A self join is most useful for modeling:",
+              "options": [
+                "Two completely unrelated tables",
+                "Hierarchical relationships within one table, like employee-manager",
+                "Removing duplicate rows",
+                "Sorting data"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Self joins let you compare rows in a table against other rows in that same table, ideal for hierarchies like employee/manager."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Employees (\n  id INT PRIMARY KEY,\n  name VARCHAR(30),\n  manager_id INT\n);\n\nINSERT INTO Employees VALUES (1, 'Neha', NULL);\nINSERT INTO Employees VALUES (2, 'Ravi', 1);\nINSERT INTO Employees VALUES (3, 'Anita', 1);\nINSERT INTO Employees VALUES (4, 'Vikram', 2);",
+            "sampleQueries": [
+              "SELECT e1.name AS employee, e2.name AS manager\nFROM Employees e1\nJOIN Employees e2 ON e1.manager_id = e2.id;",
+              "SELECT e1.name AS employee, e2.name AS manager\nFROM Employees e1\nLEFT JOIN Employees e2 ON e1.manager_id = e2.id;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "sql_u5",
+      "title": "Unit 5: Subqueries",
+      "chapters": [
+        {
+          "id": "sql_u5_c1",
+          "title": "Ch 1: Subqueries in WHERE",
+          "concept": {
+            "title": "Nesting Queries with Subqueries",
+            "body": [
+              "A subquery is a query nested inside another query, often inside WHERE to filter based on a computed set of values.",
+              "Use = for a subquery returning a single value, or IN for a subquery returning multiple values.",
+              "Subqueries are evaluated first (innermost first), and their result is used by the outer query."
+            ],
+            "syntax": [
+              "SELECT name FROM employees\nWHERE salary > (SELECT AVG(salary) FROM employees);"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q027",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does the subquery '(SELECT AVG(salary) FROM employees)' compute?",
+              "options": [
+                "The maximum salary",
+                "A single value: the average salary across all employees",
+                "A list of all salaries",
+                "The employee count"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "AVG() with no GROUP BY returns one aggregate value across the whole table - a scalar the outer query can compare against."
+            },
+            {
+              "id": "sql_q028",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "When should you use IN instead of = with a subquery?",
+              "options": [
+                "When the subquery returns exactly one row",
+                "When the subquery returns multiple rows",
+                "Never, they are interchangeable",
+                "Only with JOINs"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "'=' expects a single value; if the subquery can return multiple rows, IN is required to check membership in that list."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Marks_Table (\n  Roll_No INT,\n  Subject VARCHAR(20),\n  Score INT\n);\n\nINSERT INTO Marks_Table VALUES (1, 'Physics', 88);\nINSERT INTO Marks_Table VALUES (2, 'Physics', 72);\nINSERT INTO Marks_Table VALUES (3, 'Physics', 95);\nINSERT INTO Marks_Table VALUES (1, 'Chemistry', 91);\nINSERT INTO Marks_Table VALUES (3, 'Chemistry', 60);",
+            "sampleQueries": [
+              "SELECT * FROM Marks_Table\nWHERE Score > (SELECT AVG(Score) FROM Marks_Table);",
+              "SELECT * FROM Marks_Table\nWHERE Score IN (SELECT MAX(Score) FROM Marks_Table GROUP BY Subject);"
+            ]
+          }
+        },
+        {
+          "id": "sql_u5_c2",
+          "title": "Ch 2: Correlated Subqueries",
+          "concept": {
+            "title": "Subqueries That Reference the Outer Query",
+            "body": [
+              "A correlated subquery references a column from the outer query, so it re-runs once for each row processed by the outer query.",
+              "Commonly used with EXISTS / NOT EXISTS to test whether related rows exist in another table.",
+              "Correlated subqueries can be slower than JOINs on large tables since they execute repeatedly."
+            ],
+            "syntax": [
+              "SELECT name FROM employees e\nWHERE EXISTS (\n  SELECT 1 FROM orders o WHERE o.employee_id = e.id\n);"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q029",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What makes a subquery 'correlated'?",
+              "options": [
+                "It uses COUNT()",
+                "It references a column from the outer query",
+                "It is written on multiple lines",
+                "It always returns NULL"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "A correlated subquery depends on the outer query's current row (here, e.id), so it must be re-evaluated per outer row."
+            },
+            {
+              "id": "sql_q030",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does EXISTS check for?",
+              "options": [
+                "Whether a subquery returns any rows at all",
+                "The exact value returned",
+                "Whether a column is NULL",
+                "The number of columns"
+              ],
+              "answer": [
+                0
+              ],
+              "explanation": "EXISTS returns TRUE as soon as the subquery produces at least one row, regardless of its actual content."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Student (\n  Roll_No INT PRIMARY KEY,\n  Name VARCHAR(30)\n);\n\nCREATE TABLE Marks_Table (\n  Roll_No INT,\n  Subject VARCHAR(20),\n  Score INT\n);\n\nINSERT INTO Student VALUES (1, 'Riya');\nINSERT INTO Student VALUES (2, 'Aman');\nINSERT INTO Student VALUES (3, 'Zoya');\n\nINSERT INTO Marks_Table VALUES (1, 'Physics', 88);\nINSERT INTO Marks_Table VALUES (2, 'Physics', 72);",
+            "sampleQueries": [
+              "SELECT Name FROM Student s\nWHERE EXISTS (\n  SELECT 1 FROM Marks_Table m WHERE m.Roll_No = s.Roll_No\n);",
+              "SELECT Name FROM Student s\nWHERE NOT EXISTS (\n  SELECT 1 FROM Marks_Table m WHERE m.Roll_No = s.Roll_No\n);"
+            ]
+          }
+        },
+        {
+          "id": "sql_u5_c3",
+          "title": "Ch 3: Subqueries in FROM & SELECT",
+          "concept": {
+            "title": "Derived Tables and Scalar Subqueries",
+            "body": [
+              "A subquery in the FROM clause (a 'derived table') creates a temporary result set that can be queried like a normal table - it must be given an alias.",
+              "A subquery in the SELECT list (a 'scalar subquery') must return exactly one value per row and is used to compute an extra column.",
+              "Derived tables are useful for multi-step aggregations, e.g. computing a per-group average and then filtering on it."
+            ],
+            "syntax": [
+              "SELECT dept_avg.department, dept_avg.avg_sal\nFROM (\n  SELECT department, AVG(salary) AS avg_sal\n  FROM employees GROUP BY department\n) AS dept_avg\nWHERE dept_avg.avg_sal > 50000;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q031",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Why must a subquery in the FROM clause have an alias?",
+              "options": [
+                "It's optional stylistic preference",
+                "SQL requires every derived table to be named so it can be referenced",
+                "Only MySQL requires it",
+                "Aliases speed up the query"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "SQL treats the subquery result as a new temporary table, and every table reference in a query needs a name."
+            },
+            {
+              "id": "sql_q032",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "A scalar subquery in the SELECT list must return:",
+              "options": [
+                "Multiple rows and columns",
+                "Exactly one value per outer row",
+                "A whole table",
+                "Nothing, it always errors"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "If a scalar subquery returned more than one value for a row, SQL wouldn't know which value to place in that single output cell, so it must return exactly one."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Marks_Table (\n  Roll_No INT,\n  Subject VARCHAR(20),\n  Score INT\n);\n\nINSERT INTO Marks_Table VALUES (1, 'Physics', 88);\nINSERT INTO Marks_Table VALUES (2, 'Physics', 72);\nINSERT INTO Marks_Table VALUES (3, 'Physics', 95);\nINSERT INTO Marks_Table VALUES (1, 'Chemistry', 91);\nINSERT INTO Marks_Table VALUES (3, 'Chemistry', 60);",
+            "sampleQueries": [
+              "SELECT subject_avg.Subject, subject_avg.avg_sc\nFROM (\n  SELECT Subject, AVG(Score) AS avg_sc\n  FROM Marks_Table GROUP BY Subject\n) AS subject_avg\nWHERE subject_avg.avg_sc > 75;",
+              "SELECT Roll_No, Score,\n  (SELECT AVG(Score) FROM Marks_Table) AS overall_avg\nFROM Marks_Table;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "sql_u6",
+      "title": "Unit 6: Set Operations & Built-in Functions",
+      "chapters": [
+        {
+          "id": "sql_u6_c1",
+          "title": "Ch 1: UNION, INTERSECT, EXCEPT",
+          "concept": {
+            "title": "Combining Result Sets",
+            "body": [
+              "UNION combines the results of two SELECT statements and removes duplicates; UNION ALL keeps duplicates and is faster.",
+              "Both queries in a UNION must have the same number of columns with compatible data types.",
+              "INTERSECT returns rows common to both queries; EXCEPT (or MINUS) returns rows in the first query but not the second."
+            ],
+            "syntax": [
+              "SELECT name FROM customers\nUNION\nSELECT name FROM suppliers;",
+              "SELECT id FROM a INTERSECT SELECT id FROM b;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q033",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What is the difference between UNION and UNION ALL?",
+              "options": [
+                "No difference",
+                "UNION removes duplicate rows; UNION ALL keeps them",
+                "UNION ALL only works on numbers",
+                "UNION is faster than UNION ALL"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "UNION performs an extra step to de-duplicate the combined rows, while UNION ALL simply concatenates both result sets."
+            },
+            {
+              "id": "sql_q034",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What must be true for two SELECT queries to be combined with UNION?",
+              "options": [
+                "They must query the same table",
+                "They must return the same number of columns with compatible types",
+                "They must both use WHERE",
+                "They must be sorted"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "UNION stacks result sets vertically, so column count and compatible types are required for the rows to align correctly."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Customers (\n  name VARCHAR(30)\n);\n\nCREATE TABLE Suppliers (\n  name VARCHAR(30)\n);\n\nINSERT INTO Customers VALUES ('Riya'), ('Aman'), ('Zoya');\nINSERT INTO Suppliers VALUES ('Aman'), ('Kabir');",
+            "sampleQueries": [
+              "SELECT name FROM Customers\nUNION\nSELECT name FROM Suppliers;",
+              "SELECT name FROM Customers\nUNION ALL\nSELECT name FROM Suppliers;",
+              "SELECT name FROM Customers\nINTERSECT\nSELECT name FROM Suppliers;"
+            ]
+          }
+        },
+        {
+          "id": "sql_u6_c2",
+          "title": "Ch 2: String Functions",
+          "concept": {
+            "title": "Manipulating Text Data",
+            "body": [
+              {
+                "type": "heading",
+                "text": "1. What are String Functions?"
+              },
+              {
+                "type": "paragraph",
+                "text": "String functions are built-in SQL functions used to manipulate, clean, search, and format text data. They help transform text into the desired format and are commonly used while querying databases."
+              },
+              {
+                "type": "list",
+                "items": [
+                  "Manipulate text data",
+                  "Clean messy data",
+                  "Format outputs",
+                  "Extract specific parts of text",
+                  "Combine multiple text values"
+                ]
+              },
+              {
+                "type": "note",
+                "text": "String functions are widely used in Data Analytics, Reporting, ETL processes, data cleaning, and application development."
+              },
+              {
+                "type": "heading",
+                "text": "2. Why Learn String Functions?"
+              },
+              {
+                "type": "list",
+                "items": [
+                  "Standardize text values.",
+                  "Remove unnecessary spaces.",
+                  "Generate readable reports.",
+                  "Create full names and formatted strings.",
+                  "Prepare data before analysis."
+                ]
+              },
+              {
+                "type": "heading",
+                "text": "3. Common String Functions"
+              },
+              {
+                "type": "table",
+                "headers": [
+                  "Function",
+                  "Purpose",
+                  "Example Result"
+                ],
+                "rows": [
+                  [
+                    "UPPER()",
+                    "Convert text to uppercase",
+                    "john \u2192 JOHN"
+                  ],
+                  [
+                    "LOWER()",
+                    "Convert text to lowercase",
+                    "JOHN \u2192 john"
+                  ],
+                  [
+                    "LENGTH()",
+                    "Count characters",
+                    "SQL \u2192 3"
+                  ],
+                  [
+                    "CONCAT()",
+                    "Join multiple strings",
+                    "John + Doe \u2192 John Doe"
+                  ],
+                  [
+                    "SUBSTRING()",
+                    "Extract part of a string",
+                    "Database \u2192 Data"
+                  ],
+                  [
+                    "TRIM()",
+                    "Remove leading/trailing spaces",
+                    "' SQL ' \u2192 'SQL'"
+                  ],
+                  [
+                    "REPLACE()",
+                    "Replace text",
+                    "Java \u2192 SQL"
+                  ]
+                ]
+              },
+              {
+                "type": "heading",
+                "text": "4. Examples"
+              },
+              {
+                "type": "syntax",
+                "title": "UPPER()",
+                "code": "SELECT UPPER(name)\nFROM employees;"
+              },
+              {
+                "type": "note",
+                "text": "Converts all employee names to uppercase. Useful for performing case-insensitive comparisons."
+              },
+              {
+                "type": "heading",
+                "text": "5. Important Notes"
+              },
+              {
+                "type": "list",
+                "items": [
+                  "LENGTH() counts spaces as characters.",
+                  "TRIM() removes spaces only from the beginning and end of a string.",
+                  "CONCAT() combines two or more strings into one value.",
+                  "REPLACE() changes every matching occurrence of the specified text.",
+                  "SUBSTRING() extracts a portion of a string starting from a specified position."
+                ]
+              },
+              {
+                "type": "note",
+                "text": "Some SQL databases use LEN() instead of LENGTH(). Always check your database documentation."
+              },
+              {
+                "type": "heading",
+                "text": "6. Real-world Uses"
+              },
+              {
+                "type": "list",
+                "items": [
+                  "Format employee names.",
+                  "Clean imported customer data.",
+                  "Generate full names.",
+                  "Standardize email addresses.",
+                  "Extract product or employee codes.",
+                  "Prepare data for dashboards and reports."
+                ]
+              },
+              {
+                "type": "heading",
+                "text": "7. Best Practices"
+              },
+              {
+                "type": "list",
+                "items": [
+                  "Use TRIM() before comparing text values.",
+                  "Store email addresses in lowercase.",
+                  "Use meaningful aliases for calculated columns.",
+                  "Test string functions with sample data before updating tables."
+                ]
+              },
+              {
+                "type": "heading",
+                "text": "8. Common Mistakes"
+              },
+              {
+                "type": "list",
+                "items": [
+                  "Forgetting that LENGTH() includes spaces.",
+                  "Expecting TRIM() to remove spaces inside a string.",
+                  "Using incorrect starting positions with SUBSTRING().",
+                  "Ignoring NULL values while concatenating strings."
+                ]
+              }
+            ],
+            "syntax": [
+              "SELECT UPPER(name) FROM employees;",
+              "SELECT LOWER(email) FROM employees;",
+              "SELECT LENGTH(name) FROM employees;",
+              "SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM employees;",
+              "SELECT SUBSTRING(name, 1, 3) FROM employees;",
+              "SELECT TRIM('   SQL   ');",
+              "SELECT REPLACE('I love Java', 'Java', 'SQL');"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q035",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does CONCAT(first_name, ' ', last_name) do?",
+              "options": [
+                "Compares first_name and last_name",
+                "Joins first_name and last_name with a space",
+                "Deletes last_name",
+                "Counts the number of characters"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "CONCAT() combines multiple strings into one. Here it joins the first name, a space, and the last name to produce a full name."
+            },
+            {
+              "id": "sql_q036",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Which function removes leading and trailing spaces from a string?",
+              "options": [
+                "LENGTH()",
+                "TRIM()",
+                "UPPER()",
+                "CONCAT()"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "TRIM() removes unnecessary spaces from the beginning and end of a string."
+            },
+            {
+              "id": "sql_q037",
+              "type": "MCQ",
+              "difficulty_rating": 1,
+              "question": "Which function converts text to uppercase?",
+              "options": [
+                "LOWER()",
+                "UPPER()",
+                "CONCAT()",
+                "REPLACE()"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "UPPER() converts every alphabetic character in a string to uppercase."
+            },
+            {
+              "id": "sql_q038",
+              "type": "MCQ",
+              "difficulty_rating": 1,
+              "question": "Which function converts text to lowercase?",
+              "options": [
+                "UPPER()",
+                "LOWER()",
+                "LENGTH()",
+                "SUBSTRING()"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "LOWER() converts all alphabetic characters in a string to lowercase."
+            },
+            {
+              "id": "sql_q039",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does LENGTH('Database') return?",
+              "options": [
+                "7",
+                "8",
+                "9",
+                "10"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "The word 'Database' contains 8 characters, so LENGTH('Database') returns 8."
+            },
+            {
+              "id": "sql_q040",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What is the output of SUBSTRING('Employee', 1, 3)?",
+              "options": [
+                "Emp",
+                "mpl",
+                "ploy",
+                "Employee"
+              ],
+              "answer": [
+                0
+              ],
+              "explanation": "SUBSTRING(string, start, length) extracts characters starting from position 1. The first three characters of 'Employee' are 'Emp'."
+            },
+            {
+              "id": "sql_q041",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What is the output of REPLACE('I love Java', 'Java', 'SQL')?",
+              "options": [
+                "I love Java SQL",
+                "I love SQL",
+                "Java SQL",
+                "I SQL love"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "REPLACE() substitutes all occurrences of the specified text. 'Java' is replaced with 'SQL'."
+            },
+            {
+              "id": "sql_q042",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Which function is best used to combine first_name and last_name into one column?",
+              "options": [
+                "LENGTH()",
+                "CONCAT()",
+                "TRIM()",
+                "SUBSTRING()"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "CONCAT() joins two or more strings into a single string."
+            },
+            {
+              "id": "sql_q043",
+              "type": "MCQ",
+              "difficulty_rating": 3,
+              "question": "Which query extracts the first four characters of the name column?",
+              "options": [
+                "SELECT LENGTH(name) FROM employees;",
+                "SELECT SUBSTRING(name, 1, 4) FROM employees;",
+                "SELECT CONCAT(name, 4) FROM employees;",
+                "SELECT TRIM(name) FROM employees;"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "SUBSTRING(name, 1, 4) starts at the first character and extracts four characters."
+            },
+            {
+              "id": "sql_q044",
+              "type": "MCQ",
+              "difficulty_rating": 3,
+              "question": "Why is TRIM() commonly used in data cleaning?",
+              "options": [
+                "To convert text to uppercase",
+                "To remove unwanted spaces around text values",
+                "To count characters",
+                "To join multiple strings"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Extra spaces often cause duplicate values and comparison issues. TRIM() removes these unwanted leading and trailing spaces."
+            },
+            {
+              "id": "sql_q045",
+              "type": "MCQ",
+              "difficulty_rating": 3,
+              "question": "Which SQL function is commonly used to standardize email addresses before analysis?",
+              "options": [
+                "LOWER()",
+                "LENGTH()",
+                "TRIM()",
+                "SUBSTRING()"
+              ],
+              "answer": [
+                0
+              ],
+              "explanation": "Email addresses are usually converted to lowercase using LOWER() so that different letter cases are treated consistently."
+            },
+            {
+              "id": "sql_q046",
+              "type": "MSQ",
+              "difficulty_rating": 3,
+              "question": "Which of the following SQL functions are used to change the letter case of text?",
+              "options": [
+                "UPPER()",
+                "LOWER()",
+                "LENGTH()",
+                "TRIM()"
+              ],
+              "answer": [
+                0,
+                1
+              ],
+              "explanation": "UPPER() converts text to uppercase, while LOWER() converts text to lowercase."
+            },
+            {
+              "id": "sql_q047",
+              "type": "MSQ",
+              "difficulty_rating": 3,
+              "question": "Which SQL functions are commonly used for cleaning text data?",
+              "options": [
+                "TRIM()",
+                "REPLACE()",
+                "UPPER()",
+                "CONCAT()"
+              ],
+              "answer": [
+                0,
+                1,
+                2
+              ],
+              "explanation": "TRIM() removes unwanted spaces, REPLACE() substitutes text, and UPPER() helps standardize text. CONCAT() joins strings rather than cleaning them."
+            },
+            {
+              "id": "sql_q048",
+              "type": "MSQ",
+              "difficulty_rating": 4,
+              "question": "Which of the following functions return a string as output?",
+              "options": [
+                "UPPER()",
+                "LOWER()",
+                "CONCAT()",
+                "LENGTH()"
+              ],
+              "answer": [
+                0,
+                1,
+                2
+              ],
+              "explanation": "UPPER(), LOWER(), and CONCAT() return strings. LENGTH() returns a numeric value."
+            },
+            {
+              "id": "sql_q049",
+              "type": "NAT",
+              "difficulty_rating": 2,
+              "question": "What is the output of LENGTH('Database')?",
+              "answer": "8",
+              "explanation": "The word 'Database' contains 8 characters."
+            },
+            {
+              "id": "sql_q050",
+              "type": "NAT",
+              "difficulty_rating": 2,
+              "question": "What is the output of SUBSTRING('Employee', 1, 4)?",
+              "answer": "Empl",
+              "explanation": "Starting from position 1, the first four characters are 'Empl'."
+            },
+            {
+              "id": "sql_q051",
+              "type": "NAT",
+              "difficulty_rating": 2,
+              "question": "What is the output of REPLACE('SQL Basics', 'Basics', 'Tutorial')?",
+              "answer": "SQL Tutorial",
+              "explanation": "REPLACE() substitutes 'Basics' with 'Tutorial'."
+            },
+            {
+              "id": "sql_q052",
+              "type": "NAT",
+              "difficulty_rating": 2,
+              "question": "What is the output of TRIM('   SQL   ')?",
+              "answer": "SQL",
+              "explanation": "TRIM() removes leading and trailing spaces."
+            },
+            {
+              "id": "sql_q053",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Which SQL function returns the number of characters in a string?",
+              "options": [
+                "COUNT()",
+                "LENGTH()",
+                "SIZE()",
+                "TRIM()"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "LENGTH() returns the total number of characters in a string, including spaces."
+            },
+            {
+              "id": "sql_q054",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What is the output of LENGTH('SQL ')?",
+              "options": [
+                "3",
+                "4",
+                "5",
+                "2"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "The trailing space is counted as a character, so the result is 4."
+            },
+            {
+              "id": "sql_q055",
+              "type": "MCQ",
+              "difficulty_rating": 3,
+              "question": "Which query converts the city column to lowercase?",
+              "options": [
+                "SELECT LOWER(city) FROM customers;",
+                "SELECT UPPER(city) FROM customers;",
+                "SELECT TRIM(city) FROM customers;",
+                "SELECT LENGTH(city) FROM customers;"
+              ],
+              "answer": [
+                0
+              ],
+              "explanation": "LOWER() converts all alphabetic characters in the city column to lowercase."
+            },
+            {
+              "id": "sql_q056",
+              "type": "MCQ",
+              "difficulty_rating": 3,
+              "question": "What is the output of CONCAT('SQL', ' ', 'Tutorial')?",
+              "options": [
+                "SQLTutorial",
+                "SQL Tutorial",
+                "Tutorial SQL",
+                "SQL  Tutorial"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "CONCAT() joins the strings exactly as provided, including the space."
+            },
+            {
+              "id": "sql_q057",
+              "type": "MSQ",
+              "difficulty_rating": 3,
+              "question": "Which SQL functions return text values?",
+              "options": [
+                "CONCAT()",
+                "UPPER()",
+                "LOWER()",
+                "REPLACE()"
+              ],
+              "answer": [
+                0,
+                1,
+                2,
+                3
+              ],
+              "explanation": "All four functions return a string as their output."
+            },
+            {
+              "id": "sql_q058",
+              "type": "MSQ",
+              "difficulty_rating": 4,
+              "question": "Which functions can modify the contents of a string?",
+              "options": [
+                "REPLACE()",
+                "SUBSTRING()",
+                "UPPER()",
+                "LENGTH()"
+              ],
+              "answer": [
+                0,
+                1,
+                2
+              ],
+              "explanation": "REPLACE(), SUBSTRING(), and UPPER() modify or transform text. LENGTH() only returns the character count."
+            },
+            {
+              "id": "sql_q059",
+              "type": "NAT",
+              "difficulty_rating": 2,
+              "question": "What is the output of UPPER('sql')?",
+              "answer": "SQL",
+              "explanation": "UPPER() converts all letters to uppercase."
+            },
+            {
+              "id": "sql_q060",
+              "type": "NAT",
+              "difficulty_rating": 2,
+              "question": "What is the output of LOWER('DATABASE')?",
+              "answer": "database",
+              "explanation": "LOWER() converts all letters to lowercase."
+            },
+            {
+              "id": "sql_q061",
+              "type": "NAT",
+              "difficulty_rating": 3,
+              "question": "What is the output of CONCAT('Data', ' ', 'Analytics')?",
+              "answer": "Data Analytics",
+              "explanation": "CONCAT() joins the strings with the supplied space."
+            },
+            {
+              "id": "sql_q062",
+              "type": "NAT",
+              "difficulty_rating": 3,
+              "question": "What is the output of SUBSTRING('Database', 5, 4)?",
+              "answer": "base",
+              "explanation": "Starting from the 5th character of 'Database', the next four characters are 'base'."
+            },
+            {
+              "id": "sql_q063",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Which function is used to replace one part of a string with another?",
+              "options": [
+                "SUBSTRING()",
+                "TRIM()",
+                "REPLACE()",
+                "CONCAT()"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "REPLACE() substitutes one substring with another."
+            },
+            {
+              "id": "sql_q064",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Which function extracts a portion of a string?",
+              "options": [
+                "CONCAT()",
+                "SUBSTRING()",
+                "UPPER()",
+                "LENGTH()"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "SUBSTRING() extracts characters from a specified position."
+            },
+            {
+              "id": "sql_q065",
+              "type": "MCQ",
+              "difficulty_rating": 3,
+              "question": "What is the output of UPPER('Sql Tutorial')?",
+              "options": [
+                "SQL TUTORIAL",
+                "sql tutorial",
+                "Sql Tutorial",
+                "SQL Tutorial"
+              ],
+              "answer": [
+                0
+              ],
+              "explanation": "UPPER() converts all alphabetic characters to uppercase."
+            },
+            {
+              "id": "sql_q066",
+              "type": "MCQ",
+              "difficulty_rating": 3,
+              "question": "What is the output of LOWER('SQL123')?",
+              "options": [
+                "sql123",
+                "SQL123",
+                "Sql123",
+                "sql 123"
+              ],
+              "answer": [
+                0
+              ],
+              "explanation": "Only alphabetic characters are converted to lowercase."
+            },
+            {
+              "id": "sql_q067",
+              "type": "MCQ",
+              "difficulty_rating": 3,
+              "question": "What is the output of LENGTH('SQL Tutorial')?",
+              "options": [
+                "11",
+                "12",
+                "13",
+                "14"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "'SQL Tutorial' contains 12 characters including the space."
+            },
+            {
+              "id": "sql_q068",
+              "type": "MCQ",
+              "difficulty_rating": 3,
+              "question": "What is the output of SUBSTRING('Database', 2, 3)?",
+              "options": [
+                "Dat",
+                "ata",
+                "tab",
+                "aba"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Positions in 'Database' are D(1) a(2) t(3) a(4) b(5) a(6) s(7) e(8). Starting at position 2 for 3 characters gives 'ata'."
+            },
+            {
+              "id": "sql_q069",
+              "type": "MCQ",
+              "difficulty_rating": 3,
+              "question": "Which function is commonly used before comparing text values?",
+              "options": [
+                "TRIM()",
+                "LENGTH()",
+                "SUBSTRING()",
+                "CONCAT()"
+              ],
+              "answer": [
+                0
+              ],
+              "explanation": "TRIM() removes unwanted leading and trailing spaces."
+            },
+            {
+              "id": "sql_q070",
+              "type": "MCQ",
+              "difficulty_rating": 4,
+              "question": "Which query creates a Full Name column?",
+              "options": [
+                "SELECT CONCAT(first_name,' ',last_name) AS full_name FROM employees;",
+                "SELECT LENGTH(first_name,last_name) FROM employees;",
+                "SELECT REPLACE(first_name,last_name) FROM employees;",
+                "SELECT SUBSTRING(first_name,last_name) FROM employees;"
+              ],
+              "answer": [
+                0
+              ],
+              "explanation": "CONCAT() joins first_name, a space, and last_name."
+            },
+            {
+              "id": "sql_q071",
+              "type": "MSQ",
+              "difficulty_rating": 3,
+              "question": "Which SQL functions return text values?",
+              "options": [
+                "UPPER()",
+                "LOWER()",
+                "SUBSTRING()",
+                "CONCAT()"
+              ],
+              "answer": [
+                0,
+                1,
+                2,
+                3
+              ],
+              "explanation": "All these functions return string values."
+            },
+            {
+              "id": "sql_q072",
+              "type": "MSQ",
+              "difficulty_rating": 3,
+              "question": "Which functions are useful for formatting text?",
+              "options": [
+                "UPPER()",
+                "LOWER()",
+                "TRIM()",
+                "CONCAT()"
+              ],
+              "answer": [
+                0,
+                1,
+                2,
+                3
+              ],
+              "explanation": "All are commonly used for formatting text."
+            },
+            {
+              "id": "sql_q073",
+              "type": "MSQ",
+              "difficulty_rating": 4,
+              "question": "Which functions can be used in data cleaning?",
+              "options": [
+                "TRIM()",
+                "REPLACE()",
+                "LOWER()",
+                "UPPER()"
+              ],
+              "answer": [
+                0,
+                1,
+                2,
+                3
+              ],
+              "explanation": "Each of these functions helps standardize or clean text data."
+            },
+            {
+              "id": "sql_q074",
+              "type": "MSQ",
+              "difficulty_rating": 4,
+              "question": "Which functions modify the appearance of text without changing its meaning?",
+              "options": [
+                "UPPER()",
+                "LOWER()",
+                "TRIM()",
+                "LENGTH()"
+              ],
+              "answer": [
+                0,
+                1,
+                2
+              ],
+              "explanation": "UPPER(), LOWER(), and TRIM() change formatting, while LENGTH() returns a number."
+            },
+            {
+              "id": "sql_q075",
+              "type": "MSQ",
+              "difficulty_rating": 4,
+              "question": "Which statements about LENGTH() are true?",
+              "options": [
+                "It returns a number.",
+                "It counts spaces.",
+                "It converts text to uppercase.",
+                "It can be used on string values."
+              ],
+              "answer": [
+                0,
+                1,
+                3
+              ],
+              "explanation": "LENGTH() returns the number of characters, including spaces."
+            },
+            {
+              "id": "sql_q076",
+              "type": "NAT",
+              "difficulty_rating": 2,
+              "question": "What is the output of LENGTH('SQL')?",
+              "answer": "3",
+              "explanation": "'SQL' contains three characters."
+            },
+            {
+              "id": "sql_q077",
+              "type": "NAT",
+              "difficulty_rating": 2,
+              "question": "What is the output of LOWER('HELLO')?",
+              "answer": "hello",
+              "explanation": "LOWER() converts all letters to lowercase."
+            },
+            {
+              "id": "sql_q078",
+              "type": "NAT",
+              "difficulty_rating": 2,
+              "question": "What is the output of UPPER('database')?",
+              "answer": "DATABASE",
+              "explanation": "UPPER() converts all letters to uppercase."
+            },
+            {
+              "id": "sql_q079",
+              "type": "NAT",
+              "difficulty_rating": 3,
+              "question": "What is the output of CONCAT('My','SQL')?",
+              "answer": "MySQL",
+              "explanation": "CONCAT() joins both strings without adding spaces unless specified."
+            },
+            {
+              "id": "sql_q080",
+              "type": "NAT",
+              "difficulty_rating": 3,
+              "question": "What is the output of REPLACE('abcabc','a','A')?",
+              "answer": "AbcAbc",
+              "explanation": "Every occurrence of 'a' is replaced with 'A'."
+            },
+            {
+              "id": "sql_q081",
+              "type": "NAT",
+              "difficulty_rating": 3,
+              "question": "What is the output of SUBSTRING('Computer', 4, 3)?",
+              "answer": "put",
+              "explanation": "Starting from the 4th character, the next three characters are 'put'."
+            },
+            {
+              "id": "sql_q082",
+              "type": "NAT",
+              "difficulty_rating": 3,
+              "question": "What is the output of TRIM('   Hello World   ')?",
+              "answer": "Hello World",
+              "explanation": "TRIM() removes leading and trailing spaces while preserving spaces between words."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Employees (\n  id INT PRIMARY KEY,\n  first_name VARCHAR(20),\n  last_name VARCHAR(20),\n  email VARCHAR(40)\n);\n\nINSERT INTO Employees VALUES (1, 'John', 'Doe', '  JOHN.DOE@MAIL.com ');\nINSERT INTO Employees VALUES (2, 'Sara', 'Khan', 'sara.khan@mail.com');",
+            "sampleQueries": [
+              "SELECT UPPER(first_name) FROM Employees;",
+              "SELECT LOWER(email) FROM Employees;",
+              "SELECT CONCAT(first_name, ' ', last_name) AS full_name FROM Employees;",
+              "SELECT TRIM(email) FROM Employees;",
+              "SELECT SUBSTRING(first_name, 1, 3) FROM Employees;"
+            ]
+          }
+        },
+        {
+          "id": "sql_u6_c3",
+          "title": "Ch 3: Date & Time Functions",
+          "concept": {
+            "title": "Working with Dates",
+            "body": [
+              "CURRENT_DATE / NOW() return the current date/timestamp.",
+              "DATEDIFF(date1, date2) calculates the difference between two dates; DATE_ADD()/DATE_SUB() shift a date forward or back.",
+              "EXTRACT(YEAR FROM date_column) or YEAR(date_column) pulls out a specific part of a date (syntax varies slightly by database)."
+            ],
+            "syntax": [
+              "SELECT DATEDIFF(order_date, CURRENT_DATE) FROM orders;",
+              "SELECT YEAR(order_date) FROM orders;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q083",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Which function returns today's date?",
+              "options": [
+                "TODAY()",
+                "CURRENT_DATE",
+                "GET_DATE_NOW",
+                "DATE()"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "CURRENT_DATE (a standard SQL keyword/function) returns the current date according to the database server."
+            },
+            {
+              "id": "sql_q084",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does DATEDIFF(date1, date2) typically calculate?",
+              "options": [
+                "The sum of both dates",
+                "The number of days between the two dates",
+                "Whether the dates are equal",
+                "The current year"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "DATEDIFF returns the difference in days (or the relevant unit) between two date values."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Orders (\n  id INT PRIMARY KEY,\n  customer_name VARCHAR(30),\n  order_date DATE\n);\n\nINSERT INTO Orders VALUES (1, 'Riya', '2024-01-15');\nINSERT INTO Orders VALUES (2, 'Aman', '2024-03-22');\nINSERT INTO Orders VALUES (3, 'Zoya', '2024-06-05');",
+            "sampleQueries": [
+              "SELECT order_date, CURRENT_DATE FROM Orders;",
+              "SELECT DATEDIFF(CURRENT_DATE, order_date) AS days_ago FROM Orders;",
+              "SELECT YEAR(order_date), MONTH(order_date) FROM Orders;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "sql_u7",
+      "title": "Unit 7: Conditional Logic & Window Functions",
+      "chapters": [
+        {
+          "id": "sql_u7_c1",
+          "title": "Ch 1: CASE WHEN",
+          "concept": {
+            "title": "Conditional Logic in SQL",
+            "body": [
+              "CASE WHEN condition THEN result ... ELSE default END lets you add if/else logic directly inside a query.",
+              "Useful for creating labeled categories (e.g. 'High'/'Medium'/'Low') from numeric data, without changing the underlying table.",
+              "CASE can be used in SELECT, WHERE, ORDER BY, and GROUP BY clauses."
+            ],
+            "syntax": [
+              "SELECT name,\n  CASE\n    WHEN age < 18 THEN 'Minor'\n    WHEN age < 65 THEN 'Adult'\n    ELSE 'Senior'\n  END AS age_group\nFROM people;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q085",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does the ELSE branch of a CASE statement do?",
+              "options": [
+                "Causes an error if reached",
+                "Provides a default result when no WHEN condition matches",
+                "Always runs first",
+                "Is required syntax with no effect"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "ELSE specifies the fallback value returned when none of the preceding WHEN conditions are true."
+            },
+            {
+              "id": "sql_q086",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "CASE WHEN can be used inside which clauses?",
+              "options": [
+                "Only SELECT",
+                "Only WHERE",
+                "SELECT, WHERE, ORDER BY, and GROUP BY",
+                "It cannot be used inside any clause"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "CASE is a general expression in SQL and can appear anywhere a value expression is valid, including SELECT, WHERE, ORDER BY, and GROUP BY."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Marks_Table (\n  Roll_No INT,\n  Subject VARCHAR(20),\n  Score INT\n);\n\nINSERT INTO Marks_Table VALUES (1, 'Physics', 88);\nINSERT INTO Marks_Table VALUES (2, 'Physics', 55);\nINSERT INTO Marks_Table VALUES (3, 'Physics', 95);\nINSERT INTO Marks_Table VALUES (1, 'Chemistry', 40);",
+            "sampleQueries": [
+              "SELECT Roll_No, Score,\n  CASE\n    WHEN Score >= 90 THEN 'A'\n    WHEN Score >= 60 THEN 'B'\n    ELSE 'Needs Improvement'\n  END AS grade\nFROM Marks_Table;"
+            ]
+          }
+        },
+        {
+          "id": "sql_u7_c2",
+          "title": "Ch 2: Window Functions - Ranking",
+          "concept": {
+            "title": "ROW_NUMBER, RANK, DENSE_RANK",
+            "body": [
+              "Window functions perform calculations across a set of rows related to the current row, without collapsing rows like GROUP BY does.",
+              "ROW_NUMBER() OVER (ORDER BY col) assigns a unique sequential number to each row.",
+              "RANK() gives the same rank to ties and skips subsequent numbers; DENSE_RANK() gives the same rank to ties but does NOT skip numbers.",
+              "PARTITION BY resets the numbering within each group, similar to GROUP BY but keeping individual rows visible."
+            ],
+            "syntax": [
+              "SELECT name, salary,\n  RANK() OVER (ORDER BY salary DESC) AS salary_rank\nFROM employees;",
+              "SELECT name, department,\n  ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS rn\nFROM employees;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q087",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What is the key difference between RANK() and DENSE_RANK()?",
+              "options": [
+                "No difference",
+                "RANK() skips numbers after a tie; DENSE_RANK() does not",
+                "DENSE_RANK() skips numbers after a tie; RANK() does not",
+                "RANK() only works with PARTITION BY"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "After a tie, RANK() leaves a gap (e.g. 1,2,2,4) reflecting the number of tied rows, while DENSE_RANK() continues consecutively (1,2,2,3)."
+            },
+            {
+              "id": "sql_q088",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does PARTITION BY department do in a window function?",
+              "options": [
+                "Deletes rows outside the department",
+                "Restarts the window calculation separately for each department",
+                "Groups and collapses rows like GROUP BY",
+                "Sorts departments alphabetically only"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "PARTITION BY divides rows into partitions (here, by department) and the window function is computed independently within each partition, while all rows remain visible in the output."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Marks_Table (\n  Roll_No INT,\n  Subject VARCHAR(20),\n  Score INT\n);\n\nINSERT INTO Marks_Table VALUES (1, 'Physics', 88);\nINSERT INTO Marks_Table VALUES (2, 'Physics', 95);\nINSERT INTO Marks_Table VALUES (3, 'Physics', 95);\nINSERT INTO Marks_Table VALUES (1, 'Chemistry', 91);\nINSERT INTO Marks_Table VALUES (2, 'Chemistry', 60);",
+            "sampleQueries": [
+              "SELECT Roll_No, Subject, Score,\n  RANK() OVER (ORDER BY Score DESC) AS score_rank\nFROM Marks_Table;",
+              "SELECT Roll_No, Subject, Score,\n  ROW_NUMBER() OVER (PARTITION BY Subject ORDER BY Score DESC) AS rn\nFROM Marks_Table;",
+              "SELECT Roll_No, Subject, Score,\n  DENSE_RANK() OVER (PARTITION BY Subject ORDER BY Score DESC) AS dense_rnk\nFROM Marks_Table;"
+            ]
+          }
+        },
+        {
+          "id": "sql_u7_c3",
+          "title": "Ch 3: Window Functions - Aggregates",
+          "concept": {
+            "title": "Aggregate Window Functions & Running Totals",
+            "body": [
+              "Aggregate functions like SUM(), AVG(), COUNT() can be used as window functions with OVER(), computing a value per row while still returning every row (unlike GROUP BY, which collapses rows).",
+              "A running/cumulative total can be built with SUM(col) OVER (ORDER BY date_col).",
+              "LAG() and LEAD() access values from a previous or next row within the window, useful for period-over-period comparisons."
+            ],
+            "syntax": [
+              "SELECT order_date, amount,\n  SUM(amount) OVER (ORDER BY order_date) AS running_total\nFROM orders;",
+              "SELECT name, salary,\n  LAG(salary) OVER (ORDER BY hire_date) AS prev_salary\nFROM employees;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q089",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does 'SUM(amount) OVER (ORDER BY order_date)' compute?",
+              "options": [
+                "The total of all amounts collapsed into one row",
+                "A running/cumulative total up to each row's date",
+                "The average amount",
+                "Nothing - it's invalid syntax"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "With ORDER BY inside OVER() and no explicit frame, SUM() defaults to a cumulative sum from the first row up to the current row."
+            },
+            {
+              "id": "sql_q090",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does LAG(salary) OVER (ORDER BY hire_date) return for each row?",
+              "options": [
+                "The current row's salary",
+                "The salary from the next row",
+                "The salary from the previous row in the specified order",
+                "The maximum salary overall"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "LAG() looks backward, returning the value from the preceding row according to the ORDER BY in the window."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Orders (\n  id INT PRIMARY KEY,\n  order_date DATE,\n  amount INT\n);\n\nINSERT INTO Orders VALUES (1, '2024-01-01', 100);\nINSERT INTO Orders VALUES (2, '2024-01-05', 250);\nINSERT INTO Orders VALUES (3, '2024-01-10', 150);",
+            "sampleQueries": [
+              "SELECT order_date, amount,\n  SUM(amount) OVER (ORDER BY order_date) AS running_total\nFROM Orders;",
+              "SELECT order_date, amount,\n  LAG(amount) OVER (ORDER BY order_date) AS prev_amount\nFROM Orders;",
+              "SELECT order_date, amount,\n  AVG(amount) OVER () AS overall_avg\nFROM Orders;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "sql_u8",
+      "title": "Unit 8: CTEs & Views",
+      "chapters": [
+        {
+          "id": "sql_u8_c1",
+          "title": "Ch 1: Common Table Expressions (WITH)",
+          "concept": {
+            "title": "Common Table Expressions",
+            "body": [
+              "A CTE, defined with WITH name AS (...), creates a named, temporary result set that can be referenced later in the same query - improving readability over nested subqueries.",
+              "CTEs exist only for the duration of the query that defines them.",
+              "Multiple CTEs can be chained by separating them with commas."
+            ],
+            "syntax": [
+              "WITH dept_avg AS (\n  SELECT department, AVG(salary) AS avg_sal\n  FROM employees GROUP BY department\n)\nSELECT * FROM dept_avg WHERE avg_sal > 50000;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q091",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What is the main benefit of a CTE over a nested subquery?",
+              "options": [
+                "CTEs run faster in every database",
+                "CTEs improve readability by giving the intermediate result a name",
+                "CTEs can modify table data",
+                "CTEs replace JOINs entirely"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "A CTE lets you name and structure a complex query step-by-step, making multi-step logic much easier to read than deeply nested subqueries."
+            },
+            {
+              "id": "sql_q092",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "How long does a CTE persist?",
+              "options": [
+                "Permanently, like a table",
+                "Only for the duration of the query that defines it",
+                "Until the database restarts",
+                "Forever, until manually dropped"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "A CTE is a temporary, named result set scoped only to the single query it's defined in."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Marks_Table (\n  Roll_No INT,\n  Subject VARCHAR(20),\n  Score INT\n);\n\nINSERT INTO Marks_Table VALUES (1, 'Physics', 88);\nINSERT INTO Marks_Table VALUES (2, 'Physics', 72);\nINSERT INTO Marks_Table VALUES (3, 'Physics', 95);\nINSERT INTO Marks_Table VALUES (1, 'Chemistry', 91);\nINSERT INTO Marks_Table VALUES (3, 'Chemistry', 60);",
+            "sampleQueries": [
+              "WITH subject_avg AS (\n  SELECT Subject, AVG(Score) AS avg_sc\n  FROM Marks_Table GROUP BY Subject\n)\nSELECT * FROM subject_avg WHERE avg_sc > 75;"
+            ]
+          }
+        },
+        {
+          "id": "sql_u8_c2",
+          "title": "Ch 2: Recursive CTEs & Views",
+          "concept": {
+            "title": "Recursive CTEs and Views",
+            "body": [
+              "A recursive CTE references itself to process hierarchical or sequential data (e.g. an org chart or a number sequence), consisting of an anchor member and a recursive member joined by UNION ALL.",
+              "A VIEW is a saved, reusable SELECT query that behaves like a virtual table - it doesn't store data itself, just the query definition.",
+              "Views simplify complex queries for repeated use and can restrict which columns/rows users see."
+            ],
+            "syntax": [
+              "CREATE VIEW high_earners AS\nSELECT name, salary FROM employees WHERE salary > 80000;",
+              "WITH RECURSIVE org_chart AS (\n  SELECT id, name, manager_id FROM employees WHERE manager_id IS NULL\n  UNION ALL\n  SELECT e.id, e.name, e.manager_id\n  FROM employees e\n  JOIN org_chart o ON e.manager_id = o.id\n)\nSELECT * FROM org_chart;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q093",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does a VIEW store?",
+              "options": [
+                "A physical copy of the underlying data",
+                "Just the SELECT query definition, run fresh each time it's queried",
+                "Nothing, it's just documentation",
+                "Only the table's schema"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "A view is a saved query, not stored data - every time you query the view, the underlying SELECT runs again."
+            },
+            {
+              "id": "sql_q094",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What are the two parts of a recursive CTE?",
+              "options": [
+                "A SELECT and an UPDATE",
+                "An anchor member and a recursive member joined by UNION ALL",
+                "A view and a table",
+                "A WHERE and a HAVING clause"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "The anchor member provides the starting rows, and the recursive member repeatedly joins back to the CTE itself until no new rows are produced."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Employees (\n  id INT PRIMARY KEY,\n  name VARCHAR(30),\n  manager_id INT,\n  salary INT\n);\n\nINSERT INTO Employees VALUES (1, 'Neha', NULL, 95000);\nINSERT INTO Employees VALUES (2, 'Ravi', 1, 60000);\nINSERT INTO Employees VALUES (3, 'Anita', 1, 85000);\nINSERT INTO Employees VALUES (4, 'Vikram', 2, 55000);",
+            "sampleQueries": [
+              "CREATE VIEW high_earners AS\nSELECT name, salary FROM Employees WHERE salary > 80000;\n\nSELECT * FROM high_earners;",
+              "WITH RECURSIVE org_chart AS (\n  SELECT id, name, manager_id FROM Employees WHERE manager_id IS NULL\n  UNION ALL\n  SELECT e.id, e.name, e.manager_id\n  FROM Employees e\n  JOIN org_chart o ON e.manager_id = o.id\n)\nSELECT * FROM org_chart;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "sql_u9",
+      "title": "Unit 9: DDL, DML & Transactions",
+      "chapters": [
+        {
+          "id": "sql_u9_c1",
+          "title": "Ch 1: DDL - CREATE, ALTER, DROP & Constraints",
+          "concept": {
+            "title": "Data Definition Language",
+            "body": [
+              "CREATE TABLE defines a new table and its columns/types; ALTER TABLE modifies an existing table's structure (add/drop/modify columns); DROP TABLE deletes a table entirely, including its data.",
+              "Constraints enforce data rules: PRIMARY KEY (unique + not null identifier), FOREIGN KEY (links to another table's key), UNIQUE, NOT NULL, and CHECK (custom condition).",
+              "TRUNCATE TABLE removes all rows quickly but keeps the table structure, unlike DROP."
+            ],
+            "syntax": [
+              "CREATE TABLE orders (\n  id INT PRIMARY KEY,\n  customer_id INT,\n  amount DECIMAL(10,2) CHECK (amount > 0),\n  FOREIGN KEY (customer_id) REFERENCES customers(id)\n);",
+              "ALTER TABLE orders ADD COLUMN status VARCHAR(20);"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q095",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What is the difference between DROP TABLE and TRUNCATE TABLE?",
+              "options": [
+                "No difference",
+                "DROP removes the table and its structure entirely; TRUNCATE only removes the rows, keeping the structure",
+                "TRUNCATE removes the table entirely; DROP only removes rows",
+                "Both only work on views"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "DROP TABLE deletes the table definition and all data; TRUNCATE TABLE clears all rows but leaves the empty table structure intact."
+            },
+            {
+              "id": "sql_q096",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does a FOREIGN KEY constraint enforce?",
+              "options": [
+                "The column must be unique across the table",
+                "The column's values must exist as a key in another referenced table",
+                "The column cannot be NULL",
+                "The column must be numeric"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "A FOREIGN KEY links a column to a PRIMARY KEY (or unique key) in another table, ensuring referential integrity between the two."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Customers (\n  id INT PRIMARY KEY,\n  name VARCHAR(30)\n);\n\nINSERT INTO Customers VALUES (1, 'Riya');\nINSERT INTO Customers VALUES (2, 'Aman');",
+            "sampleQueries": [
+              "CREATE TABLE Orders (\n  id INT PRIMARY KEY,\n  customer_id INT,\n  amount DECIMAL(10,2) CHECK (amount > 0),\n  FOREIGN KEY (customer_id) REFERENCES Customers(id)\n);",
+              "ALTER TABLE Orders ADD COLUMN status VARCHAR(20);",
+              "SELECT * FROM Orders;",
+              "-- DROP TABLE Orders;  -- uncomment to delete the table entirely"
+            ]
+          }
+        },
+        {
+          "id": "sql_u9_c2",
+          "title": "Ch 2: DML - INSERT, UPDATE, DELETE",
+          "concept": {
+            "title": "Data Manipulation Language",
+            "body": [
+              "INSERT INTO table (columns) VALUES (values) adds new rows to a table.",
+              "UPDATE table SET column = value WHERE condition modifies existing rows - omitting WHERE updates every row.",
+              "DELETE FROM table WHERE condition removes rows - omitting WHERE deletes every row in the table (but keeps the table structure)."
+            ],
+            "syntax": [
+              "INSERT INTO students (id, name, age) VALUES (1, 'Asha', 20);",
+              "UPDATE students SET age = 21 WHERE id = 1;",
+              "DELETE FROM students WHERE age < 18;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q097",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What happens if you run UPDATE students SET age = 21; without a WHERE clause?",
+              "options": [
+                "Nothing happens",
+                "Only the first row is updated",
+                "Every row's age is set to 21",
+                "It causes a syntax error"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "Without a WHERE clause, UPDATE applies the SET change to every single row in the table."
+            },
+            {
+              "id": "sql_q098",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Which statement adds a new row to a table?",
+              "options": [
+                "UPDATE",
+                "DELETE",
+                "INSERT INTO",
+                "ALTER TABLE"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "INSERT INTO is the DML statement used to add new rows of data into a table."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Student (\n  Roll_No INT PRIMARY KEY,\n  Name VARCHAR(30),\n  Age INT\n);\n\nINSERT INTO Student VALUES (1, 'Riya', 15);\nINSERT INTO Student VALUES (2, 'Aman', 16);",
+            "sampleQueries": [
+              "INSERT INTO Student (Roll_No, Name, Age) VALUES (3, 'Asha', 20);",
+              "SELECT * FROM Student;",
+              "UPDATE Student SET Age = 21 WHERE Roll_No = 1;",
+              "DELETE FROM Student WHERE Age < 18;",
+              "SELECT * FROM Student;"
+            ]
+          }
+        },
+        {
+          "id": "sql_u9_c3",
+          "title": "Ch 3: Transactions & ACID",
+          "concept": {
+            "title": "Transactions, COMMIT, ROLLBACK",
+            "body": [
+              "A transaction groups multiple statements into a single unit of work that either fully succeeds or fully fails, started with BEGIN/START TRANSACTION.",
+              "COMMIT permanently saves all changes made in the transaction; ROLLBACK undoes all changes since the last COMMIT.",
+              "ACID properties describe reliable transactions: Atomicity (all-or-nothing), Consistency (valid state to valid state), Isolation (transactions don't interfere), Durability (committed changes survive crashes)."
+            ],
+            "syntax": [
+              "BEGIN TRANSACTION;\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;\nCOMMIT;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q099",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does ROLLBACK do?",
+              "options": [
+                "Permanently saves all changes",
+                "Undoes all changes made since the last COMMIT",
+                "Deletes the entire table",
+                "Creates a backup"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "ROLLBACK reverts the database to its state before the current transaction's changes, discarding them."
+            },
+            {
+              "id": "sql_q100",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "In ACID, what does 'Atomicity' guarantee?",
+              "options": [
+                "Changes are always visible immediately to other users",
+                "All statements in a transaction succeed together, or none do",
+                "Data is stored in atomic (smallest) units",
+                "Transactions run in parallel"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Atomicity ensures a transaction is treated as a single indivisible unit - either every statement in it commits, or the whole transaction is rolled back."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Accounts (\n  id INT PRIMARY KEY,\n  name VARCHAR(20),\n  balance DECIMAL(10,2)\n);\n\nINSERT INTO Accounts VALUES (1, 'Riya', 500.00);\nINSERT INTO Accounts VALUES (2, 'Aman', 200.00);",
+            "sampleQueries": [
+              "BEGIN TRANSACTION;\nUPDATE Accounts SET balance = balance - 100 WHERE id = 1;\nUPDATE Accounts SET balance = balance + 100 WHERE id = 2;\nCOMMIT;",
+              "SELECT * FROM Accounts;",
+              "-- BEGIN TRANSACTION;\n-- UPDATE Accounts SET balance = balance - 1000 WHERE id = 1;\n-- ROLLBACK;  -- undoes the change above"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "sql_u10",
+      "title": "Unit 10: Advanced Topics & Capstone",
+      "chapters": [
+        {
+          "id": "sql_u10_c1",
+          "title": "Ch 1: Indexes & Query Optimization",
+          "concept": {
+            "title": "Speeding Up Queries",
+            "body": [
+              "An index is a data structure (commonly a B-tree) that speeds up row lookups on a column, at the cost of extra storage and slower writes (INSERT/UPDATE/DELETE).",
+              "Primary keys are indexed automatically; add indexes to columns frequently used in WHERE, JOIN, or ORDER BY.",
+              "EXPLAIN (or EXPLAIN ANALYZE) shows a query's execution plan, helping identify slow full table scans versus fast index lookups."
+            ],
+            "syntax": [
+              "CREATE INDEX idx_customer_id ON orders(customer_id);",
+              "EXPLAIN SELECT * FROM orders WHERE customer_id = 5;"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q101",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What is a downside of adding many indexes to a table?",
+              "options": [
+                "Reads become slower",
+                "Writes (INSERT/UPDATE/DELETE) become slower and storage increases",
+                "SELECT queries stop working",
+                "Indexes have no downsides"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Every index must be updated whenever the underlying data changes, so more indexes mean more overhead on writes and more disk space used."
+            },
+            {
+              "id": "sql_q102",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does the EXPLAIN command show?",
+              "options": [
+                "The table's column definitions",
+                "The database's total storage usage",
+                "How the database engine plans to execute a query",
+                "A list of all indexes in the database"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "EXPLAIN reveals the query execution plan - e.g. whether an index is used or a full table scan occurs - helping diagnose performance issues."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Orders (\n  id INT PRIMARY KEY,\n  customer_id INT,\n  amount DECIMAL(10,2)\n);\n\nINSERT INTO Orders VALUES (1, 5, 250.00);\nINSERT INTO Orders VALUES (2, 5, 100.00);\nINSERT INTO Orders VALUES (3, 7, 400.00);",
+            "sampleQueries": [
+              "CREATE INDEX idx_customer_id ON Orders(customer_id);",
+              "EXPLAIN SELECT * FROM Orders WHERE customer_id = 5;",
+              "SELECT * FROM Orders WHERE customer_id = 5;"
+            ]
+          }
+        },
+        {
+          "id": "sql_u10_c2",
+          "title": "Ch 2: Normalization",
+          "concept": {
+            "title": "1NF, 2NF, 3NF",
+            "body": [
+              "Normalization organizes tables to reduce data redundancy and avoid update/insert/delete anomalies, by splitting data into related tables.",
+              "1NF (First Normal Form): each column holds atomic (indivisible) values, and each row is unique - no repeating groups.",
+              "2NF: must be in 1NF, and every non-key column depends on the WHOLE primary key (relevant for composite keys).",
+              "3NF: must be in 2NF, and no non-key column depends on another non-key column (no transitive dependency)."
+            ],
+            "syntax": [
+              "-- Un-normalized: repeating groups\n-- orders(id, customer_name, product1, product2)\n\n-- Normalized (1NF+): separate orders and order_items tables\nCREATE TABLE orders (id INT PRIMARY KEY, customer_id INT);\nCREATE TABLE order_items (order_id INT, product_id INT, qty INT);"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q103",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What does 1NF require?",
+              "options": [
+                "No foreign keys allowed",
+                "Each column contains atomic values and rows are unique, with no repeating groups",
+                "All columns must be numeric",
+                "Tables must have exactly 3 columns"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "1NF eliminates repeating groups and multi-valued columns, ensuring each field holds a single, indivisible value."
+            },
+            {
+              "id": "sql_q104",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "A transitive dependency (violating 3NF) means:",
+              "options": [
+                "A column depends directly on the primary key",
+                "A non-key column depends on another non-key column rather than the key",
+                "A table has no primary key",
+                "Two tables reference each other"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "3NF requires that non-key columns depend only on the primary key, not indirectly through another non-key column (a transitive dependency)."
+            }
+          ],
+          "playground": {
+            "schema": "-- Un-normalized: repeating groups in one row\nCREATE TABLE Orders_Unnormalized (\n  id INT PRIMARY KEY,\n  customer_name VARCHAR(30),\n  product1 VARCHAR(30),\n  product2 VARCHAR(30)\n);\n\n-- Normalized (1NF+): split into two related tables\nCREATE TABLE Orders (\n  id INT PRIMARY KEY,\n  customer_id INT\n);\n\nCREATE TABLE Order_Items (\n  order_id INT,\n  product_id INT,\n  qty INT\n);",
+            "sampleQueries": [
+              "SELECT * FROM Orders_Unnormalized;",
+              "SELECT * FROM Orders;",
+              "SELECT * FROM Order_Items;"
+            ]
+          }
+        },
+        {
+          "id": "sql_u10_c3",
+          "title": "Ch 3: Stored Procedures, Functions & Capstone",
+          "concept": {
+            "title": "Reusable Logic and Final Review",
+            "body": [
+              "A stored procedure is a saved block of SQL (with optional parameters) that can be executed repeatedly with CALL/EXEC, useful for encapsulating business logic in the database.",
+              "A user-defined function is similar but returns a value and can be used inside a SELECT statement, unlike a procedure.",
+              "Capstone: combine everything learned - joins, subqueries, CTEs, window functions, and aggregation - to answer a real multi-table business question end-to-end."
+            ],
+            "syntax": [
+              "CREATE PROCEDURE GetHighEarners(IN min_salary DECIMAL)\nBEGIN\n  SELECT name, salary FROM employees WHERE salary > min_salary;\nEND;",
+              "CALL GetHighEarners(80000);"
+            ]
+          },
+          "questions": [
+            {
+              "id": "sql_q105",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "What is the main difference between a stored procedure and a function in SQL?",
+              "options": [
+                "No difference at all",
+                "A function must return a value and can be used inside SELECT; a procedure does not have to return a value and is called separately",
+                "Procedures can only SELECT data",
+                "Functions cannot take parameters"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Functions are designed to compute and return a value usable within an expression (like SELECT), while procedures perform actions and are invoked with CALL/EXEC rather than embedded in a query."
+            },
+            {
+              "id": "sql_q106",
+              "type": "MCQ",
+              "difficulty_rating": 2,
+              "question": "Which combination of skills would a capstone project on 'top customers per region' realistically require?",
+              "options": [
+                "Only a single SELECT * query",
+                "JOIN, GROUP BY/aggregates, and a window function like RANK() partitioned by region",
+                "Only CREATE TABLE statements",
+                "Only DELETE statements"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Finding 'top customers per region' needs joining customers to orders, aggregating their totals, and ranking within each region partition - combining joins, aggregation, and window functions."
+            }
+          ],
+          "playground": {
+            "schema": "CREATE TABLE Employees (\n  id INT PRIMARY KEY,\n  name VARCHAR(30),\n  department VARCHAR(20),\n  salary INT\n);\n\nINSERT INTO Employees VALUES (1, 'Neha', 'Sales', 95000);\nINSERT INTO Employees VALUES (2, 'Ravi', 'Sales', 60000);\nINSERT INTO Employees VALUES (3, 'Anita', 'IT', 85000);",
+            "sampleQueries": [
+              "CREATE PROCEDURE GetHighEarners(IN min_salary DECIMAL)\nBEGIN\n  SELECT name, salary FROM Employees WHERE salary > min_salary;\nEND;\n\nCALL GetHighEarners(80000);",
+              "-- Capstone practice: top earner per department\nSELECT name, department, salary,\n  RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS dept_rank\nFROM Employees;"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

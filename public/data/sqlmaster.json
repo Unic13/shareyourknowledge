@@ -1,0 +1,9 @@
+{
+  "subject": "SQL",
+  "categories": [
+    { "id": "basics",     "title": "SQL Basics",           "subtitle": "SELECT, WHERE, ORDER BY", "icon": "🔎", "file": "data/sql-basics.json" },
+    { "id": "joins",      "title": "Joins",                "subtitle": "INNER, LEFT, RIGHT, FULL", "icon": "🔗", "file": "data/sql-joins.json" },
+    { "id": "aggregation","title": "Aggregation & Grouping","subtitle": "GROUP BY, HAVING, COUNT", "icon": "📊", "file": "data/sql-aggregation.json" },
+    { "id": "analysis",   "title": "Using SQL for Analysis","subtitle": "Window functions, subqueries", "icon": "📈", "file": "data/sql-analysis.json" }
+  ]
+}

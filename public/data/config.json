@@ -1,0 +1,15 @@
+{
+  "academyName": "UNIC Academic",
+  "tagline": "Master concepts.",
+  "logoText": "UNIC",
+  "adminEmail": "https://unicexamschool.vercel.app/",
+  "subjects": ["PH", "CH", "MA", "BIO","SQL","EXCEL","R","PY","MAP"],
+  "howDidYouFindUs": [
+    "Google Search",
+    "YouTube",
+    "Friend / Classmate",
+    "School / College",
+    "Social Media",
+    "Other"
+  ]
+}

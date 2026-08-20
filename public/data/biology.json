@@ -1,0 +1,148 @@
+{
+  "subject": "Biology",
+  "code": "BIO",
+  "color": "#276749",
+  "units": [
+    {
+      "id": "bio_u1",
+      "title": "Unit 1: Cell Biology",
+      "chapters": [
+        {
+          "id": "bio_u1_c1",
+          "title": "Ch 1: Cell Structure",
+          "concept": {
+            "title": "Cell Structure & Organelles",
+            "latex": false,
+            "body": [
+              "The cell is the basic structural and functional unit of life. All living organisms are composed of one or more cells.",
+              "Mitochondria are membrane-bound organelles that generate most of the cell's ATP through cellular respiration, earning them the nickname the powerhouse of the cell.",
+              "Plant cells differ from animal cells in three key ways: they have a rigid cell wall (made of cellulose) for structural support, chloroplasts for photosynthesis, and a large central vacuole for storage and maintaining turgor pressure.",
+              "The nucleus houses the cell's genetic material (DNA) and controls gene expression and cell activities. The endoplasmic reticulum and Golgi apparatus work together to process, modify, and package proteins.",
+              "Ribosomes, found free in the cytoplasm or attached to the rough ER, are the sites of protein synthesis (translation)."
+            ],
+            "formulas": []
+          },
+          "questions": [
+            {
+              "id": "bio_q1",
+              "type": "MCQ",
+              "latex": false,
+              "question": "Which organelle is known as the 'powerhouse of the cell'?",
+              "options": ["Nucleus", "Ribosome", "Mitochondria", "Golgi apparatus"],
+              "answer": [2],
+              "explanation": "Mitochondria produce ATP via cellular respiration (oxidative phosphorylation), earning the nickname 'powerhouse of the cell'."
+            },
+            {
+              "id": "bio_q2",
+              "type": "MSQ",
+              "latex": false,
+              "question": "Which of the following are found in a plant cell but NOT in an animal cell? (Select all that apply)",
+              "options": ["Cell wall", "Chloroplasts", "Mitochondria", "Central vacuole"],
+              "answer": [0, 1, 3],
+              "explanation": "Plant cells have cell walls (cellulose), chloroplasts (photosynthesis), and a large central vacuole. Animal cells have mitochondria too."
+            },
+            {
+              "id": "bio_q2n",
+              "type": "NAT",
+              "latex": false,
+              "question": "A typical human cell undergoing aerobic respiration produces approximately how many ATP molecules per glucose molecule? (Enter the commonly cited textbook value)",
+              "answer": 38,
+              "tolerance": 2,
+              "unit": "ATP",
+              "explanation": "The commonly cited textbook value for ATP yield per glucose in aerobic respiration is approximately 36-38 ATP (some modern estimates say ~30-32, but 38 is the classic figure)."
+            }
+          ]
+        },
+        {
+          "id": "bio_u1_c2",
+          "title": "Ch 2: Cell Division",
+          "concept": {
+            "title": "Cell Division — Mitosis",
+            "latex": false,
+            "body": [
+              "Mitosis is the process by which a single cell divides to produce two genetically identical daughter cells, essential for growth and tissue repair.",
+              "Prophase: chromatin condenses into visible chromosomes; the nuclear envelope begins to break down; spindle fibers start forming.",
+              "Metaphase: chromosomes align at the cell's equatorial plate (metaphase plate), attached to spindle fibers via centromeres.",
+              "Anaphase: sister chromatids separate as centromeres split, and they are pulled to opposite poles of the cell by spindle fibers.",
+              "Telophase: chromosomes decondense, nuclear envelopes reform around each set of chromosomes, and the cell proceeds to cytokinesis (division of the cytoplasm)."
+            ],
+            "formulas": []
+          },
+          "questions": [
+            {
+              "id": "bio_q3",
+              "type": "MCQ",
+              "latex": false,
+              "question": "During which phase of mitosis do chromosomes align at the cell's equatorial plate?",
+              "options": ["Prophase", "Metaphase", "Anaphase", "Telophase"],
+              "answer": [1],
+              "explanation": "During Metaphase, chromosomes align at the metaphase plate (cell equator) and are attached to spindle fibers."
+            },
+            {
+              "id": "bio_q4",
+              "type": "MSQ",
+              "latex": false,
+              "question": "Which of the following events occur during Anaphase? (Select all that apply)",
+              "options": ["Sister chromatids separate", "Nuclear envelope reforms", "Centromeres split", "Chromosomes move to poles"],
+              "answer": [0, 2, 3],
+              "explanation": "During Anaphase: sister chromatids separate, centromeres split, and chromatids move to opposite poles. Nuclear envelope reforms in Telophase."
+            },
+            {
+              "id": "bio_q4n",
+              "type": "NAT",
+              "latex": false,
+              "question": "A human somatic cell has 46 chromosomes before mitosis. How many chromosomes will each daughter cell have after mitosis is complete?",
+              "answer": 46,
+              "tolerance": 0,
+              "unit": "chromosomes",
+              "explanation": "Mitosis produces two genetically identical daughter cells, each with the same number of chromosomes (46) as the parent cell."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bio_u2",
+      "title": "Unit 2: Genetics",
+      "chapters": [
+        {
+          "id": "bio_u2_c1",
+          "title": "Ch 3: Mendelian Genetics",
+          "concept": {
+            "title": "Mendelian Genetics",
+            "latex": false,
+            "body": [
+              "Gregor Mendel's experiments with pea plants established the fundamental laws of inheritance.",
+              "The Law of Segregation states that each organism carries two alleles for each gene, which separate during gamete formation so each gamete carries only one allele.",
+              "In a monohybrid cross between two heterozygotes (Aa × Aa), the genotypic ratio of offspring is 1 AA : 2 Aa : 1 aa, while the phenotypic ratio (assuming complete dominance) is 3 dominant : 1 recessive.",
+              "A Punnett square is a diagram used to predict the genotypes and phenotypes of offspring from a genetic cross.",
+              "Dominant alleles mask the expression of recessive alleles when both are present (heterozygous), while recessive traits only appear when an individual is homozygous recessive."
+            ],
+            "formulas": []
+          },
+          "questions": [
+            {
+              "id": "bio_q5",
+              "type": "MCQ",
+              "latex": false,
+              "question": "In a monohybrid cross between two heterozygotes (Aa × Aa), what is the phenotypic ratio of offspring?",
+              "options": ["1:2:1", "3:1", "1:1", "9:3:3:1"],
+              "answer": [1],
+              "explanation": "Aa × Aa produces AA:Aa:aa = 1:2:1 genotypic ratio, but 3 dominant (AA+Aa) : 1 recessive (aa) phenotypic ratio."
+            },
+            {
+              "id": "bio_q5n",
+              "type": "NAT",
+              "latex": false,
+              "question": "In a dihybrid cross (AaBb × AaBb), what is the total number of distinct phenotype combinations possible (assuming complete dominance for both genes)?",
+              "answer": 4,
+              "tolerance": 0,
+              "unit": "phenotypes",
+              "explanation": "A dihybrid cross with complete dominance produces a 9:3:3:1 phenotypic ratio — i.e., 4 distinct phenotype classes."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
