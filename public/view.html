@@ -1934,34 +1934,13 @@ function renderConceptBody(body = []) {
   return `
     ${renderImageBlock(item.image, '')}
     ${renderPdfBlock(item.pdf, '')}
-
-    <div class="concept-steps">
-      ${item.title ? `<div class="example-title">${formatText(item.title)}</div>` : ""}
-      <div class="example-box">
-        ${item.before ? `<div><strong>Input:</strong> ${formatText(item.before)}</div>` : ""}
-        ${
-          item.steps
-            ? `
-            <ol class="steps-list mt-2">
-              ${item.steps
-                .map(
-                  step => `
-                  <li class="steps-item">
-                    <span class="steps-number"></span>
-                    <span class="steps-text">${formatText(step)}</span>
-                  </li>`
-                )
-                .join("")}
-            </ol>`
-            : ""
-        }
-        ${item.formula ? `<div class="example-formula" style="background:#1e1e2e;color:#a6e3a1;padding:10px 12px;border-radius:8px;margin-top:10px">${formatText(item.formula)}</div>` : ""}
-        ${item.after ? `
-        <div class="mt-2">
-          <strong>Result:</strong> <span class="example-result">${formatText(item.after)}</span>
-        </div>` : ""}
-      </div>
-    </div>
+    <div style="border-radius:10px;border:1.5px solid #bae6fd;background:#f0f9ff;margin-bottom:12px;padding:12px 14px">
+      ${item.title ? `<strong style="color:#0369a1;font-size:13px">${esc(item.title)}</strong>` : ''}
+      ${item.before ? `<div style="font-size:12.5px;margin-top:6px"><strong>Input:</strong> ${esc(item.before)}</div>` : ''}
+      ${(item.steps || []).length ? `<ol style="margin:8px 0 0 18px">${(item.steps || []).map(s => `<li style="margin-bottom:4px;font-size:12.5px">${esc(s)}</li>`).join('')}</ol>` : ''}
+      ${item.formula ? `<div style="background:#1e1e2e;color:#a6e3a1;font-family:monospace;padding:8px 10px;border-radius:6px;font-size:12px;margin-top:8px">${esc(item.formula)}</div>` : ''}
+      ${item.after ? `<div style="font-size:12.5px;margin-top:8px"><strong>Result:</strong> ${esc(item.after)}</div>` : ''}
+    </div>    
   `;
 
         case "table":
