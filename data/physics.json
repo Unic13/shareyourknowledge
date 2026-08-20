@@ -1,0 +1,2017 @@
+{
+  "subject": "Physics",
+  "code": "PH",
+  "color": "#6C3FF5",
+  "units": [
+    {
+      "id": "ph_u1",
+      "title": "Unit 1: Units and Measurements",
+      "chapters": [
+        {
+          "id": "ph_u1_c1",
+          "title": "Ch 1: Units, Dimensions & Errors",
+          "concept": {
+            "title": "SI Units and Dimensional Analysis",
+            "formulas": [
+              "Dimensional formula: [M^a L^b T^c]",
+              "Absolute error Δa = |a_measured - a_true|",
+              "Relative error = Δa/a, Percentage error = (Δa/a)×100",
+              "For Z = A^p B^q/C^r, ΔZ/Z = p(ΔA/A) + q(ΔB/B) + r(ΔC/C)"
+            ]
+          },
+          "questions": [
+            {
+              "id": "ph_u1_q1",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty": "medium",
+              "difficulty_rating": 6,
+              "topic": "dimensional_analysis",
+              "chapter_id": "ph_u1_c1",
+              "subtopic": "Planck Units",
+              "question": "Given the relation $\\sqrt{\\frac{\\hbar G}{c^5}}$, what is its dimension?",
+              "options": [
+                "Length",
+                "Mass",
+                "Time",
+                "Energy"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "Dimensional analysis: $[\\hbar] = ML^2T^{-1}$, $[G] = M^{-1}L^3T^{-2}$, $[c] = LT^{-1}$. So $\\frac{\\hbar G}{c^5} = \\frac{(ML^2T^{-1})(M^{-1}L^3T^{-2})}{(LT^{-1})^5} = T^2$. Square root gives $T$. This is Planck time."
+            },
+            {
+              "id": "ph_u1_q2",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty": "medium",
+              "difficulty_rating": 6,
+              "topic": "dimensional_analysis",
+              "chapter_id": "ph_u1_c1",
+              "subtopic": "Planck Units",
+              "question": "Given the relation $\\sqrt{\\frac{\\hbar c}{G}}$, what is its dimension?",
+              "options": [
+                "Length",
+                "Mass",
+                "Time",
+                "Force"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "$\\frac{\\hbar c}{G} = \\frac{(ML^2T^{-1})(LT^{-1})}{M^{-1}L^3T^{-2}} = M^2$. Square root gives $M$. This is Planck mass."
+            },
+            {
+              "id": "ph_u1_q3",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty": "medium",
+              "difficulty_rating": 6,
+              "topic": "dimensional_analysis",
+              "chapter_id": "ph_u1_c1",
+              "subtopic": "Planck Units",
+              "question": "Given the relation $\\sqrt{\\frac{\\hbar G}{c^3}}$, what is its dimension?",
+              "options": [
+                "Length",
+                "Mass",
+                "Time",
+                "Velocity"
+              ],
+              "answer": [
+                0
+              ],
+              "explanation": "$\\frac{\\hbar G}{c^3} = \\frac{(ML^2T^{-1})(M^{-1}L^3T^{-2})}{(LT^{-1})^3} = L^2$. Square root gives $L$. This is Planck length."
+            },
+            {
+              "id": "ph_u1_q4",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty": "medium",
+              "difficulty_rating": 7,
+              "topic": "dimensional_analysis",
+              "chapter_id": "ph_u1_c1",
+              "subtopic": "Planck Units",
+              "question": "Given that we need to form a quantity with dimension of time using $\\hbar$, $c$, and $G$, which relation is correct?",
+              "options": [
+                "$\\sqrt{\\frac{\\hbar G}{c^3}}$",
+                "$\\sqrt{\\frac{\\hbar c}{G}}$",
+                "$\\sqrt{\\frac{\\hbar G}{c^5}}$",
+                "$\\frac{\\hbar G}{c^4}$"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "Only $\\sqrt{\\hbar G/c^5}$ has dimension of time. This is Planck time $T_P$. Note that $T_P = L_P/c$."
+            },
+            {
+              "id": "ph_u1_q5",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty": "medium",
+              "difficulty_rating": 7,
+              "topic": "dimensional_analysis",
+              "chapter_id": "ph_u1_c1",
+              "subtopic": "Planck Units",
+              "question": "Given that we need to form a quantity with dimension of mass using $\\hbar$, $c$, and $G$, which relation is correct?",
+              "options": [
+                "$\\sqrt{\\frac{\\hbar G}{c^3}}$",
+                "$\\sqrt{\\frac{\\hbar c}{G}}$",
+                "$\\sqrt{\\frac{\\hbar G}{c^5}}$",
+                "$\\frac{\\hbar c^3}{G}$"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Only $\\sqrt{\\hbar c/G}$ has dimension of mass. This is Planck mass $M_P$. It is the mass scale where quantum gravity effects become important."
+            },
+            {
+              "id": "ph_u1_q6",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty": "medium",
+              "difficulty_rating": 7,
+              "topic": "dimensional_analysis",
+              "chapter_id": "ph_u1_c1",
+              "subtopic": "Planck Units",
+              "question": "Given that we need to form a quantity with dimension of length using $\\hbar$, $c$, and $G$, which relation is correct?",
+              "options": [
+                "$\\sqrt{\\frac{\\hbar G}{c^3}}$",
+                "$\\sqrt{\\frac{\\hbar c}{G}}$",
+                "$\\sqrt{\\frac{\\hbar G}{c^5}}$",
+                "$\\frac{\\hbar G}{c^2}$"
+              ],
+              "answer": [
+                0
+              ],
+              "explanation": "Only $\\sqrt{\\hbar G/c^3}$ has dimension of length. This is Planck length $L_P \\approx 1.6 \\times 10^{-35} \\, m$, the scale at which space-time structure becomes quantized."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ph_u2",
+      "title": "Unit 2: Kinematics",
+      "chapters": [
+        {
+          "id": "ph_u2_c1",
+          "title": "Ch 1: Motion in Straight Line",
+          "concept": {
+            "title": "Displacement, Velocity, Acceleration",
+            "formulas": [
+              "v = u + at",
+              "s = ut + 1/2 at^2",
+              "v^2 = u^2 + 2as",
+              "s_nth = u + a/2(2n-1)"
+            ]
+          },
+          "questions": [
+            {
+              "id": "ph_u2_q001",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty_rating": 1,
+              "topic": "basic_concepts",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Basic Concepts",
+              "question": "The correct relation of speed, distance and time is........",
+              "options": [
+                "$S = T/D$",
+                "$S = D/T$",
+                "$S = D \\times T$",
+                "$S = D - T$"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Speed is defined as distance covered per unit time: $S = \\frac{D}{T}$.",
+              "source": {
+                "type": "exam",
+                "exam": "RRB Group-D",
+                "year": 2018,
+                "shift": "Shift-I",
+                "date": "2018-10-31",
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q002",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty_rating": 2,
+              "topic": "speed_calculation",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Basic Concepts",
+              "question": "An athlete runs a distance of $500 \\, m$ in $25s$......... is the average speed of the athlete.",
+              "options": [
+                "$20 \\, ms^{-2}$",
+                "$20 \\, ms^{-1}$",
+                "$20 \\, ms$",
+                "$20 \\, ms^2$"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Average speed = $\\frac{Distance}{Time} = \\frac{500}{25} = 20 \\, m/s = 20 \\, ms^{-1}$.",
+              "source": {
+                "type": "exam",
+                "exam": "RRB ALP",
+                "exam_branch": "Jammu-Kashmir",
+                "year": 2010,
+                "date": "2010-06-06",
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q003",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty_rating": 2,
+              "topic": "speed_calculation",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Uniform Motion",
+              "question": "A driver drives his car at the constant speed and covers a distance of $288 \\, m$ in $60 \\, s$. Find the speed",
+              "options": [
+                "$4.8 \\, m/s$",
+                "$3.8 \\, m/s$",
+                "$5.8 \\, m/s$",
+                "$8.8 \\, m/s$"
+              ],
+              "answer": [
+                0
+              ],
+              "explanation": "Speed = $\\frac{Distance}{Time} = \\frac{288}{60} = 4.8 \\, m/s$.",
+              "source": {
+                "type": "exam",
+                "exam": "RRB Group-D",
+                "year": 2018,
+                "shift": "Shift-III",
+                "date": "2018-10-23",
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q004",
+              "type": "MCQ",
+              "latex": false,
+              "difficulty_rating": 2,
+              "topic": "kinematics_basics",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Acceleration",
+              "question": "When an object is moving at the same speed, what will be its acceleration?",
+              "options": [
+                "negative",
+                "positive",
+                "zero",
+                "variable"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "Same speed in straight line means no change in velocity. Acceleration = 0.",
+              "source": {
+                "type": "exam",
+                "exam": "RRB Group-D",
+                "year": 2018,
+                "shift": "Shift-II",
+                "date": "2018-10-01",
+                "q_no": 513,
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q005",
+              "type": "MCQ",
+              "latex": false,
+              "difficulty_rating": 2,
+              "topic": "kinematics_basics",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Acceleration",
+              "question": "Zero acceleration means:",
+              "options": [
+                "The velocity of the object is constant",
+                "The velocity of the object is low",
+                "The velocity of the object is zero",
+                "The velocity of the object increases"
+              ],
+              "answer": [
+                0
+              ],
+              "explanation": "Acceleration = $\\frac{dv}{dt}$. If $a = 0$, then $v$ = constant.",
+              "source": {
+                "type": "exam",
+                "exam": "RRB Group-D",
+                "year": 2018,
+                "shift": "Shift-I",
+                "date": "2018-12-12",
+                "q_no": 517,
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q006",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty_rating": 3,
+              "topic": "kinematics_basics",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Uniform Acceleration",
+              "question": "The velocity of an object is proportional to the time elapsed. The object has:",
+              "options": [
+                "uneven acceleration",
+                "uniform acceleration",
+                "uniform speed",
+                "uneven speed"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "If $v \\propto t$, then $v = kt$. Acceleration $a = k$ = constant. So uniform acceleration.",
+              "source": {
+                "type": "exam",
+                "exam": "RRB Group-D",
+                "year": 2018,
+                "shift": "Shift-III",
+                "date": "2018-12-07",
+                "q_no": 523,
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q007",
+              "type": "MCQ",
+              "latex": false,
+              "difficulty_rating": 2,
+              "topic": "kinematics_basics",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Uniform Velocity",
+              "question": "Acceleration of an object moving at uniform velocity is:",
+              "options": [
+                "unequal",
+                "positive",
+                "negative",
+                "zero"
+              ],
+              "answer": [
+                3
+              ],
+              "explanation": "Uniform velocity means rate of change of velocity = 0. Hence acceleration = zero.",
+              "source": {
+                "type": "exam",
+                "exam": "RRB Group-D",
+                "year": 2018,
+                "shift": "Shift-I",
+                "date": "2018-12-12",
+                "q_no": 519,
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q008",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty_rating": 3,
+              "topic": "speed_calculation",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Uniform Motion",
+              "question": "An airplane flies at a speed of $50 \\, m/s$. How much distance will it cover in $5$ hours?",
+              "options": [
+                "$895 \\, km$",
+                "$880 \\, km$",
+                "$850 \\, km$",
+                "$900 \\, km$"
+              ],
+              "answer": [
+                3
+              ],
+              "explanation": "Time = $5 \\times 3600 = 18000 \\, s$. Distance = $50 \\times 18000 = 900000 \\, m = 900 \\, km$.",
+              "source": {
+                "type": "original",
+                "faculty_id": "UNIC_PHY_01",
+                "created_date": "2025-11-15",
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q009",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty_rating": 3,
+              "topic": "speed_calculation",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Basic Concepts",
+              "question": "A truck travels $450 \\, km$ in two and a half hours. Find its speed in $m/s$.",
+              "options": [
+                "$60$",
+                "$90$",
+                "$50$",
+                "$75$"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "Speed = $\\frac{450}{2.5} = 180 \\, km/h$. Convert: $180 \\times \\frac{5}{18} = 50 \\, m/s$.",
+              "source": {
+                "type": "original",
+                "faculty_id": "UNIC_PHY_01",
+                "created_date": "2025-11-15",
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q010",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty_rating": 4,
+              "topic": "speed_calculation",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Basic Concepts",
+              "question": "A bullet travels $90 \\, m$ in $0.2$ seconds. Find its speed in $km/hr$.",
+              "options": [
+                "$162$",
+                "$1620$",
+                "$125$",
+                "$1250$"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Speed = $\\frac{90}{0.2} = 450 \\, m/s$. Convert: $450 \\times \\frac{18}{5} = 1620 \\, km/h$.",
+              "source": {
+                "type": "original",
+                "faculty_id": "UNIC_PHY_01",
+                "created_date": "2025-11-15",
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q011",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty_rating": 4,
+              "topic": "speed_calculation",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Basic Concepts",
+              "question": "A rocket travels $108 \\, m$ in $0.3$ seconds. Find its speed in $km/hr$.",
+              "options": [
+                "$1296 \\, km/h$",
+                "$6300 \\, km/h$",
+                "$1692 \\, km/h$",
+                "$3600 \\, km/h$"
+              ],
+              "answer": [
+                0
+              ],
+              "explanation": "Speed = $\\frac{108}{0.3} = 360 \\, m/s$. Convert: $360 \\times 3.6 = 1296 \\, km/h$.",
+              "source": {
+                "type": "original",
+                "faculty_id": "UNIC_PHY_01",
+                "created_date": "2025-11-15",
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q012",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty_rating": 5,
+              "topic": "speed_calculation",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Basic Concepts",
+              "question": "The area of a square field is $313600 \\, m^2$. How much time will it take for a woman to cross the field diagonally at the rate of $4\\sqrt{2} \\, m/s$?",
+              "options": [
+                "$3 \\, minute$",
+                "$2 \\, minute \\, 20 \\, second$",
+                "$2 \\, minute \\, 40 \\, second$",
+                "$3 \\, minute \\, 10 \\, second$"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Side = $\\sqrt{313600} = 560 \\, m$. Diagonal = $560\\sqrt{2} \\, m$. Time = $\\frac{560\\sqrt{2}}{4\\sqrt{2}} = 140 \\, s = 2 \\, min \\, 20 \\, s$.",
+              "source": {
+                "type": "exam",
+                "exam": "RRB ALP",
+                "exam_branch": "Ahmedabad",
+                "year": 2004,
+                "date": "2004-10-17",
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q013",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty_rating": 3,
+              "topic": "kinematic_equations",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Uniformly Accelerated Motion",
+              "question": "A particle moves with constant acceleration. If initial velocity is $u$ and final velocity is $v$ after time $t$, displacement is:",
+              "options": [
+                "$\\frac{(v+u)t}{2}$",
+                "$\\frac{(v-u)t}{2}$",
+                "$vt$",
+                "$ut + \\frac{1}{2}at^2$"
+              ],
+              "answer": [
+                0,
+                3
+              ],
+              "explanation": "Both A and D are correct. For constant acceleration: $s = \\frac{u+v}{2} \\cdot t$ and $s = ut + \\frac{1}{2}at^2$.",
+              "source": {
+                "type": "original",
+                "faculty_id": "UNIC_PHY_02",
+                "created_date": "2025-12-01",
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q014",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty_rating": 2,
+              "topic": "kinematic_equations",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Uniformly Accelerated Motion",
+              "question": "A car accelerates from rest at $2 \\, m/s^2$ for $5 \\, s$. Distance covered is:",
+              "options": [
+                "$10 \\, m$",
+                "$25 \\, m$",
+                "$50 \\, m$",
+                "$100 \\, m$"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Using $s = ut + \\frac{1}{2}at^2$ with $u=0$, $s = 0 + \\frac{1}{2} \\times 2 \\times 5^2 = 25 \\, m$.",
+              "source": {
+                "type": "original",
+                "faculty_id": "UNIC_PHY_02",
+                "created_date": "2025-12-01",
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q015",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty_rating": 4,
+              "topic": "kinematic_equations",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Equations of Motion",
+              "question": "If a particle has an initial velocity of $V_0 = 12 \\, m/s$ to the right, at $S_0 = 0$, what is the position when $t = 10 \\, s$, if $a = 2 \\, m/s^2$ to the left?",
+              "options": [
+                "20 m",
+                "15 m",
+                "25 m",
+                "30 m"
+              ],
+              "answer": [
+                0
+              ],
+              "explanation": "Take right as +ve. $V_0 = +12$, $a = -2$. $S = V_0 t + \\frac{1}{2}at^2 = 120 - 100 = 20 \\, m$.",
+              "source": {
+                "type": "exam",
+                "exam": "ESE",
+                "exam_stage": "Prelims",
+                "exam_branch": "Mechanical Engineering",
+                "year": 2026,
+                "organizing_institute": "UPSC",
+                "modified": true,
+                "modification_note": "Corrected answer from 30 m to 20 m",
+                "verified_by": "UNIC_PHY_03",
+                "verified_date": "2026-01-20"
+              }
+            },
+            {
+              "id": "ph_u2_q016",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty_rating": 3,
+              "topic": "motion_under_gravity",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Motion Under Gravity",
+              "question": "A ball is thrown vertically upward with velocity $20 \\, m/s$. Time to reach maximum height is: (take $g = 10 \\, m/s^2$)",
+              "options": [
+                "$1 \\, s$",
+                "$2 \\, s$",
+                "$4 \\, s$",
+                "$0.5 \\, s$"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "At max height, $v = 0$. Using $v = u - gt$, we get $0 = 20 - 10t$ → $t = 2 \\, s$.",
+              "source": {
+                "type": "original",
+                "faculty_id": "UNIC_PHY_02",
+                "created_date": "2025-12-01",
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q017",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty_rating": 4,
+              "topic": "graphs",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Graphs",
+              "question": "For a body moving with uniform acceleration, the velocity-time graph is a:",
+              "options": [
+                "Straight line parallel to time axis",
+                "Straight line with positive slope",
+                "Parabola",
+                "Hyperbola"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "From $v = u + at$, v-t graph is straight line with slope = $a$. If $a > 0$, positive slope.",
+              "source": {
+                "type": "original",
+                "faculty_id": "UNIC_PHY_02",
+                "created_date": "2025-12-05",
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q018",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty_rating": 5,
+              "topic": "graphs",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Graphs",
+              "question": "Area under acceleration-time graph gives:",
+              "options": [
+                "Displacement",
+                "Velocity",
+                "Change in velocity",
+                "Distance"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "Since $a = dv/dt$, integrating gives $∫a\\,dt = Δv$. Area under a-t graph = change in velocity.",
+              "source": {
+                "type": "original",
+                "faculty_id": "UNIC_PHY_02",
+                "created_date": "2025-12-05",
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q019",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty_rating": 6,
+              "topic": "relative_motion",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Relative Motion",
+              "question": "A boat crosses a river $400 \\, m$ wide. Velocity of boat in still water is $5 \\, m/s$ and river flows at $3 \\, m/s$. Time to cross by shortest path is:",
+              "options": [
+                "$80 \\, s$",
+                "$100 \\, s$",
+                "$125 \\, s$",
+                "$200 \\, s$"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "For shortest path, boat must head upstream at angle. Resultant velocity across river = $\\sqrt{5^2 - 3^2} = 4 \\, m/s$. Time = $400/4 = 100 \\, s$.",
+              "source": {
+                "type": "original",
+                "faculty_id": "UNIC_PHY_04",
+                "created_date": "2025-12-10",
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q020",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty_rating": 4,
+              "topic": "relative_motion",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Relative Motion",
+              "question": "Two cars A and B move in same direction at $60 \\, km/h$ and $80 \\, km/h$. Velocity of B w.r.t A is:",
+              "options": [
+                "$20 \\, km/h$",
+                "$140 \\, km/h$",
+                "$70 \\, km/h$",
+                "$0 \\, km/h$"
+              ],
+              "answer": [
+                0
+              ],
+              "explanation": "Relative velocity = $v_B - v_A = 80 - 60 = 20 \\, km/h$ in direction of motion.",
+              "source": {
+                "type": "original",
+                "faculty_id": "UNIC_PHY_04",
+                "created_date": "2025-12-10",
+                "modified": false
+              }
+            },
+            {
+              "id": "ph_u2_q021",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty_rating": 7,
+              "topic": "calculus_kinematics",
+              "chapter_id": "ph_u2_c1",
+              "subtopic": "Calculus in Kinematics",
+              "question": "Velocity of particle is $v = 6t - 3t^2$. Distance travelled in first $3 \\, s$ is:",
+              "options": [
+                "$0 \\, m$",
+                "$4 \\, m$",
+                "$8 \\, m$",
+                "$9 \\, m$"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "Particle turns when $v=0$ → $6t-3t^2=0$ → $t=0,2s$. $x = ∫v dt = 3t^2 - t^3$. Distance = $|x(2)-x(0)| + |x(3)-x(2)| = |4-0| + |0-4| = 8 \\, m$.",
+              "source": {
+                "type": "original",
+                "faculty_id": "UNIC_PHY_05",
+                "created_date": "2025-12-15",
+                "modified": false
+              }
+            },
+             {
+    "id": "ph_u2_q022",
+    "type": "MCQ",
+    "latex": true,
+    "difficulty": "easy",
+    "difficulty_rating": 2,
+    "topic": "motion_in_1d",
+    "chapter_id": "ph_u2_c1",
+    "subtopic": "Speed vs Velocity",
+    "question": "Which one of the following statement is correct?",
+    "options": [
+      "The speed of an object is always equal to the magnitude of its velocity",
+      "The speed of an object can be greater than the magnitude of its velocity",
+      "The speed of an object is always less than the magnitude of its velocity",
+      "The speed of an object can never be equal to the magnitude of its velocity"
+    ],
+    "answer": [1],
+    "explanation": "Speed is scalar, total distance/total time. Velocity is vector, displacement/total time. Since distance ≥ |displacement|, speed ≥ |velocity|. For straight line motion without direction change, speed = |velocity|. For any other motion, speed > |velocity|. So speed can be greater than magnitude of velocity. *Rating 2*: Basic definition check.",
+    "source": {
+      "type": "exam",
+      "exam": "NDA",
+      "exam_stage": "II",
+      "year": 2017,
+      "q_no": 101,
+      "subject": "Physics",
+      "modified": false,
+      "verified_by": "UNIC_PHY_03",
+      "verified_date": "2026-01-20"
+    }
+  },
+  {
+    "id": "ph_u2_q023",
+    "type": "MCQ",
+    "latex": true,
+    "difficulty": "easy",
+    "difficulty_rating": 3,
+    "topic": "motion_in_1d",
+    "chapter_id": "ph_u2_c1",
+    "subtopic": "Velocity-Time Graph",
+    "question": "The velocity-time graph for a particle moving in a straight line is shown. The displacement of the particle in 5 seconds is:\n\n[Graph: Velocity (m/s) on y-axis. From t=0 to t=2s, v=4 m/s. From t=2 to t=4s, v increases linearly to 8 m/s. From t=4 to t=5s, v=8 m/s]",
+    "options": [
+      "24 m",
+      "28 m",
+      "32 m",
+      "36 m"
+    ],
+    "answer": [1],
+    "explanation": "Displacement = area under v-t graph. Split into 3 parts:\n1. 0-2s: Rectangle, area = 4 × 2 = 8 m\n2. 2-4s: Trapezoid, area = ½(4+8)×2 = 12 m \n3. 4-5s: Rectangle, area = 8 × 1 = 8 m\nTotal = 8 + 12 + 8 = 28 m. *Rating 3*: Graph area calculation.",
+    "source": {
+      "type": "exam",
+      "exam": "NDA",
+      "exam_stage": "II",
+      "year": 2017,
+      "q_no": 102,
+      "subject": "Physics",
+      "modified": false,
+      "verified_by": "UNIC_PHY_03",
+      "verified_date": "2026-01-20"
+    }
+  },
+  {
+    "id": "ph_u2_q024",
+    "type": "MCQ",
+    "latex": true,
+    "difficulty": "easy",
+    "difficulty_rating": 2,
+    "topic": "motion_in_1d",
+    "chapter_id": "ph_u2_c1",
+    "subtopic": "Uniform Acceleration",
+    "question": "A body starts from rest and moves with uniform acceleration. The ratio of the distance covered in the nth second to the distance covered in n seconds is:",
+    "options": [
+      "$\\frac{2n-1}{n^2}$",
+      "$\\frac{2n+1}{n^2}$",
+      "$\\frac{n^2}{2n-1}$",
+      "$\\frac{2n-1}{2n+1}$"
+    ],
+    "answer": [0],
+    "explanation": "Distance in n seconds: $s_n = \\frac{1}{2}an^2$. Distance in nth second: $s_{nth} = u + \\frac{a}{2}(2n-1) = \\frac{a}{2}(2n-1)$ since u=0. Ratio = $\\frac{\\frac{a}{2}(2n-1)}{\\frac{1}{2}an^2} = \\frac{2n-1}{n^2}$. *Rating 2*: Direct formula application.",
+    "source": {
+      "type": "exam",
+      "exam": "NDA",
+      "exam_stage": "II",
+      "year": 2017,
+      "q_no": 103,
+      "subject": "Physics",
+      "modified": false,
+      "verified_by": "UNIC_PHY_03",
+      "verified_date": "2026-01-20"
+    }
+  },
+  {
+    "id": "ph_u2_q025",
+    "type": "MCQ",
+    "latex": true,
+    "difficulty": "easy",
+    "difficulty_rating": 3,
+    "topic": "motion_in_1d",
+    "chapter_id": "ph_u2_c1",
+    "subtopic": "Free Fall",
+    "question": "A stone is dropped from a height h. It hits the ground with a velocity v. If the stone is dropped from a height 4h, the velocity with which it hits the ground is:",
+    "options": [
+      "v",
+      "2v",
+      "4v",
+      "16v"
+    ],
+    "answer": [1],
+    "explanation": "Using $v^2 = u^2 + 2gh$, with u=0. So $v = \\sqrt{2gh}$. If height = 4h, then $v' = \\sqrt{2g(4h)} = \\sqrt{4} × \\sqrt{2gh} = 2v$. *Rating 3*: Proportionality in kinematics.",
+    "source": {
+      "type": "exam",
+      "exam": "NDA",
+      "exam_stage": "II",
+      "year": 2017,
+      "q_no": 104,
+      "subject": "Physics",
+      "modified": false,
+      "verified_by": "UNIC_PHY_03",
+      "verified_date": "2026-01-20"
+    }
+  },
+  {
+    "id": "ph_u2_q026",
+    "type": "MCQ",
+    "latex": true,
+    "difficulty": "easy",
+    "difficulty_rating": 3,
+    "topic": "motion_in_1d",
+    "chapter_id": "ph_u2_c1",
+    "subtopic": "Relative Motion",
+    "question": "Two trains A and B are moving on parallel tracks with velocities 60 km/h and 90 km/h respectively. Train A is ahead of B. The relative velocity of B with respect to A is:",
+    "options": [
+      "30 km/h in direction of motion",
+      "150 km/h in direction of motion",
+      "30 km/h opposite to direction of motion",
+      "150 km/h opposite to direction of motion"
+    ],
+    "answer": [0],
+    "explanation": "Relative velocity $v_{BA} = v_B - v_A = 90 - 60 = 30$ km/h. Since B is faster and behind A, B is catching up. So relative velocity is 30 km/h in direction of motion. *Rating 3*: Basic relative velocity.",
+    "source": {
+      "type": "exam",
+      "exam": "NDA",
+      "exam_stage": "II",
+      "year": 2017,
+      "q_no": 105,
+      "subject": "Physics",
+      "modified": false,
+      "verified_by": "UNIC_PHY_03",
+      "verified_date": "2026-01-20"
+    }
+  },
+  {
+    "id": "ph_u2_q027",
+    "type": "MCQ",
+    "latex": true,
+    "difficulty": "easy",
+    "difficulty_rating": 4,
+    "topic": "motion_in_1d",
+    "chapter_id": "ph_u2_c1",
+    "subtopic": "Uniform Acceleration",
+    "question": "A car accelerates from rest at a constant rate α for some time, after which it decelerates at a constant rate β to come to rest. If the total time elapsed is t, the maximum velocity attained is:",
+    "options": [
+      "$\\frac{αβt}{α+β}$",
+      "$\\frac{αβt}{α-β}$",
+      "$\\frac{(α+β)t}{αβ}$",
+      "$\\frac{α+β}{αβt}$"
+    ],
+    "answer": [0],
+    "explanation": "Let max velocity = $v_{max}$. Time to accelerate: $t_1 = v_{max}/α$. Time to decelerate: $t_2 = v_{max}/β$. Total $t = t_1 + t_2 = v_{max}(1/α + 1/β) = v_{max}(α+β)/αβ$. So $v_{max} = \\frac{αβt}{α+β}$. *Rating 4*: Multi-stage motion.",
+    "source": {
+      "type": "exam",
+      "exam": "NDA",
+      "exam_stage": "II",
+      "year": 2017,
+      "q_no": 106,
+      "subject": "Physics",
+      "modified": false,
+      "verified_by": "UNIC_PHY_03",
+      "verified_date": "2026-01-20"
+    }
+  },
+  {
+    "id": "ph_u2_q028",
+    "type": "MCQ",
+    "latex": true,
+    "difficulty": "easy",
+    "difficulty_rating": 3,
+    "topic": "motion_in_1d",
+    "chapter_id": "ph_u2_c1",
+    "subtopic": "Displacement-Time Graph",
+    "question": "The slope of displacement-time graph gives:",
+    "options": [
+      "Acceleration",
+      "Velocity",
+      "Force",
+      "Momentum"
+    ],
+    "answer": [1],
+    "explanation": "By definition, velocity $v = ds/dt$. On s-t graph, slope = $\\Delta s/\\Delta t$ = instantaneous velocity. *Rating 3*: Graph interpretation basic.",
+    "source": {
+      "type": "exam",
+      "exam": "NDA",
+      "exam_stage": "II",
+      "year": 2017,
+      "q_no": 107,
+      "subject": "Physics",
+      "modified": false,
+      "verified_by": "UNIC_PHY_03",
+      "verified_date": "2026-01-20"
+    }
+  },
+  {
+    "id": "ph_u2_q029",
+    "type": "MCQ",
+    "latex": true,
+    "difficulty": "easy",
+    "difficulty_rating": 5,
+    "topic": "motion_in_1d",
+    "chapter_id": "ph_u2_c1",
+    "subtopic": "Vertical Projection",
+    "question": "A ball is thrown vertically upward with velocity u. The time taken to reach the maximum height is T. The distance traveled in the last second of its upward journey is:",
+    "options": [
+      "$\\frac{1}{2}g$",
+      "u - $\\frac{1}{2}g$",
+      "uT - $\\frac{1}{2}gT^2$",
+      "$\\frac{u^2}{2g}$"
+    ],
+    "answer": [0],
+    "explanation": "At max height v=0, so $T = u/g$. Distance in last second of ascent = distance in 1st second of descent from top = $\\frac{1}{2}g(1)^2 = \\frac{1}{2}g$. Using symmetry of projectile. *Rating 5*: Requires symmetry concept.",
+    "source": {
+      "type": "exam",
+      "exam": "NDA",
+      "exam_stage": "II",
+      "year": 2017,
+      "q_no": 108,
+      "subject": "Physics",
+      "modified": false,
+      "verified_by": "UNIC_PHY_03",
+      "verified_date": "2026-01-20"
+    }
+  },
+  {
+    "id": "ph_u2_q030",
+    "type": "MCQ",
+    "latex": true,
+    "difficulty": "easy",
+    "difficulty_rating": 3,
+    "topic": "motion_in_1d",
+    "chapter_id": "ph_u2_c1",
+    "subtopic": "Average Speed",
+    "question": "A person travels from A to B at a speed of 40 km/h and returns at 60 km/h. The average speed for the whole journey is:",
+    "options": [
+      "50 km/h",
+      "48 km/h",
+      "45 km/h",
+      "52 km/h"
+    ],
+    "answer": [1],
+    "explanation": "Let distance AB = d. Time going = d/40, time returning = d/60. Total distance = 2d. Total time = d/40 + d/60 = d(3+2)/120 = 5d/120 = d/24. Average speed = 2d/(d/24) = 48 km/h. Note: not arithmetic mean. *Rating 3*: Harmonic mean trap.",
+    "source": {
+      "type": "exam",
+      "exam": "NDA",
+      "exam_stage": "II",
+      "year": 2017,
+      "q_no": 109,
+      "subject": "Physics",
+      "modified": false,
+      "verified_by": "UNIC_PHY_03",
+      "verified_date": "2026-01-20"
+    }
+  },
+  {
+    "id": "ph_u2_q031",
+    "type": "MCQ",
+    "latex": true,
+    "difficulty": "easy",
+    "difficulty_rating": 4,
+    "topic": "motion_in_1d",
+    "chapter_id": "ph_u2_c1",
+    "subtopic": "Uniform Acceleration",
+    "question": "A particle moving with uniform acceleration has velocity 6 m/s at a point and 10 m/s at another point which is 64 m away from the first. The acceleration is:",
+    "options": [
+      "0.5 m/s²",
+      "0.25 m/s²",
+      "1.0 m/s²",
+      "2.0 m/s²"
+    ],
+    "answer": [0],
+    "explanation": "Using $v^2 = u^2 + 2as$: $10^2 = 6^2 + 2×a×64$ → $100 = 36 + 128a$ → $64 = 128a$ → $a = 0.5$ m/s². *Rating 4*: Direct but needs equation selection.",
+    "source": {
+      "type": "exam",
+      "exam": "NDA",
+      "exam_stage": "II",
+      "year": 2017,
+      "q_no": 110,
+      "subject": "Physics",
+      "modified": false,
+      "verified_by": "UNIC_PHY_03",
+      "verified_date": "2026-01-20"
+    }
+  },
+  {
+    "id": "ph_u2_q032",
+    "type": "MCQ",
+    "latex": true,
+    "difficulty": "easy",
+    "difficulty_rating": 3,
+    "topic": "motion_in_1d",
+    "chapter_id": "ph_u2_c1",
+    "subtopic": "Distance vs Displacement",
+    "question": "A person moves 30 m north, then 20 m east, then 30√2 m south-west. The displacement from the starting point is:",
+    "options": [
+      "Zero",
+      "10 m west",
+      "10 m east",
+      "20 m west"
+    ],
+    "answer": [1],
+    "explanation": "Take north=+y, east=+x. Moves: (0,30) → (20,30). Then 30√2 m SW = 30 m west + 30 m south. Final: (20-30, 30-30) = (-10, 0). So 10 m west of start. *Rating 3*: Vector addition.",
+    "source": {
+      "type": "exam",
+      "exam": "NDA",
+      "exam_stage": "II",
+      "year": 2017,
+      "q_no": 111,
+      "subject": "Physics",
+      "modified": false,
+      "verified_by": "UNIC_PHY_03",
+      "verified_date": "2026-01-20"
+    }
+  },
+  {
+    "id": "ph_u2_q033",
+    "type": "MCQ",
+    "latex": true,
+    "difficulty": "easy",
+    "difficulty_rating": 6,
+    "topic": "motion_in_1d",
+    "chapter_id": "ph_u2_c1",
+    "subtopic": "Velocity-Time Graph",
+    "question": "The v-t graph of a particle is a straight line inclined to time axis. The slope of this line represents:",
+    "options": [
+      "Velocity",
+      "Acceleration",
+      "Displacement",
+      "Jerk"
+    ],
+    "answer": [1],
+    "explanation": "Slope of v-t graph = $dv/dt$ = acceleration. If line is straight, acceleration is uniform. If line is horizontal, a=0. *Rating 6*: JEE asks this to check graph fundamentals. Common to confuse with s-t graph.",
+    "source": {
+      "type": "exam",
+      "exam": "NDA",
+      "exam_stage": "II",
+      "year": 2017,
+      "q_no": 112,
+      "subject": "Physics",
+      "modified": false,
+      "verified_by": "UNIC_PHY_03",
+      "verified_date": "2026-01-20"
+    }
+  },
+  {
+    "id": "ph_u2_q034",
+    "type": "MCQ",
+    "latex": true,
+    "difficulty": "easy",
+    "difficulty_rating": 5,
+    "topic": "motion_in_1d",
+    "chapter_id": "ph_u2_c1",
+    "subtopic": "Free Fall",
+    "question": "Two balls are dropped from heights h and 2h respectively. The ratio of time taken to reach the ground is:",
+    "options": [
+      "1 : 2",
+      "1 : √2",
+      "1 : 4",
+      "√2 : 1"
+    ],
+    "answer": [1],
+    "explanation": "For free fall from rest, $h = \\frac{1}{2}gt^2$ → $t = \\sqrt{2h/g}$. So $t ∝ \\sqrt{h}$. Ratio = $\\sqrt{h} : \\sqrt{2h} = 1 : \\sqrt{2}$. *Rating 5*: Proportionality trap - not linear.",
+    "source": {
+      "type": "exam",
+      "exam": "NDA",
+      "exam_stage": "II",
+      "year": 2017,
+      "q_no": 113,
+      "subject": "Physics",
+      "modified": false,
+      "verified_by": "UNIC_PHY_03",
+      "verified_date": "2026-01-20"
+    }
+  },
+  {
+    "id": "ph_u2_q035",
+    "type": "MCQ",
+    "latex": true,
+    "difficulty": "easy",
+    "difficulty_rating": 4,
+    "topic": "motion_in_1d",
+    "chapter_id": "ph_u2_c1",
+    "subtopic": "Uniform Acceleration",
+    "question": "A body starts from rest. If it covers distance $s_1$ in first 10 seconds and $s_2$ in next 10 seconds, then $s_2/s_1$ is:",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "answer": [2],
+    "explanation": "$s_1 = \\frac{1}{2}a(10)^2 = 50a$. Distance in 20s: $s = \\frac{1}{2}a(20)^2 = 200a$. So $s_2 = s - s_1 = 200a - 50a = 150a$. Ratio $s_2/s_1 = 150a/50a = 3$. Or use $s_n ∝ (2n-1)$: 1:3 for n=1,2. *Rating 4*: Tests ratio concept.",
+    "source": {
+      "type": "exam",
+      "exam": "NDA",
+      "exam_stage": "II",
+      "year": 2017,
+      "q_no": 114,
+      "subject": "Physics",
+      "modified": false,
+      "verified_by": "UNIC_PHY_03",
+      "verified_date": "2026-01-20"
+    }
+  },
+  {
+    "id": "ph_u2_q036",
+    "type": "MCQ",
+    "latex": true,
+    "difficulty": "easy",
+    "difficulty_rating": 5,
+    "topic": "motion_in_1d",
+    "chapter_id": "ph_u2_c1",
+    "subtopic": "Relative Motion",
+    "question": "A police jeep is chasing a thief's car which is moving with velocity 90 km/h. The jeep moving with 126 km/h fires a bullet with muzzle velocity 360 km/h. The bullet hits the car with velocity:",
+    "options": [
+      "270 km/h",
+      "396 km/h",
+      "486 km/h",
+      "576 km/h"
+    ],
+    "answer": [1],
+    "explanation": "Velocity of bullet w.r.t ground = velocity of jeep + muzzle velocity = 126 + 360 = 486 km/h. Velocity of car = 90 km/h. Relative velocity of bullet w.r.t car = 486 - 90 = 396 km/h. *Rating 5*: Double relative motion. JEE loves this type.",
+    "source": {
+      "type": "exam",
+      "exam": "NDA",
+      "exam_stage": "II",
+      "year": 2017,
+      "q_no": 115,
+      "subject": "Physics",
+      "modified": false,
+      "verified_by": "UNIC_PHY_03",
+      "verified_date": "2026-01-20"
+    }
+  }
+          ]
+        },
+        {
+          "id": "ph_u2_c2",
+          "title": "Ch 2: Motion in a Plane",
+          "concept": {
+            "title": "Projectile Motion & Circular Motion",
+            "formulas": [
+              "T = 2usinθ/g",
+              "H = u^2sin^2θ/2g",
+              "R = u^2sin2θ/g",
+              "a_c = v^2/r = ω^2r"
+            ]
+          },
+          "questions": [
+            {
+              "id": "ph_u2_q18",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty": "easy",
+              "difficulty_rating": 4,
+              "topic": "vectors",
+              "chapter_id": "ph_u2_c2",
+              "subtopic": "Vectors",
+              "question": "If $\\vec{A} = 3\\hat{i} + 4\\hat{j}$ and $\\vec{B} = \\hat{i} - 2\\hat{j}$, magnitude of $\\vec{A} + \\vec{B}$ is:",
+              "options": [
+                "$5$",
+                "$2\\sqrt{5}$",
+                "$3$",
+                "$\\sqrt{29}$"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "$\\vec{A} + \\vec{B} = 4\\hat{i} + 2\\hat{j}$. Magnitude = $\\sqrt{4^2 + 2^2} = \\sqrt{20} = 2\\sqrt{5}$."
+            },
+            {
+              "id": "ph_u2_q19",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty": "medium",
+              "difficulty_rating": 5,
+              "topic": "vectors",
+              "chapter_id": "ph_u2_c2",
+              "subtopic": "Vectors",
+              "question": "Angle between $\\vec{A} = \\hat{i} + \\hat{j}$ and $\\vec{B} = \\hat{i} - \\hat{j}$ is:",
+              "options": [
+                "$0^\\circ$",
+                "$45^\\circ$",
+                "$90^\\circ$",
+                "$180^\\circ$"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "Dot product $\\vec{A}·\\vec{B} = (1)(1) + (1)(-1) = 0$. If dot product = 0, vectors are perpendicular: $90^\\circ$."
+            },
+            {
+              "id": "ph_u2_q20",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty": "very_easy",
+              "difficulty_rating": 2,
+              "topic": "projectile_motion",
+              "chapter_id": "ph_u2_c2",
+              "subtopic": "Projectile Motion",
+              "question": "For a projectile, range is maximum when angle of projection is:",
+              "options": [
+                "$30^\\circ$",
+                "$45^\\circ$",
+                "$60^\\circ$",
+                "$90^\\circ$"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Range $R = \\frac{u^2 \\sin2\\theta}{g}$. $R_{max}$ when $\\sin2\\theta = 1$ → $2\\theta = 90^\\circ$ → $\\theta = 45^\\circ$."
+            },
+            {
+              "id": "ph_u2_q21",
+              "type": "MCQ",
+              "latex": true,
+              "difficulty": "easy",
+              "difficulty_rating": 3,
+              "topic": "circular_motion",
+              "chapter_id": "ph_u2_c2",
+              "subtopic": "Uniform Circular Motion",
+              "question": "In uniform circular motion, the acceleration is directed:",
+              "options": [
+                "Along velocity",
+                "Opposite to velocity",
+                "Towards center",
+                "Away from center"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "Centripetal acceleration $a_c = \\frac{v^2}{r}$ is always directed towards the center of the circle, perpendicular to velocity."
+            },
+            {
+  "id": "ph_u2_q22",
+  "type": "MCQ",
+  "latex": true,
+  "difficulty": "easy",
+  "difficulty_rating": 4,
+  "topic": "circular_motion",
+  "chapter_id": "ph_u2_c2",
+  "subtopic": "Uniform Circular Motion",
+  "question": "A particle is moving in a circular path of radius $r$ at a constant speed $v$. Which one of the following graphs correctly represents its acceleration $a$?\n\n\\begin{center}\n\\begin{tabular}{cc}\n\\begin{tikzpicture}\\begin{axis}[axis lines=left,xlabel={$r$},ylabel={$a$},xtick=\\empty,ytick=\\empty,xmin=0,xmax=4,ymin=0,ymax=3,width=5cm,height=4cm]\\addplot[black,thick] coordinates {(0,2) (4,2)};\\end{axis}\\end{tikzpicture} &\n\\begin{tikzpicture}\\begin{axis}[axis lines=left,xlabel={$r$},ylabel={$a$},xtick=\\empty,ytick=\\empty,xmin=0,xmax=4,ymin=0,ymax=4,width=5cm,height=4cm]\\addplot[black,thick] {0.5+0.8*x};\\end{axis}\\end{tikzpicture}\\\\[4mm]\n\\begin{tikzpicture}\\begin{axis}[axis lines=left,xlabel={$r$},ylabel={$a$},xtick=\\empty,ytick=\\empty,xmin=0,xmax=3,ymin=0,ymax=4,width=5cm,height=4cm,domain=0:2.5]\\addplot[black,thick] {0.5*x^2};\\end{axis}\\end{tikzpicture} &\n\\begin{tikzpicture}\\begin{axis}[axis lines=left,xlabel={$r$},ylabel={$a$},xtick=\\empty,ytick=\\empty,xmin=0,xmax=5,ymin=0,ymax=5,width=5cm,height=4cm,domain=0.5:4.5]\\addplot[black,thick] {4/x};\\end{axis}\\end{tikzpicture}\n\\end{tabular}\n\\end{center}",
+  "options": [
+    "Graph (a): $a$ vs $r$ is a horizontal line",
+    "Graph (b): $a$ vs $r$ is a straight line with positive slope",
+    "Graph (c): $a$ vs $r$ increases sharply with $r$",
+    "Graph (d): $a$ vs $r$ is a rectangular hyperbola, decreasing with $r$"
+  ],
+  "answer": [3],
+  "explanation": "For uniform circular motion, centripetal acceleration $a = \\frac{v^2}{r}$. Since $v$ is constant, $a \\propto \\frac{1}{r}$. This is a rectangular hyperbola. As $r$ increases, $a$ decreases. Graph (d) shows $a$ decreasing with $r$ like $1/r$. **Rating 4**: Graph interpretation + $a_c$ formula. 1.5m.",
+  "figure_latex": {
+    "package": ["pgfplots"],
+    "setup": "\\pgfplotsset{compat=1.18}",
+    "options": [
+      {
+        "label": "(a)",
+        "code": "\\begin{tikzpicture}\\begin{axis}[axis lines = left, xlabel = {$r$}, ylabel = {$a$}, xtick = \\empty, ytick = \\empty, xmin=0, xmax=4, ymin=0, ymax=3, width=5cm, height=4cm]\\addplot[black, thick] coordinates {(0,2) (4,2)};\\end{axis}\\end{tikzpicture}"
+      },
+      {
+        "label": "(b)",
+        "code": "\\begin{tikzpicture}\\begin{axis}[axis lines = left, xlabel = {$r$}, ylabel = {$a$}, xtick = \\empty, ytick = \\empty, xmin=0, xmax=4, ymin=0, ymax=4, width=5cm, height=4cm]\\addplot[black, thick] {0.5 + 0.8*x};\\end{axis}\\end{tikzpicture}"
+      },
+      {
+        "label": "(c)",
+        "code": "\\begin{tikzpicture}\\begin{axis}[axis lines = left, xlabel = {$r$}, ylabel = {$a$}, xtick = \\empty, ytick = \\empty, xmin=0, xmax=3, ymin=0, ymax=4, width=5cm, height=4cm, domain=0:2.5]\\addplot[black, thick] {0.5*x^2};\\end{axis}\\end{tikzpicture}"
+      },
+      {
+        "label": "(d)",
+        "code": "\\begin{tikzpicture}\\begin{axis}[axis lines = left, xlabel = {$r$}, ylabel = {$a$}, xtick = \\empty, ytick = \\empty, xmin=0, xmax=5, ymin=0, ymax=5, width=5cm, height=4cm, domain=0.5:4.5]\\addplot[black, thick] {4/x};\\end{axis}\\end{tikzpicture}"
+      }
+    ]
+  },
+  "source": {
+    "type": "exam",
+    "exam": "NDA",
+    "exam_stage": "II",
+    "year": 2014,
+    "q_no": 99,
+    "subject": "Physics",
+    "modified": false,
+    "verified_by": "UNIC_PHY_03",
+    "verified_date": "2026-01-20"
+  }
+}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ph_u3",
+      "title": "Unit 3: Laws of Motion",
+      "chapters": [
+        {
+          "id": "ph_u3_c1",
+          "title": "Ch 1: Newton's Laws & Momentum",
+          "concept": {
+            "title": "Newton's Laws of Motion",
+            "formulas": [
+              "$F_{net} = ma$",
+              "$a = g\\sin\\theta$ (frictionless incline)",
+              "$N = mg\\cos\\theta$ (normal force on incline)",
+              "$f = \\mu N$ (friction force)"
+            ],
+            "latex": true,
+            "body": [
+              "Newton's **First Law** (Law of Inertia) states that a body remains in a state of rest or uniform motion in a straight line unless acted upon by an external unbalanced force.",
+              "Newton's **Second Law** relates force, mass, and acceleration: $$F = ma$$ where $F$ is the net force (N), $m$ is mass (kg), and $a$ is acceleration (m/s²). This is the most widely used law for solving dynamics problems.",
+              "Newton's **Third Law** states that for every action there is an equal and opposite reaction: $$\\vec{F}_{AB} = -\\vec{F}_{BA}$$ These action-reaction pairs always act on different bodies, so they never cancel each other out.",
+              "Key application — inclined planes: For a frictionless incline at angle $\\theta$, the component of gravity along the incline is $mg\\sin\\theta$, giving acceleration $a = g\\sin\\theta$. The normal force is $N = mg\\cos\\theta$.",
+              "Free body diagrams are essential: always resolve forces into perpendicular components before applying $F=ma$ along each axis."
+            ]
+          },
+          "questions": [
+            {
+              "id": "ph_q1",
+              "type": "MCQ",
+              "latex": true,
+              "question": "A body of mass $m$ is placed on a frictionless incline of angle $\\theta$. The acceleration of the body along the incline is:",
+              "options": [
+                "$g \\sin\\theta$",
+                "$g \\cos\\theta$",
+                "$g \\tan\\theta$",
+                "$g$"
+              ],
+              "answer": [
+                0
+              ],
+              "explanation": "On a frictionless incline, the component of gravity along the surface is $mg\\sin\\theta$, so $a = g\\sin\\theta$.",
+              "chapter_id": "ph_u3_c1"
+            },
+            {
+              "id": "ph_q2",
+              "type": "MSQ",
+              "latex": true,
+              "question": "Which of the following are correct statements about Newton's Third Law? (Select all that apply)",
+              "options": [
+                "Action and reaction forces act on different bodies",
+                "Action and reaction forces are equal in magnitude",
+                "Action and reaction forces cancel each other",
+                "Action and reaction are opposite in direction"
+              ],
+              "answer": [
+                0,
+                1,
+                3
+              ],
+              "explanation": "Newton's Third Law: action-reaction pairs act on different bodies, are equal in magnitude and opposite in direction. They do NOT cancel because they act on different bodies.",
+              "chapter_id": "ph_u3_c1"
+            },
+            {
+              "id": "ph_q3",
+              "type": "MCQ",
+              "latex": true,
+              "question": "A force $\\vec{F} = 10\\hat{i} + 5\\hat{j}$ N acts on a 2 kg body. The magnitude of acceleration is:",
+              "options": [
+                "$5\\sqrt{5}$ m/s²",
+                "$\\frac{5\\sqrt{5}}{2}$ m/s²",
+                "$10$ m/s²",
+                "$\\frac{15}{2}$ m/s²"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "$|\\vec{F}| = \\sqrt{10^2+5^2} = 5\\sqrt{5}$ N. $a = F/m = 5\\sqrt{5}/2$ m/s².",
+              "chapter_id": "ph_u3_c1"
+            },
+            {
+              "id": "ph_q3n",
+              "type": "NAT",
+              "latex": true,
+              "question": "A block of mass $4\\,\\text{kg}$ is pulled by a horizontal force of $20\\,\\text{N}$ on a frictionless surface. Find its acceleration in m/s².",
+              "answer": 5,
+              "tolerance": 0.1,
+              "unit": "m/s²",
+              "explanation": "Using $F = ma$: $a = F/m = 20/4 = 5$ m/s².",
+              "chapter_id": "ph_u3_c1"
+            }
+          ]
+        },
+        {
+          "id": "ph_u3_c2",
+          "title": "Ch 2: Friction & Circular Dynamics",
+          "concept": {
+            "title": "Friction, Banking of Roads",
+            "formulas": [
+              "f_s ≤ μ_s N",
+              "f_k = μ_k N",
+              "tanθ = v^2/rg for ideal banking",
+              "v_max = √{μ_srg} for unbanked road"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ph_u4",
+      "title": "Unit 4: Work, Energy and Power",
+      "chapters": [
+        {
+          "id": "ph_u4_c1",
+          "title": "Ch 1: Work, Energy & Collisions",
+          "concept": {
+            "title": "Work, Energy & Power",
+            "formulas": [
+              "$W = \\vec{F}\\cdot\\vec{d} = Fd\\cos\\theta$",
+              "$KE = \\frac{1}{2}mv^2$",
+              "$U_{gravity} = mgh$",
+              "$U_{spring} = \\frac{1}{2}kx^2$",
+              "$P = \\frac{W}{t} = Fv$"
+            ],
+            "latex": true,
+            "body": [
+              "Work done by a force is the dot product of force and displacement: $$W = \\vec{F} \\cdot \\vec{d} = |F||d|\\cos\\theta$$ Work is a scalar quantity measured in Joules (J).",
+              "Kinetic Energy is the energy possessed by a body due to its motion: $$KE = \\frac{1}{2}mv^2$$ The Work-Energy Theorem states that the net work done on a body equals its change in kinetic energy: $W_{net} = \\Delta KE$.",
+              "Conservative forces (gravity, spring/elastic force) do work that is independent of the path taken — only initial and final positions matter. Their work over a closed path is zero. Non-conservative forces (friction, air drag) dissipate energy as heat and depend on the path.",
+              "Potential Energy is associated with conservative forces. Gravitational PE: $U = mgh$. Spring PE: $U = \\frac{1}{2}kx^2$.",
+              "Power is the rate of doing work: $$P = \\frac{W}{t} = \\vec{F}\\cdot\\vec{v}$$ measured in Watts (W).",
+              "Conservation of Mechanical Energy: In the absence of non-conservative forces, total mechanical energy ($KE + PE$) remains constant."
+            ]
+          },
+          "questions": [
+            {
+              "id": "ph_q4",
+              "type": "MCQ",
+              "latex": true,
+              "question": "The work done by a force $\\vec{F}$ over displacement $\\vec{d}$ is given by:",
+              "options": [
+                "$|\\vec{F}||\\vec{d}|$",
+                "$\\vec{F} \\times \\vec{d}$",
+                "$\\vec{F} \\cdot \\vec{d}$",
+                "$\\frac{|\\vec{F}|}{|\\vec{d}|}$"
+              ],
+              "answer": [
+                2
+              ],
+              "explanation": "Work is the dot product: $W = \\vec{F} \\cdot \\vec{d} = |F||d|\\cos\\theta$.",
+              "chapter_id": "ph_u4_c1"
+            },
+            {
+              "id": "ph_q5",
+              "type": "MSQ",
+              "latex": true,
+              "question": "Which of the following are conservative forces? (Select all that apply)",
+              "options": [
+                "Gravitational force",
+                "Friction force",
+                "Spring (elastic) force",
+                "Air drag"
+              ],
+              "answer": [
+                0,
+                2
+              ],
+              "explanation": "Conservative forces (gravity, spring) have work independent of path. Friction and drag are non-conservative.",
+              "chapter_id": "ph_u4_c1"
+            },
+            {
+              "id": "ph_q5n",
+              "type": "NAT",
+              "latex": true,
+              "question": "A $2\\,\\text{kg}$ object moving at $3\\,\\text{m/s}$ speeds up to $5\\,\\text{m/s}$. Find the work done on it (in Joules).",
+              "answer": 16,
+              "tolerance": 0.5,
+              "unit": "J",
+              "explanation": "$W = \\Delta KE = \\frac{1}{2}m(v_f^2-v_i^2) = \\frac{1}{2}(2)(25-9) = 16$ J.",
+              "chapter_id": "ph_u4_c1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ph_u5",
+      "title": "Unit 5: Rotational Motion",
+      "chapters": [
+        {
+          "id": "ph_u5_c1",
+          "title": "Ch 1: Centre of Mass & Torque",
+          "concept": {
+            "title": "COM, Moment of Force",
+            "formulas": [
+              "x_cm = Σm_ix_i/Σm_i",
+              "τ = r × F = rFsinθ",
+              "L = r × p = Iω",
+              "τ = Iα = dL/dt"
+            ]
+          }
+        },
+        {
+          "id": "ph_u5_c2",
+          "title": "Ch 2: Moment of Inertia",
+          "concept": {
+            "title": "MI Theorems & Rigid Body Rotation",
+            "formulas": [
+              "I = Σmr^2",
+              "I_parallel = I_cm + Md^2",
+              "I_perp = I_x + I_y",
+              "KE_rot = 1/2 Iω^2"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ph_u6",
+      "title": "Unit 6: Gravitation",
+      "chapters": [
+        {
+          "id": "ph_u6_c1",
+          "title": "Ch 1: Gravitation & Satellites",
+          "concept": {
+            "title": "Kepler's Laws, Orbital Motion",
+            "formulas": [
+              "F = GMm/r^2",
+              "g = GM/R^2",
+              "v_o = √(GM/r)",
+              "v_e = √(2GM/R) = √2 × v_o at surface",
+              "T^2 ∝ r^3"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ph_u7",
+      "title": "Unit 7: Properties of Solids and Liquids",
+      "chapters": [
+        {
+          "id": "ph_u7_c1",
+          "title": "Ch 1: Elasticity",
+          "concept": {
+            "title": "Stress, Strain, Hooke's Law",
+            "formulas": [
+              "Y = (F/A)/(ΔL/L) = Stress/Strain",
+              "B = -ΔP/(ΔV/V)",
+              "η = (F/A)/θ = Shearing stress/Shear strain"
+            ]
+          }
+        },
+        {
+          "id": "ph_u7_c2",
+          "title": "Ch 2: Fluid Mechanics",
+          "concept": {
+            "title": "Pressure, Viscosity, Surface Tension",
+            "formulas": [
+              "P = hρg",
+              "F_buoyant = Vρ_fluid g",
+              "v_t = 2r^2(ρ-σ)g/9η",
+              "T = F/L",
+              "P + 1/2ρv^2 + ρgh = constant"
+            ]
+          }
+        },
+        {
+          "id": "ph_u7_c3",
+          "title": "Ch 3: Heat & Thermodynamics",
+          "concept": {
+            "title": "Thermal Expansion, Calorimetry",
+            "formulas": [
+              "ΔL = αLΔT",
+              "ΔV = γVΔT, γ = 3α",
+              "Q = mcΔT",
+              "Q = mL"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ph_u8",
+      "title": "Unit 8: Thermodynamics",
+      "chapters": [
+        {
+          "id": "ph_u8_c1",
+          "title": "Ch 1: Laws of Thermodynamics",
+          "concept": {
+            "title": "First & Second Law",
+            "formulas": [
+              "ΔU = Q - W",
+              "W = ∫PdV = PΔV for isobaric",
+              "PV^γ = constant for adiabatic",
+              "η = 1 - T2/T1 for Carnot engine"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ph_u9",
+      "title": "Unit 9: Kinetic Theory of Gases",
+      "chapters": [
+        {
+          "id": "ph_u9_c1",
+          "title": "Ch 1: KTG",
+          "concept": {
+            "title": "Ideal Gas Equation, Degrees of Freedom",
+            "formulas": [
+              "PV = nRT = NkT",
+              "v_rms = √(3RT/M) = √(3P/ρ)",
+              "U = f/2 nRT",
+              "C_p - C_v = R, γ = C_p/C_v"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ph_u10",
+      "title": "Unit 10: Oscillations and Waves",
+      "chapters": [
+        {
+          "id": "ph_u10_c1",
+          "title": "Ch 1: Simple Harmonic Motion",
+          "concept": {
+            "title": "SHM, Pendulum, Spring",
+            "formulas": [
+              "x = Asin(ωt + φ)",
+              "v = ω√(A^2 - x^2)",
+              "T = 2π√(m/k)",
+              "T = 2π√(l/g)"
+            ]
+          }
+        },
+        {
+          "id": "ph_u10_c2",
+          "title": "Ch 2: Waves",
+          "concept": {
+            "title": "Wave Motion Basics",
+            "formulas": [
+              "$v = f\\lambda$",
+              "$\\omega = 2\\pi f$",
+              "$k = \\dfrac{2\\pi}{\\lambda}$",
+              "$v = \\dfrac{\\omega}{k}$"
+            ],
+            "latex": true,
+            "body": [
+              "A wave is a disturbance that transfers energy through a medium (or vacuum, for EM waves) without net transport of matter.",
+              "A travelling wave can be written as $$y(x,t) = A\\sin(kx - \\omega t)$$ where $A$ is amplitude, $k = 2\\pi/\\lambda$ is the wave number, and $\\omega = 2\\pi f$ is the angular frequency.",
+              "Wave speed relates frequency and wavelength: $$v = f\\lambda = \\frac{\\omega}{k}$$",
+              "Transverse waves (e.g. light, waves on a string) have particle displacement perpendicular to wave propagation. Longitudinal waves (e.g. sound) have displacement parallel to propagation.",
+              "The principle of superposition states that when two or more waves overlap, the resultant displacement is the algebraic sum of individual displacements — this underlies interference and standing waves."
+            ]
+          },
+          "questions": [
+            {
+              "id": "ph_q6",
+              "type": "MCQ",
+              "latex": true,
+              "question": "The equation of a wave is $y = A\\sin(kx - \\omega t)$. The speed of the wave is:",
+              "options": [
+                "$\\frac{k}{\\omega}$",
+                "$\\frac{\\omega}{k}$",
+                "$k\\omega$",
+                "$\\frac{1}{k\\omega}$"
+              ],
+              "answer": [
+                1
+              ],
+              "explanation": "Wave speed $v = \\frac{\\omega}{k} = f\\lambda$.",
+              "chapter_id": "ph_u10_c2"
+            },
+            {
+              "id": "ph_q6n",
+              "type": "NAT",
+              "latex": true,
+              "question": "A wave has frequency $50\\,\\text{Hz}$ and wavelength $4\\,\\text{m}$. Find its speed (in m/s).",
+              "answer": 200,
+              "tolerance": 1,
+              "unit": "m/s",
+              "explanation": "$v = f\\lambda = 50 \\times 4 = 200$ m/s.",
+              "chapter_id": "ph_u10_c2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ph_u11",
+      "title": "Unit 11: Electrostatics",
+      "chapters": [
+        {
+          "id": "ph_u11_c1",
+          "title": "Ch 1: Electric Charges & Fields",
+          "concept": {
+            "title": "Coulomb's Law, Electric Field",
+            "formulas": [
+              "F = kq1q2/r^2 = q1q2/4πε₀r^2",
+              "E = F/q = kq/r^2",
+              "Φ_E = ∫E·dA = q_enc/ε₀",
+              "τ = p × E, p = q·2l"
+            ]
+          }
+        },
+        {
+          "id": "ph_u11_c2",
+          "title": "Ch 2: Potential & Capacitance",
+          "concept": {
+            "title": "Electric Potential, Capacitors",
+            "formulas": [
+              "V = kq/r",
+              "W = qΔV",
+              "C = Q/V = ε₀A/d",
+              "U = 1/2 CV^2 = 1/2 QV = Q^2/2C"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ph_u12",
+      "title": "Unit 12: Current Electricity",
+      "chapters": [
+        {
+          "id": "ph_u12_c1",
+          "title": "Ch 1: Ohm's Law & Circuits",
+          "concept": {
+            "title": "Current, Resistance, Kirchhoff Laws",
+            "formulas": [
+              "I = Q/t",
+              "V = IR, R = ρL/A",
+              "P = VI = I^2R = V^2/R",
+              "R_s = R1+R2+..., 1/R_p = 1/R1+1/R2+..."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ph_u13",
+      "title": "Unit 13: Magnetic Effects of Current and Magnetism",
+      "chapters": [
+        {
+          "id": "ph_u13_c1",
+          "title": "Ch 1: Magnetic Field due to Current",
+          "concept": {
+            "title": "Biot-Savart, Ampere's Law",
+            "formulas": [
+              "dB = μ₀/4π (Idl×r̂)/r^2",
+              "B = μ₀I/2πr for straight wire",
+              "B = μ₀nI for solenoid",
+              "F = IlBsinθ = qvBsinθ"
+            ]
+          }
+        },
+        {
+          "id": "ph_u13_c2",
+          "title": "Ch 2: Magnetism",
+          "concept": {
+            "title": "Bar Magnet, Earth's Magnetism",
+            "formulas": [
+              "τ = M × B",
+              "B_axis = μ₀/4π (2M/r^3)",
+              "B_eq = μ₀/4π (M/r^3)",
+              "tanδ = B_V/B_H"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ph_u14",
+      "title": "Unit 14: Electromagnetic Induction and Alternating Currents",
+      "chapters": [
+        {
+          "id": "ph_u14_c1",
+          "title": "Ch 1: EMI",
+          "concept": {
+            "title": "Faraday's Law, Lenz's Law",
+            "formulas": [
+              "ε = -dΦ/dt = -NdΦ/dt",
+              "ε = Blv",
+              "L = NΦ/I",
+              "U = 1/2 LI^2"
+            ]
+          }
+        },
+        {
+          "id": "ph_u14_c2",
+          "title": "Ch 2: Alternating Current",
+          "concept": {
+            "title": "AC Circuits, LCR, Transformer",
+            "formulas": [
+              "I = I₀sinωt, I_rms = I₀/√2",
+              "X_L = ωL, X_C = 1/ωC",
+              "Z = √(R^2 + (X_L - X_C)^2)",
+              "P_avg = V_rms I_rms cosφ",
+              "Vs/Vp = Ns/Np = Ip/Is"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ph_u15",
+      "title": "Unit 15: Electromagnetic Waves",
+      "chapters": [
+        {
+          "id": "ph_u15_c1",
+          "title": "Ch 1: EM Waves",
+          "concept": {
+            "title": "Displacement Current, EM Spectrum",
+            "formulas": [
+              "c = 1/√(μ₀ε₀) = 3×10^8 m/s",
+              "E/B = c",
+              "I_d = ε₀ dΦ_E/dt",
+              "u = 1/2 ε₀E^2 + B^2/2μ₀"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ph_u16",
+      "title": "Unit 16: Optics",
+      "chapters": [
+        {
+          "id": "ph_u16_c1",
+          "title": "Ch 1: Ray Optics",
+          "concept": {
+            "title": "Reflection, Refraction, Lenses",
+            "formulas": [
+              "1/f = 1/v - 1/u, m = v/u",
+              "μ = sin i/sin r = c/v",
+              "μ2/v - μ1/u = (μ2-μ1)/R",
+              "P = 1/f in meters"
+            ]
+          }
+        },
+        {
+          "id": "ph_u16_c2",
+          "title": "Ch 2: Wave Optics",
+          "concept": {
+            "title": "Interference, Diffraction, Polarization",
+            "formulas": [
+              "β = λD/d",
+              "Δx = nλ for bright, (2n-1)λ/2 for dark",
+              "a sinθ = nλ for minima",
+              "μ = tan i_p"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ph_u17",
+      "title": "Unit 17: Dual Nature of Matter and Radiation",
+      "chapters": [
+        {
+          "id": "ph_u17_c1",
+          "title": "Ch 1: Photoelectric Effect & Matter Waves",
+          "concept": {
+            "title": "Einstein's Equation, de Broglie",
+            "formulas": [
+              "hν = φ₀ + KE_max = φ₀ + eV₀",
+              "λ = h/p = h/mv",
+              "λ = h/√(2mKE) = 12.27/√V Å"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ph_u18",
+      "title": "Unit 18: Atoms and Nuclei",
+      "chapters": [
+        {
+          "id": "ph_u18_c1",
+          "title": "Ch 1: Atomic Structure",
+          "concept": {
+            "title": "Bohr Model, Hydrogen Spectrum",
+            "formulas": [
+              "r_n = 0.53n^2 Å",
+              "E_n = -13.6/n^2 eV",
+              "1/λ = R(1/n1^2 - 1/n2^2), R = 1.097×10^7 m^-1",
+              "L = nħ = nh/2π"
+            ]
+          }
+        },
+        {
+          "id": "ph_u18_c2",
+          "title": "Ch 2: Nuclear Physics",
+          "concept": {
+            "title": "Mass Defect, Radioactivity",
+            "formulas": [
+              "E = Δmc^2",
+              "N = N₀e^-λt",
+              "t_1/2 = 0.693/λ",
+              "A = λN"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ph_u19",
+      "title": "Unit 19: Electronic Devices",
+      "chapters": [
+        {
+          "id": "ph_u19_c1",
+          "title": "Ch 1: Semiconductors & Diodes",
+          "concept": {
+            "title": "p-n Junction, Zener Diode",
+            "formulas": [
+              "I = I₀(e^(eV/kT) - 1)",
+              "n_i^2 = n_e n_h",
+              "r_f = ΔV/ΔI forward, r_r = ΔV/ΔI reverse"
+            ]
+          }
+        },
+        {
+          "id": "ph_u19_c2",
+          "title": "Ch 2: Logic Gates",
+          "concept": {
+            "title": "OR, AND, NOT, NAND, NOR",
+            "formulas": [
+              "Y = A+B for OR",
+              "Y = A·B for AND",
+              "Y = Ā for NOT",
+              "Y = (A·B)̄ for NAND",
+              "Y = (A+B)̄ for NOR"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ph_u20",
+      "title": "Unit 20: Experimental Skills",
+      "chapters": [
+        {
+          "id": "ph_u20_c1",
+          "title": "Ch 1: Measuring Instruments",
+          "concept": {
+            "title": "Vernier Calipers, Screw Gauge",
+            "formulas": [
+              "Least Count = 1MSD - 1VSD",
+              "LC_vernier = 1MSD/n",
+              "LC_screw = Pitch/Total divisions on head scale"
+            ]
+          }
+        },
+        {
+          "id": "ph_u20_c2",
+          "title": "Ch 2: Electricity & Optics Experiments",
+          "concept": {
+            "title": "Meter Bridge, Galvanometer, Lenses",
+            "formulas": [
+              "S = R(100-l)/l for meter bridge",
+              "G = (R·S)/(R-S) for galvanometer",
+              "f = uv/(u+v) for lens",
+              "ρ = RA/l"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

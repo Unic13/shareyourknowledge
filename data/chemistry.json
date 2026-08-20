@@ -1,0 +1,159 @@
+{
+  "subject": "Chemistry",
+  "code": "CH",
+  "color": "#E53E3E",
+  "units": [
+    {
+      "id": "ch_u1",
+      "title": "Unit 1: Atomic Structure",
+      "chapters": [
+        {
+          "id": "ch_u1_c1",
+          "title": "Ch 1: Quantum Numbers",
+          "concept": {
+            "title": "Quantum Numbers",
+            "latex": true,
+            "body": [
+              "Four quantum numbers describe the unique state of an electron in an atom.",
+              "Principal quantum number $n$ ($n = 1,2,3,...$) determines the energy level (shell) and size of the orbital.",
+              "Azimuthal (angular momentum) quantum number $l$ ($l = 0$ to $n-1$) determines the shape of the orbital — $l=0$ is s, $l=1$ is p, $l=2$ is d, $l=3$ is f.",
+              "Magnetic quantum number $m_l$ ($m_l = -l$ to $+l$) describes the orientation of the orbital in space. Number of orbitals in a subshell $= 2l+1$.",
+              "Spin quantum number $m_s$ ($+\\frac{1}{2}$ or $-\\frac{1}{2}$) describes the spin direction of the electron.",
+              "Maximum electrons in a subshell $= 2(2l+1)$. For example, a d-subshell ($l=2$) holds a maximum of 10 electrons; an f-subshell ($l=3$) holds 14."
+            ],
+            "formulas": [
+              "Orbitals per subshell $= 2l+1$",
+              "Max electrons per subshell $= 2(2l+1)$",
+              "Max electrons per shell $= 2n^2$"
+            ]
+          },
+          "questions": [
+            {
+              "id": "ch_q1",
+              "type": "MCQ",
+              "latex": true,
+              "question": "The maximum number of electrons in a subshell with azimuthal quantum number $l = 3$ is:",
+              "options": ["6", "10", "14", "18"],
+              "answer": [2],
+              "explanation": "For $l=3$ (f-subshell), number of orbitals = $2l+1 = 7$. Max electrons = $2 \\times 7 = 14$."
+            },
+            {
+              "id": "ch_q2",
+              "type": "MSQ",
+              "latex": true,
+              "question": "Which quantum numbers are allowed for an electron in the 3d subshell? (Select all that apply)",
+              "options": ["$n=3, l=2$", "$n=3, l=3$", "$m_l = -2$", "$m_l = +3$"],
+              "answer": [0, 2],
+              "explanation": "For 3d: $n=3$, $l=2$, and $m_l$ ranges from $-2$ to $+2$. $l=3$ is not allowed for $n=3$ (since $l < n$), and $m_l=+3$ exceeds the limit."
+            },
+            {
+              "id": "ch_q2n",
+              "type": "NAT",
+              "latex": true,
+              "question": "What is the maximum number of electrons that can occupy the shell with $n = 3$?",
+              "answer": 18,
+              "tolerance": 0,
+              "unit": "electrons",
+              "explanation": "Max electrons per shell $= 2n^2 = 2(3)^2 = 18$."
+            }
+          ]
+        },
+        {
+          "id": "ch_u1_c2",
+          "title": "Ch 2: Chemical Bonding",
+          "concept": {
+            "title": "Chemical Bonding",
+            "latex": false,
+            "body": [
+              "Chemical bonds form when atoms share or transfer electrons to achieve a stable (often octet) electron configuration.",
+              "Bond order, calculated from Molecular Orbital Theory, equals half the difference between bonding and antibonding electrons: Bond Order = (Nb - Na)/2. Higher bond order generally means a shorter, stronger bond.",
+              "Polarity arises when there is unequal sharing of electrons (different electronegativities) combined with an asymmetric molecular geometry. Symmetric molecules like CO2 and CCl4 are non-polar even though individual bonds may be polar, because the bond dipoles cancel.",
+              "VSEPR theory predicts molecular geometry based on minimizing repulsion between electron pairs (bonding and lone pairs) around the central atom.",
+              "Common geometries: linear (2 electron domains), trigonal planar (3), tetrahedral (4), trigonal bipyramidal (5), octahedral (6)."
+            ],
+            "formulas": [
+              "Bond Order = (Nb − Na) / 2",
+              "Higher bond order → shorter & stronger bond"
+            ]
+          },
+          "questions": [
+            {
+              "id": "ch_q3",
+              "type": "MCQ",
+              "latex": false,
+              "question": "Which of the following has the highest bond order?",
+              "options": ["O₂", "O₂⁺", "O₂⁻", "O₂²⁻"],
+              "answer": [1],
+              "explanation": "Bond order of O₂⁺ = 2.5 (highest). O₂ = 2, O₂⁻ = 1.5, O₂²⁻ = 1."
+            },
+            {
+              "id": "ch_q4",
+              "type": "MSQ",
+              "latex": true,
+              "question": "Which of the following molecules are polar? (Select all that apply)",
+              "options": ["$H_2O$", "$CO_2$", "$NH_3$", "$CCl_4$"],
+              "answer": [0, 2],
+              "explanation": "$H_2O$ (bent) and $NH_3$ (pyramidal) are polar due to asymmetric geometry. $CO_2$ (linear) and $CCl_4$ (tetrahedral) are non-polar."
+            },
+            {
+              "id": "ch_q4n",
+              "type": "NAT",
+              "latex": false,
+              "question": "How many bonding electrons does the O2 molecule have in its molecular orbital diagram? (Total bonding electrons, Nb)",
+              "answer": 8,
+              "tolerance": 0,
+              "unit": "electrons",
+              "explanation": "O2 has 8 bonding electrons (σ1s², σ*1s² cancel out core; valence: σ2s²,σ*2s² cancel, leaving σ2p² + π2p⁴ = 6 bonding + ... standard MOT gives Nb=8 for O2's valence bonding electrons."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch_u2",
+      "title": "Unit 2: Thermodynamics",
+      "chapters": [
+        {
+          "id": "ch_u2_c1",
+          "title": "Ch 3: Gibbs Free Energy",
+          "concept": {
+            "title": "Gibbs Free Energy & Spontaneity",
+            "latex": true,
+            "body": [
+              "Gibbs Free Energy combines enthalpy and entropy to predict whether a reaction is spontaneous at constant temperature and pressure: $$\\Delta G = \\Delta H - T\\Delta S$$",
+              "A reaction is spontaneous (favorable) when $\\Delta G < 0$, non-spontaneous when $\\Delta G > 0$, and at equilibrium when $\\Delta G = 0$.",
+              "The sign of $\\Delta G$ depends on both $\\Delta H$ (heat) and $\\Delta S$ (disorder) and temperature $T$. Even an endothermic reaction ($\\Delta H > 0$) can be spontaneous if $\\Delta S$ is sufficiently positive and $T$ is high enough.",
+              "At equilibrium, $\\Delta G = 0$, which gives the relation $\\Delta S = \\Delta H / T$, useful for finding the temperature at which a reaction becomes spontaneous."
+            ],
+            "formulas": [
+              "$\\Delta G = \\Delta H - T\\Delta S$",
+              "Spontaneous: $\\Delta G < 0$",
+              "Equilibrium: $\\Delta G = 0 \\Rightarrow T = \\dfrac{\\Delta H}{\\Delta S}$"
+            ]
+          },
+          "questions": [
+            {
+              "id": "ch_q5",
+              "type": "MCQ",
+              "latex": true,
+              "question": "A reaction is spontaneous when:",
+              "options": ["$\\Delta G > 0$", "$\\Delta G < 0$", "$\\Delta G = 0$", "$\\Delta H > 0$ always"],
+              "answer": [1],
+              "explanation": "Spontaneity is determined by $\\Delta G = \\Delta H - T\\Delta S < 0$."
+            },
+            {
+              "id": "ch_q5n",
+              "type": "NAT",
+              "latex": true,
+              "question": "A reaction has $\\Delta H = 50\\,\\text{kJ/mol}$ and $\\Delta S = 100\\,\\text{J/(mol·K)}$. Find the temperature (in K) above which the reaction becomes spontaneous.",
+              "answer": 500,
+              "tolerance": 5,
+              "unit": "K",
+              "explanation": "At the boundary, $\\Delta G=0 \\Rightarrow T = \\Delta H/\\Delta S = 50000/100 = 500$ K."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
