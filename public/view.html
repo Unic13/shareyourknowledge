@@ -1935,11 +1935,11 @@ function renderConceptBody(body = []) {
     ${renderImageBlock(item.image, '')}
     ${renderPdfBlock(item.pdf, '')}
     <div style="border-radius:10px;border:1.5px solid #bae6fd;background:#f0f9ff;margin-bottom:12px;padding:12px 14px">
-      ${item.title ? `<strong style="color:#0369a1;font-size:13px">${esc(item.title)}</strong>` : ''}
-      ${item.before ? `<div style="font-size:12.5px;margin-top:6px"><strong>Input:</strong> ${esc(item.before)}</div>` : ''}
-      ${(item.steps || []).length ? `<ol style="margin:8px 0 0 18px">${(item.steps || []).map(s => `<li style="margin-bottom:4px;font-size:12.5px">${esc(s)}</li>`).join('')}</ol>` : ''}
-      ${item.formula ? `<div style="background:#1e1e2e;color:#a6e3a1;font-family:monospace;padding:8px 10px;border-radius:6px;font-size:12px;margin-top:8px">${esc(item.formula)}</div>` : ''}
-      ${item.after ? `<div style="font-size:12.5px;margin-top:8px"><strong>Result:</strong> ${esc(item.after)}</div>` : ''}
+      ${item.title ? `<strong style="color:#0369a1;font-size:13px">${escapeHtml(item.title)}</strong>` : ''}
+      ${item.before ? `<div style="font-size:12.5px;margin-top:6px"><strong>Input:</strong> ${escapeHtml(item.before)}</div>` : ''}
+      ${(item.steps || []).length ? `<ol style="margin:8px 0 0 18px">${(item.steps || []).map(s => `<li style="margin-bottom:4px;font-size:12.5px">${escapeHtml(s)}</li>`).join('')}</ol>` : ''}
+      ${item.formula ? `<div style="background:#1e1e2e;color:#a6e3a1;font-family:monospace;padding:8px 10px;border-radius:6px;font-size:12px;margin-top:8px">${escapeHtml(item.formula)}</div>` : ''}
+      ${item.after ? `<div style="font-size:12.5px;margin-top:8px"><strong>Result:</strong> ${escapeHtml(item.after)}</div>` : ''}
     </div>    
   `;
 
