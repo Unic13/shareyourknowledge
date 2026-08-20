@@ -11,7 +11,7 @@ const BTYPE_COLORS = {
   list: '#d97706', table: '#059669', syntax: '#dc2626', image: '#db2777',
   exercise: '#f59e0b', steps: '#6C3FF5', video: '#dc2626', example: '#0ea5e9', summary: '#0d9488'
 };
-
+let subjectPillSearch = '';
 let builder = {
   session: null,
   subjects: [],
@@ -58,6 +58,7 @@ async function initBuilder(session) {
 // own unique code (e.g. Accounts → AC0001 "Journal Entries", AC0002
 // "Ledger Posting"). Pills show "Subject — Topic (CODE)" so multiple
 // topics under the same subject name are easy to tell apart.
+/*
 function renderSubjectPills() {
   const row = document.getElementById('builder-subject-pills');
   row.innerHTML = '';
@@ -69,6 +70,64 @@ function renderSubjectPills() {
     btn.onclick = () => loadSubjectIntoBuilder(s.code);
     row.appendChild(btn);
   });
+}
+*/
+// 2. Replace the existing renderSubjectPills() function with:
+function renderSubjectPills() {
+  const row = document.getElementById('builder-subject-pills');
+  if (!row) return;
+
+  if (!builder.subjects.length) {
+    removeSubjectSearchBox();
+    row.innerHTML = '';
+    return;
+  }
+
+  ensureSubjectSearchBox();
+  row.innerHTML = '';
+
+  const q = subjectPillSearch.trim().toLowerCase();
+  const list = q
+    ? builder.subjects.filter(s =>
+        (s.subject || '').toLowerCase().includes(q) ||
+        (s.subject_title || '').toLowerCase().includes(q) ||
+        (s.code || '').toLowerCase().includes(q))
+    : builder.subjects;
+
+  if (!list.length) {
+    row.innerHTML = '<div class="b-field-hint" style="padding:4px 2px">No subjects match your search.</div>';
+    return;
+  }
+
+  list.forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'subj-pill' + (s.code === builder.activeCode ? ' active' : '');
+    btn.textContent = s.subject_title ? `${s.subject} — ${s.subject_title} (${s.code})` : `${s.subject} (${s.code})`;
+    if (s.code === builder.activeCode) { btn.style.background = s.color; btn.style.borderColor = 'transparent'; }
+    btn.onclick = () => loadSubjectIntoBuilder(s.code);
+    row.appendChild(btn);
+  });
+}
+
+// 3. Add these two new functions right after it:
+function ensureSubjectSearchBox() {
+  if (document.getElementById('subj-pill-search')) return;
+  const row = document.getElementById('builder-subject-pills');
+  if (!row || !row.parentNode) return;
+  const wrap = document.createElement('div');
+  wrap.id = 'subj-pill-search-wrap';
+  wrap.style.cssText = 'padding:0 16px 8px';
+  wrap.innerHTML = `<input type="text" class="search-input" id="subj-pill-search" placeholder="🔍 Search your subjects by name, topic, or code…" style="width:100%">`;
+  row.parentNode.insertBefore(wrap, row);
+  document.getElementById('subj-pill-search').addEventListener('input', (e) => {
+    subjectPillSearch = e.target.value;
+    renderSubjectPills();
+  });
+}
+function removeSubjectSearchBox() {
+  const wrap = document.getElementById('subj-pill-search-wrap');
+  if (wrap) wrap.remove();
+  subjectPillSearch = '';
 }
 
 async function loadSubjectIntoBuilder(code) {
