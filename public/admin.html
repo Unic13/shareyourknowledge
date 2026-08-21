@@ -30,13 +30,6 @@
 
 <div class="container">
 
-  <div class="stats-grid">
-    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="stat-regs">—</div><div class="stat-label">Registrations</div></div>
-    <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="stat-attempts">—</div><div class="stat-label">Attempts</div></div>
-    <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-value" id="stat-accuracy">—</div><div class="stat-label">Accuracy</div></div>
-    <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-value" id="stat-subjects">—</div><div class="stat-label">Subjects</div></div>
-  </div>
-
   <div class="section-tabs">
     <button class="section-tab active" id="sec-tab-builder" onclick="switchSection('builder')">✏️ Subject Concept and Question Builder</button>
     <button class="section-tab" id="sec-tab-data" onclick="switchSection('data')">📊 Data</button>
@@ -119,6 +112,12 @@
 
   <!-- ═══ STATISTICS ═══ -->
   <div class="section-panel" id="section-stats">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="stat-regs">—</div><div class="stat-label">Registrations</div></div>
+      <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="stat-attempts">—</div><div class="stat-label">Attempts</div></div>
+      <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-value" id="stat-accuracy">—</div><div class="stat-label">Accuracy</div></div>
+      <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-value" id="stat-subjects">—</div><div class="stat-label">Subjects</div></div>
+    </div>
     <div id="stats-container"><div class="empty-table"><div class="big">⏳</div><p>Loading…</p></div></div>
   </div>
 
