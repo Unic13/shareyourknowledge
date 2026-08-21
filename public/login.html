@@ -3,47 +3,119 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UNIC Academic — Knowledge Sharing</title>
+<title>UNIC Knowledge Sharing — Admin Login</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/admin.css">
+<style>
+  /* Local, self-contained styles for this page's header/footer — kept
+     separate from css/admin.css since that stylesheet's .header/.logo
+     rules are built for the full admin shell (nav tabs, user badge, logout
+     button, etc.) which don't exist on this pre-login screen. */
+  html, body { height: 100%; }
+  body.auth-screen {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  #login-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 24px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    flex-shrink: 0;
+  }
+  #login-header .login-logo-img {
+    height: 36px;
+    width: auto;
+    display: block;
+    object-fit: contain;
+  }
+  #login-header .header-brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+  }
+  #login-header .header-brand-text .brand {
+    font-weight: 800;
+    font-size: 15px;
+    color: #111;
+  }
+  #login-header .header-brand-text .sub-brand {
+    font-size: 11.5px;
+    color: #6b7280;
+    font-weight: 600;
+  }
+  body.auth-screen .container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #login-footer {
+    text-align: center;
+    font-size: 11px;
+    color: #9ca3af;
+    line-height: 34px;
+    height: 34px;
+    border-top: 1px solid #f3f4f6;
+    background: #fafafa;
+    flex-shrink: 0;
+  }
+  #login-footer a {
+    color: #7c3aed;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  #login-footer a:hover { text-decoration: underline; }
+</style>
 </head>
 <body class="auth-screen">
+
+  <header id="login-header">
+    <img src="img/logo.png" alt="UNIC Knowledge Sharing" class="login-logo-img">
+    <div class="header-brand-text">
+      <span class="brand">UNIC Academic</span>
+      <span class="sub-brand">Knowledge Sharing</span>
+    </div>
+  </header>
+
   <div class="container">
     <div id="login-panel">
-    <div class="login-stripe"></div>
-    <div class="login-body">
-      <div class="login-icon">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+      <div class="login-stripe"></div>
+      <div class="login-body">
+        <div class="login-icon">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        </div>
+        <div class="login-title">Admin Login</div>
+        <div class="login-sub">UNIC Academic — Knowledge Sharing</div>
+        <div class="brand-tagline" style="text-align:center;margin-bottom:20px">Learn • Create • Share</div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="login-email" placeholder="you@unicacademic.com" autocomplete="username">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"
+                 onkeydown="if(event.key==='Enter') doLogin()">
+        </div>
+        <div class="errmsg" id="login-err"></div>
+        <button class="btn-login" id="login-btn" onclick="doLogin()">Sign In</button>
       </div>
-      <div class="login-title">Admin Login</div>
-      <div class="login-sub">UNIC Academic — Knowledge Sharing</div>
-      <div class="brand-tagline" style="text-align:center;margin-bottom:20px">Learn • Create • Share</div>
-
-      <div class="field">
-        <label>Email</label>
-        <input type="email" id="login-email" placeholder="you@unicacademic.com" autocomplete="username">
-      </div>
-      <div class="field">
-        <label>Password</label>
-        <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"
-               onkeydown="if(event.key==='Enter') doLogin()">
-      </div>
-      <div class="errmsg" id="login-err"></div>
-      <button class="btn-login" id="login-btn" onclick="doLogin()">Sign In</button>
-    </div>
     </div>
   </div>
 
-  <div class="site-disclaimer" style="border-top:none;background:none;margin-top:16px">
+  <div id="login-footer">
+    Some content on this platform may be AI-assisted and can sometimes be inaccurate. ·
     <a href="legal.html">Disclaimer &amp; Terms</a>
-  </div>
   </div>
 
   <script src="js/auth.js"></script>
   <script>
     // Already logged in? skip straight to the dashboard.
     if (Auth.getSession()) location.href = 'admin.html';
-
     async function doLogin() {
       const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
@@ -51,7 +123,6 @@
       const btn = document.getElementById('login-btn');
       errEl.textContent = '';
       if (!email || !password) { errEl.textContent = 'Enter your email and password'; return; }
-
       btn.disabled = true; btn.textContent = 'Signing in…';
       try {
         const res = await fetch('/api/users', {
