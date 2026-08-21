@@ -8769,6 +8769,421 @@
 },
 
 {
+  "id": "excel_u2_c9",
+  "title": "REPT() Function",
+  "concept": {
+    "title": "Function: REPT()",
+    "body": [
+      {
+        "type": "heading",
+        "text": "1. What is REPT()?"
+      },
+      {
+        "type": "paragraph",
+        "text": "The REPT() function repeats a text value a specified number of times. It is useful for creating simple visual bars, repeated symbols, separators, ratings, and text-based indicators."
+      },
+      {
+        "type": "note",
+        "text": "Think of REPT() as: Repeat this text this many times."
+      },
+      {
+        "type": "heading",
+        "text": "2. Syntax"
+      },
+      {
+        "type": "syntax",
+        "code": "=REPT(text, number_times)"
+      },
+      {
+        "type": "table",
+        "headers": [
+          "Argument",
+          "Meaning"
+        ],
+        "rows": [
+          [
+            "text",
+            "The text, character, or symbol that you want to repeat."
+          ],
+          [
+            "number_times",
+            "The number of times the text should be repeated."
+          ]
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "3. Simple Examples"
+      },
+      {
+        "type": "table",
+        "title": "Basic REPT() Examples",
+        "headers": [
+          "Formula",
+          "Result",
+          "Explanation"
+        ],
+        "rows": [
+          [
+            "=REPT(\"*\",5)",
+            "*****",
+            "Repeats * five times."
+          ],
+          [
+            "=REPT(\"-\",10)",
+            "----------",
+            "Repeats - ten times."
+          ],
+          [
+            "=REPT(\"ABC\",3)",
+            "ABCABCABC",
+            "Repeats ABC three times."
+          ],
+          [
+            "=REPT(\" \",5)",
+            "     ",
+            "Creates five spaces."
+          ]
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "4. Using REPT() with Cell Values"
+      },
+      {
+        "type": "paragraph",
+        "text": "The number of repetitions can come from another cell."
+      },
+      {
+        "type": "syntax",
+        "code": "=REPT(\"*\",B2)"
+      },
+      {
+        "type": "table",
+        "title": "Sample Data",
+        "headers": [
+          "Student",
+          "Rating",
+          "Formula",
+          "Result"
+        ],
+        "rows": [
+          [
+            "Muthu",
+            5,
+            "=REPT(\"*\",B2)",
+            "*****"
+          ],
+          [
+            "Ravi",
+            4,
+            "=REPT(\"*\",B3)",
+            "****"
+          ],
+          [
+            "Priya",
+            3,
+            "=REPT(\"*\",B4)",
+            "***"
+          ],
+          [
+            "Kumar",
+            2,
+            "=REPT(\"*\",B5)",
+            "**"
+          ]
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "5. Creating a Visual Bar"
+      },
+      {
+        "type": "paragraph",
+        "text": "REPT() can create a simple text-based bar based on a student's marks or percentage."
+      },
+      {
+        "type": "syntax",
+        "code": "=REPT(\"█\",C2/5)"
+      },
+      {
+        "type": "table",
+        "title": "Marks Bar Example",
+        "headers": [
+          "Student",
+          "Marks",
+          "Formula",
+          "Visual Bar"
+        ],
+        "rows": [
+          [
+            "Muthu",
+            90,
+            "=REPT(\"█\",C2/5)",
+            "██████████████████"
+          ],
+          [
+            "Ravi",
+            75,
+            "=REPT(\"█\",C3/5)",
+            "███████████████"
+          ],
+          [
+            "Priya",
+            60,
+            "=REPT(\"█\",C4/5)",
+            "████████████"
+          ],
+          [
+            "Kumar",
+            40,
+            "=REPT(\"█\",C5/5)",
+            "████████"
+          ]
+        ]
+      },
+      {
+        "type": "note",
+        "text": "REPT() requires the repetition count to be a valid non-negative number. If the calculation produces a decimal, Excel uses the integer portion for the number of repetitions."
+      },
+      {
+        "type": "heading",
+        "text": "6. Creating a Rating Display"
+      },
+      {
+        "type": "syntax",
+        "code": "=REPT(\"★\",B2)&REPT(\"☆\",5-B2)"
+      },
+      {
+        "type": "table",
+        "title": "Star Rating Example",
+        "headers": [
+          "Product",
+          "Rating",
+          "Formula",
+          "Display"
+        ],
+        "rows": [
+          [
+            "Product A",
+            5,
+            "=REPT(\"★\",B2)&REPT(\"☆\",5-B2)",
+            "★★★★★"
+          ],
+          [
+            "Product B",
+            4,
+            "=REPT(\"★\",B3)&REPT(\"☆\",5-B3)",
+            "★★★★☆"
+          ],
+          [
+            "Product C",
+            3,
+            "=REPT(\"★\",B4)&REPT(\"☆\",5-B4)",
+            "★★★☆☆"
+          ],
+          [
+            "Product D",
+            2,
+            "=REPT(\"★\",B5)&REPT(\"☆\",5-B5)",
+            "★★☆☆☆"
+          ]
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "7. Scenario: Student Performance"
+      },
+      {
+        "type": "paragraph",
+        "text": "A teacher wants to display student performance as a visual bar. If the percentage is 80%, one block should represent every 5 percentage points."
+      },
+      {
+        "type": "syntax",
+        "code": "=REPT(\"█\",ROUND(B2/5,0))"
+      },
+      {
+        "type": "example",
+        "title": "Performance Bar",
+        "before": "Percentage = 80%",
+        "steps": [
+          "Step 1: Divide 80 by 5.",
+          "Step 2: 80/5 = 16.",
+          "Step 3: REPT() repeats the block character 16 times."
+        ],
+        "after": "Result = ████████████████"
+      },
+      {
+        "type": "heading",
+        "text": "8. Scenario: Attendance"
+      },
+      {
+        "type": "paragraph",
+        "text": "REPT() can be used to create a simple attendance indicator."
+      },
+      {
+        "type": "syntax",
+        "code": "=REPT(\"|\",ROUND(B2/10,0))"
+      },
+      {
+        "type": "table",
+        "title": "Attendance Indicator",
+        "headers": [
+          "Student",
+          "Attendance %",
+          "Formula",
+          "Indicator"
+        ],
+        "rows": [
+          [
+            "Muthu",
+            90,
+            "=REPT(\"|\",ROUND(B2/10,0))",
+            "|||||||||"
+          ],
+          [
+            "Ravi",
+            80,
+            "=REPT(\"|\",ROUND(B3/10,0))",
+            "||||||||"
+          ],
+          [
+            "Priya",
+            70,
+            "=REPT(\"|\",ROUND(B4/10,0))",
+            "|||||||"
+          ],
+          [
+            "Kumar",
+            60,
+            "=REPT(\"|\",ROUND(B5/10,0))",
+            "||||||"
+          ]
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "9. Scenario: Password Masking"
+      },
+      {
+        "type": "paragraph",
+        "text": "REPT() can generate repeated masking characters. For example, it can be combined with LEN() to create a mask with the same number of characters as a password."
+      },
+      {
+        "type": "syntax",
+        "code": "=REPT(\"*\",LEN(A2))"
+      },
+      {
+        "type": "example",
+        "title": "Masking Example",
+        "before": "Password = Excel123",
+        "steps": [
+          "LEN(\"Excel123\") returns 8.",
+          "REPT(\"*\",8) repeats * eight times."
+        ],
+        "after": "Result = ********"
+      },
+      {
+        "type": "heading",
+        "text": "10. Scenario: Separator Line"
+      },
+      {
+        "type": "syntax",
+        "code": "=REPT(\"-\",30)"
+      },
+      {
+        "type": "example",
+        "title": "Create a Separator",
+        "before": "Need a 30-character separator line.",
+        "steps": [
+          "Use REPT().",
+          "Specify - as the text.",
+          "Specify 30 as the number of repetitions."
+        ],
+        "after": "Result = ------------------------------"
+      },
+      {
+        "type": "heading",
+        "text": "11. REPT() with IF()"
+      },
+      {
+        "type": "paragraph",
+        "text": "REPT() can be combined with IF() to display different visual indicators based on a condition."
+      },
+      {
+        "type": "syntax",
+        "code": "=IF(B2>=50,REPT(\"✓\",3),REPT(\"✗\",3))"
+      },
+      {
+        "type": "example",
+        "title": "Pass or Fail Indicator",
+        "before": "Marks = 72",
+        "steps": [
+          "Check whether marks are greater than or equal to 50.",
+          "The condition is TRUE.",
+          "REPT() repeats the check mark three times."
+        ],
+        "after": "Result = ✓✓✓"
+      },
+      {
+        "type": "heading",
+        "text": "12. Important Points"
+      },
+      {
+        "type": "table",
+        "headers": [
+          "Point",
+          "Explanation"
+        ],
+        "rows": [
+          [
+            "Text",
+            "Can be a character, word, symbol, or cell reference."
+          ],
+          [
+            "Number of repetitions",
+            "Determines how many times the text is repeated."
+          ],
+          [
+            "Zero",
+            "Returns an empty string."
+          ],
+          [
+            "Negative number",
+            "Returns a #VALUE! error."
+          ],
+          [
+            "Decimal count",
+            "The repetition count is effectively limited to the integer portion."
+          ]
+        ]
+      },
+      {
+        "type": "heading",
+        "text": "13. Practice Exercise"
+      },
+      {
+        "type": "exercise",
+        "title": "REPT() Practice",
+        "steps": [
+          "Create a student rating table.",
+          "Use REPT() to display stars based on a rating from 1 to 5.",
+          "Create a performance bar based on percentage.",
+          "Create an attendance indicator.",
+          "Create a 30-character separator line.",
+          "Use REPT() with LEN() to create a password mask.",
+          "Combine REPT() with IF() to display a pass or fail indicator."
+        ]
+      },
+      {
+        "type": "tip",
+        "title": "Remember",
+        "text": "REPT() does not calculate a mathematical result. It repeats text or symbols a specified number of times. It becomes especially useful when combined with IF(), LEN(), ROUND(), and cell values."
+      }
+    ]
+  }
+},
+{
   "id": "excel_u2_c12",
   "title": "Day 7: TEXT() Function",
   "concept": {
@@ -10412,7 +10827,7 @@
     "title": "Create a Two-Line Cell",
     "before": "A2 = Muthu; B2 = Computer Science",
     "formula": "=\"Name: \"&A2&CHAR(10)&\"Department: \"&B2",
-    "after": "Name: Muthu\nDepartment: Computer Science"
+    "after": "Name: Muthu\n\nDepartment: Computer Science"
   },
 
   {
