@@ -31,16 +31,16 @@
 <div class="container">
 
   <div class="section-tabs">
-    <button class="section-tab active" id="sec-tab-builder" onclick="switchSection('builder')">✏️ Subject Concept and Question Builder</button>
-    <button class="section-tab" id="sec-tab-data" onclick="switchSection('data')">📊 Data</button>
-    <button class="section-tab" id="sec-tab-stats" onclick="switchSection('stats')">📈 Statistics</button>
-    <button class="section-tab" id="sec-tab-feedback" onclick="switchSection('feedback')">💬 Feedback</button>
+    <button class="section-tab active" id="sec-tab-stats" onclick="switchSection('stats')">📈 Statistics</button>
+    <button class="section-tab" id="sec-tab-builder" onclick="switchSection('builder')">✏️ Subject Concept and Question Builder</button>
     <button class="section-tab" id="sec-tab-subjectmap" onclick="switchSection('subjectmap')">🗂️ Subject Map</button>
     <button class="section-tab" id="sec-tab-users" onclick="switchSection('users')">👥 Team &amp; Access</button>
+    <button class="section-tab" id="sec-tab-data" onclick="switchSection('data')">📊 Data</button>
+    <button class="section-tab" id="sec-tab-feedback" onclick="switchSection('feedback')">💬 Feedback</button>
   </div>
 
   <!-- ═══ QUESTION BUILDER ═══ -->
-  <div class="section-panel active" id="section-builder">
+  <div class="section-panel" id="section-builder">
     <div class="builder-col">
       <div class="builder-col-header">
         <span class="builder-col-title">Subject</span>
@@ -111,7 +111,7 @@
   </div>
 
   <!-- ═══ STATISTICS ═══ -->
-  <div class="section-panel" id="section-stats">
+  <div class="section-panel active" id="section-stats">
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="stat-regs">—</div><div class="stat-label">Registrations</div></div>
       <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" id="stat-attempts">—</div><div class="stat-label">Attempts</div></div>
