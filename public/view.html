@@ -117,47 +117,6 @@ body{font-family:'Inter',system-ui,sans-serif;background:#f4f5fb;color:#1a1a2e;m
 #sidebar-tree::-webkit-scrollbar{width:3px}
 #sidebar-tree::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:2px}
 
-/* Sidebar subject switcher — grouped by common subject name (e.g.
-   "Python") with each topic/code row (e.g. "Data Analysis with Pandas")
-   listed underneath. Collapsed by default so it doesn't compete with the
-   current subject's chapter tree for space. */
-#sidebar-subject-switcher{border-bottom:1px solid #f3f4f6;flex-shrink:0}
-#subj-switcher-toggle{
-  width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;
-  padding:11px 16px;background:none;border:none;cursor:pointer;
-  font-size:12px;font-weight:700;color:#374151;text-align:left;
-  transition:background var(--trans)
-}
-#subj-switcher-toggle:hover{background:#f9fafb}
-#subj-switcher-toggle .chevron{width:14px;height:14px;color:#9ca3af;transition:transform .2s;flex-shrink:0}
-#subj-switcher-toggle.open .chevron{transform:rotate(180deg)}
-#subj-switcher-body{max-height:320px;overflow-y:auto;padding:0 0 6px}
-#subj-switcher-body.hidden{display:none}
-#subj-switcher-body::-webkit-scrollbar{width:3px}
-#subj-switcher-body::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:2px}
-.switcher-group-btn{
-  width:100%;display:flex;align-items:center;gap:8px;
-  padding:8px 16px;background:none;border:none;cursor:pointer;
-  font-size:11.5px;font-weight:700;color:#4b5563;text-align:left;
-  transition:background var(--trans)
-}
-.switcher-group-btn:hover{background:#f9fafb}
-.switcher-group-btn .group-emoji{font-size:14px;flex-shrink:0}
-.switcher-group-btn .group-count{margin-left:auto;font-size:10px;color:#9ca3af;font-weight:600}
-.switcher-group-btn .chevron{width:11px;height:11px;color:#c4c4c4;transition:transform .2s;flex-shrink:0}
-.switcher-group-btn.collapsed .chevron{transform:rotate(-90deg)}
-.switcher-topic-list{padding:0 0 2px 16px;border-left:2px solid #f3f4f6;margin-left:22px}
-.switcher-topic-list.hidden{display:none}
-.switcher-topic-btn{
-  width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:2px;
-  padding:7px 10px;border:none;cursor:pointer;border-radius:8px;
-  background:none;margin-bottom:1px;text-align:left;transition:all var(--trans)
-}
-.switcher-topic-btn:hover{background:#f9fafb}
-.switcher-topic-btn.active{color:#fff}
-.switcher-topic-btn .topic-title{font-size:11px;font-weight:600;line-height:1.4}
-.switcher-topic-btn .topic-stats{font-size:9.5px;opacity:.75}
-
 /* Unit */
 .unit-btn{
   width:100%;display:flex;align-items:center;justify-content:space-between;
@@ -1010,13 +969,6 @@ table.sql-result-table tbody tr:nth-child(even){background:#f8fafc}
     <!-- Sidebar -->
     <aside id="sidebar">
       <div id="sidebar-subject-header">Subject</div>
-      <div id="sidebar-subject-switcher">
-        <button id="subj-switcher-toggle" onclick="toggleSubjectSwitcher()">
-          <span>📚 Browse Subjects</span>
-          <svg class="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-        </button>
-        <div id="subj-switcher-body" class="hidden"></div>
-      </div>
       <div id="sidebar-category-nav" class="hidden">
         <button id="sidebar-back-btn" onclick="backToCategories()">← <span id="sidebar-back-label">Change Class / Topic</span></button>
       </div>
@@ -1713,7 +1665,6 @@ function buildSidebar() {
   });
 
   updateSidebarActive();
-  renderSubjectSwitcher();
 }
 
 function updateSidebarActive() {
@@ -1724,115 +1675,6 @@ function updateSidebarActive() {
     btn.style.background = isActive ? color : '';
     btn.style.color = isActive ? '#fff' : '';
   });
-}
-
-// ══════════════════════════════════════════
-//  SIDEBAR SUBJECT SWITCHER — groups every subject by its common name
-//  (the "subject" field, e.g. "Python") with each topic/code row (the
-//  "subject_title" field, e.g. "Data Analysis with Pandas") listed
-//  underneath it — matches how subjects are actually modeled: one common
-//  name can have several topic rows, each its own code/content tree.
-//  Collapsed by default so it doesn't compete with the chapter tree below
-//  it for space; picking a topic collapses it back automatically.
-// ══════════════════════════════════════════
-let subjectSwitcherOpen = false;
-let subjectSwitcherGroupsCollapsed = {}; // group name -> bool
-
-function groupSubjectsByName() {
-  const codes = state.config?.subjects || Object.keys(SUBJECTS);
-  const groups = {};
-  const order = [];
-  codes.forEach(code => {
-    const s = SUBJECTS[code];
-    if (!s) return;
-    const key = s.subject || code;
-    if (!groups[key]) { groups[key] = []; order.push(key); }
-    groups[key].push(s);
-  });
-  return { groups, order };
-}
-
-function toggleSubjectSwitcher() {
-  subjectSwitcherOpen = !subjectSwitcherOpen;
-  renderSubjectSwitcher();
-}
-
-function toggleSwitcherGroup(name) {
-  subjectSwitcherGroupsCollapsed[name] = !(subjectSwitcherGroupsCollapsed[name] ?? true);
-  renderSubjectSwitcher();
-}
-
-function jumpFromSwitcher(code) {
-  subjectSwitcherOpen = false; // collapse back so the chapter tree gets the space again
-  switchSubject(code);
-}
-
-function renderSubjectSwitcher() {
-  const toggleBtn = document.getElementById('subj-switcher-toggle');
-  const body = document.getElementById('subj-switcher-body');
-  if (!toggleBtn || !body) return;
-  toggleBtn.classList.toggle('open', subjectSwitcherOpen);
-  body.classList.toggle('hidden', !subjectSwitcherOpen);
-  if (!subjectSwitcherOpen) return;
-
-  const { groups, order } = groupSubjectsByName();
-  body.innerHTML = order.map(name => {
-    const items = groups[name];
-    // Single-topic subjects (e.g. "Physics" with just one row) start
-    // expanded since there's nothing to hide; multi-topic subjects (e.g.
-    // "Python" with several courses) start collapsed to keep it compact.
-    const collapsed = subjectSwitcherGroupsCollapsed[name] ?? (items.length > 1);
-    const groupEmoji = items[0]?.emoji || '📘';
-    const escapedName = escapeHtml(name);
-    const rows = items.map(s => {
-      const isActive = state.view === 'subject' && s.code === state.activeSubject;
-      return `
-        <button class="switcher-topic-btn${isActive ? ' active' : ''}" style="${isActive ? `background:${s.color}` : ''}" onclick="jumpFromSwitcher('${s.code}')">
-          <span class="topic-title">${escapeHtml(s.subject_title || s.subject)}</span>
-          <span class="topic-stats" id="switcher-stats-${s.code}">…</span>
-        </button>`;
-    }).join('');
-
-    return `
-      <button class="switcher-group-btn${collapsed ? ' collapsed' : ''}" onclick="toggleSwitcherGroup('${escapedName.replace(/'/g, "\\'")}')">
-        <span class="group-emoji">${groupEmoji}</span>
-        <span>${escapedName}</span>
-        <span class="group-count">${items.length}</span>
-        <svg class="chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-      </button>
-      <div class="switcher-topic-list${collapsed ? ' hidden' : ''}">${rows}</div>`;
-  }).join('');
-
-  loadSwitcherStats(order.flatMap(name => groups[name].map(s => s.code)));
-}
-
-// Reuses subjectRootCache (the same cache the home page counts, global
-// search, and loadSubjectRoot all share) so this is free once any of
-// those have already fetched a given subject's content.
-async function loadSwitcherStats(codes) {
-  await Promise.all(codes.map(async (code) => {
-    const el = document.getElementById(`switcher-stats-${code}`);
-    if (!el) return;
-    try {
-      if (subjectRootCache[code] === undefined) {
-        subjectRootCache[code] = await fetchJSON(`api/content?code=${code}`, SUBJECTS[code]?.file).catch(() => null);
-      }
-      const root = subjectRootCache[code];
-      const freshEl = document.getElementById(`switcher-stats-${code}`);
-      if (!freshEl) return; // switcher may have re-rendered or collapsed before this resolved
-      if (!root) { freshEl.textContent = ''; return; }
-      if (Array.isArray(root.categories) && root.categories.length) {
-        freshEl.textContent = `${root.categories.length} topic${root.categories.length === 1 ? '' : 's'}`;
-        return;
-      }
-      let chapterCount = 0;
-      (root.units || []).forEach(u => { chapterCount += (u.chapters || []).length; });
-      freshEl.textContent = `${chapterCount} chapter${chapterCount === 1 ? '' : 's'}`;
-    } catch {
-      const el2 = document.getElementById(`switcher-stats-${code}`);
-      if (el2) el2.textContent = '';
-    }
-  }));
 }
 
 function updateSidebarBackButton() {
