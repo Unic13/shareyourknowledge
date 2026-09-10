@@ -37,6 +37,82 @@ function setBuilderStatus(msg, type) {
 }
 function markDirty() { builder.dirty = true; setBuilderStatus('Unsaved changes', ''); }
 
+// ── Auto-growing "input" fields ──
+// Several fields that look like single-line inputs (option text, list
+// items, table cells, key formulas, match pairs) actually need to hold a
+// second line sometimes. These render as <textarea class="auto-ta" rows="1">
+// instead of <input type="text">, and grow automatically as the person
+// types — same value/oninput wiring as a plain input, so existing update
+// functions don't need to change.
+function autoGrow(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+function autoGrowAll(root) {
+  (root || document).querySelectorAll('.auto-ta').forEach(autoGrow);
+}
+
+// ── Mini "Word-like" rich text field ──
+// A small contenteditable box with a toolbar (bold / italic / underline /
+// align left-center-right / bullet & numbered list) for the longer text
+// fields — question text, assertion/reason, explanations, and concept
+// paragraphs/headings/notes. The field's value is stored as HTML (so
+// formatting + alignment survive), and rendered as HTML (not escaped) in
+// both the live preview and the learner-facing app.
+function richTextFieldHtml(id, valueHtml, opts) {
+  opts = opts || {};
+  const singleLine = !!opts.singleLine;
+  const placeholder = opts.placeholder || '';
+  return `<div class="rte-wrap">
+    <div class="rte-toolbar">
+      <button type="button" class="rte-btn" title="Bold" onmousedown="event.preventDefault()" onclick="rteExec('${id}','bold')"><b>B</b></button>
+      <button type="button" class="rte-btn" title="Italic" onmousedown="event.preventDefault()" onclick="rteExec('${id}','italic')"><i>I</i></button>
+      <button type="button" class="rte-btn" title="Underline" onmousedown="event.preventDefault()" onclick="rteExec('${id}','underline')"><u>U</u></button>
+      <span class="rte-sep"></span>
+      <button type="button" class="rte-btn" title="Align left" onmousedown="event.preventDefault()" onclick="rteExec('${id}','justifyLeft')">⯇</button>
+      <button type="button" class="rte-btn" title="Align center" onmousedown="event.preventDefault()" onclick="rteExec('${id}','justifyCenter')">▤</button>
+      <button type="button" class="rte-btn" title="Align right" onmousedown="event.preventDefault()" onclick="rteExec('${id}','justifyRight')">⯈</button>
+      ${singleLine ? '' : `
+      <span class="rte-sep"></span>
+      <button type="button" class="rte-btn" title="Bullet list" onmousedown="event.preventDefault()" onclick="rteExec('${id}','insertUnorderedList')">• ≡</button>
+      <button type="button" class="rte-btn" title="Numbered list" onmousedown="event.preventDefault()" onclick="rteExec('${id}','insertOrderedList')">1. ≡</button>`}
+    </div>
+    <div class="rte-editable${singleLine ? ' rte-singleline' : ''}" id="${id}" contenteditable="true"
+      data-placeholder="${escAttr(placeholder)}"
+      ${singleLine ? `onkeydown="if(event.key==='Enter'){event.preventDefault();}"` : ''}
+      >${valueHtml || ''}</div>
+  </div>`;
+}
+function rteExec(id, cmd) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.focus();
+  document.execCommand(cmd, false, null);
+  el.dispatchEvent(new Event('input'));
+}
+// Call once, right after the HTML containing richTextFieldHtml(id, ...) has
+// been inserted into the DOM, to wire up plain-text paste + the onChange
+// callback (which should persist the field's current innerHTML).
+function initRichTextField(id, onChange) {
+  const el = document.getElementById(id);
+  if (!el || el.dataset.rteBound) return;
+  el.dataset.rteBound = '1';
+  el.addEventListener('input', () => onChange(el.innerHTML));
+  el.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+    document.execCommand('insertText', false, text);
+  });
+}
+// Plain-text version of a rich-text field's stored HTML, for summaries /
+// tree labels / search where tags would just be noise.
+function stripHtml(html) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html || '';
+  return (tmp.textContent || tmp.innerText || '').trim();
+}
+
 async function initBuilder(session) {
   builder.session = session;
   setBuilderStatus('Loading subjects…');
@@ -398,10 +474,11 @@ function renderKeyFormulasList(concept) {
   (concept.formulas || []).forEach((f, i) => {
     const row = document.createElement('div');
     row.className = 'b-list-item';
-    row.innerHTML = `<input type="text" style="font-family:monospace" value="${escAttr(f)}" oninput="updateKeyFormula(${i}, this.value)" placeholder="e.g. Relative error = \\$\\Delta a/a\\$">
+    row.innerHTML = `<textarea rows="1" class="auto-ta" style="font-family:monospace" oninput="autoGrow(this);updateKeyFormula(${i}, this.value)" placeholder="e.g. Relative error = \\$\\Delta a/a\\$">${escHtml(f)}</textarea>
       <button class="b-icon-btn danger" onclick="removeKeyFormula(${i})">✕</button>`;
     wrap.appendChild(row);
   });
+  autoGrowAll(wrap);
 }
 function addKeyFormula() {
   const chapter = getActiveChapterObj(); if (!chapter) return;
@@ -474,10 +551,11 @@ function renderPlaygroundQueries(pg) {
   (pg.sampleQueries || []).forEach((sq, i) => {
     const row = document.createElement('div');
     row.className = 'b-list-item';
-    row.innerHTML = `<input type="text" style="font-family:monospace" value="${escAttr(sq)}" oninput="updatePlaygroundQuery(${i}, this.value)" placeholder="SELECT * FROM Student;">
+    row.innerHTML = `<textarea rows="1" class="auto-ta" style="font-family:monospace" oninput="autoGrow(this);updatePlaygroundQuery(${i}, this.value)" placeholder="SELECT * FROM Student;">${escHtml(sq)}</textarea>
       <button class="b-icon-btn danger" onclick="removePlaygroundQuery(${i})">✕</button>`;
     wrap.appendChild(row);
   });
+  autoGrowAll(wrap);
 }
 function updatePlaygroundField(field, val) {
   const chapter = getActiveChapterObj(); if (!chapter) return;
@@ -509,7 +587,7 @@ function bodyItemSummary(item) {
   if (item.type === 'video') return item.title || item.url || '(no video URL)';
   if (item.type === 'steps' || item.type === 'exercise') return item.title || (item.steps || []).filter(Boolean).join(' → ') || `(empty ${item.type})`;
   if (item.type === 'example') return item.title || item.before || '(empty example)';
-  return item.text || '(empty)';
+  return stripHtml(item.text) || '(empty)';
 }
 function addBodyItem(type) {
   const chapter = getActiveChapterObj(); if (!chapter) return;
@@ -549,6 +627,7 @@ function renderBodyItemsList(concept) {
     wrap.appendChild(card);
     if (isOpen) renderBodyItemEditor(item, i, document.getElementById(`bbody-${i}`));
   });
+  autoGrowAll(wrap);
 }
 function toggleBodyItemOpen(i) { builder.openBodyIndex = builder.openBodyIndex === i ? null : i; renderBodyItemsList(getActiveChapterObj().concept); }
 function moveBodyItem(i, dir) {
@@ -571,15 +650,18 @@ function refreshBodyItemSummary(i) {
 }
 function renderBodyItemEditor(item, i, container) {
   if (['heading', 'paragraph', 'note', 'formula'].includes(item.type)) {
-    container.innerHTML = `<div class="b-field"><label>Text</label><textarea rows="${item.type === 'heading' ? 1 : 3}" oninput="updateBodyText(${i}, this.value)">${escHtml(item.text || '')}</textarea></div>`;
+    const rtId = `rte-body-${i}`;
+    container.innerHTML = `<div class="b-field"><label>Text</label>${richTextFieldHtml(rtId, item.text || '', { singleLine: item.type === 'heading', placeholder: 'Type here… select text to format it' })}</div>`;
+    initRichTextField(rtId, (html) => updateBodyText(i, html));
     return;
   }
   if (item.type === 'list' || item.type === 'summary') {
-    let rows = (item.items || []).map((li, li_i) => `<div class="b-list-item"><input type="text" value="${escAttr(li)}" oninput="updateListItemText(${i},${li_i},this.value)" onpaste="handleListItemPaste(${i},${li_i},event)"><button class="b-icon-btn danger" onclick="removeListItemAt(${i},${li_i})">✕</button></div>`).join('');
-    container.innerHTML = `<div class="b-field"><label>${item.type === 'summary' ? 'Summary Points' : 'List Items'}</label>${rows}<button class="b-btn b-btn-outline b-btn-sm" onclick="addListItemAt(${i})">+ Add Item</button><div class="b-field-hint">Tip: paste multiple lines into any item box to add them all as separate items at once.</div></div>`;
+    let rows = (item.items || []).map((li, li_i) => `<div class="b-list-item"><textarea rows="1" class="auto-ta" oninput="autoGrow(this);updateListItemText(${i},${li_i},this.value)" onpaste="handleListItemPaste(${i},${li_i},event)">${escHtml(li)}</textarea><button class="b-icon-btn danger" onclick="removeListItemAt(${i},${li_i})">✕</button></div>`).join('');
+    container.innerHTML = `<div class="b-field"><label>${item.type === 'summary' ? 'Summary Points' : 'List Items'}</label>${rows}<button class="b-btn b-btn-outline b-btn-sm" onclick="addListItemAt(${i})">+ Add Item</button><div class="b-field-hint">Tip: paste multiple lines into any item box to add them all as separate items at once — or just type a second line, the box will grow.</div></div>`;
+    autoGrowAll(container);
     return;
   }
-  if (item.type === 'table') { container.innerHTML = tableEditorHtml(item, i); return; }
+  if (item.type === 'table') { container.innerHTML = tableEditorHtml(item, i); autoGrowAll(container); return; }
   if (item.type === 'syntax') {
     container.innerHTML = `<div class="b-field"><label>Language</label><input type="text" value="${escAttr(item.language || 'text')}" oninput="updateSyntaxField(${i},'language',this.value)"></div>
       <div class="b-field"><label>Code</label><textarea rows="4" style="font-family:monospace" oninput="updateSyntaxField(${i},'code',this.value)">${escHtml(item.code || '')}</textarea></div>`;
@@ -599,13 +681,14 @@ function renderBodyItemEditor(item, i, container) {
     return;
   }
   if (item.type === 'steps' || item.type === 'exercise') {
-    let rows = (item.steps || []).map((s, si) => `<div class="b-list-item"><textarea rows="1" oninput="updateStepText(${i},${si},this.value)" onpaste="handleStepPaste(${i},${si},event)">${escHtml(s)}</textarea><button class="b-icon-btn danger" onclick="removeStepAt(${i},${si})">✕</button></div>`).join('');
+    let rows = (item.steps || []).map((s, si) => `<div class="b-list-item"><textarea rows="1" class="auto-ta" oninput="autoGrow(this);updateStepText(${i},${si},this.value)" onpaste="handleStepPaste(${i},${si},event)">${escHtml(s)}</textarea><button class="b-icon-btn danger" onclick="removeStepAt(${i},${si})">✕</button></div>`).join('');
     container.innerHTML = `<div class="b-field"><label>Title</label><input type="text" value="${escAttr(item.title || '')}" oninput="updateImageField(${i},'title',this.value)"></div>
       <div class="b-field"><label>Items</label>${rows}<button class="b-btn b-btn-outline b-btn-sm" onclick="addStepAt(${i})">+ Add</button><div class="b-field-hint">Tip: paste multiple lines into any step box to add them all at once.</div></div>`;
+    autoGrowAll(container);
     return;
   }
   if (item.type === 'example') {
-    let rows = (item.steps || []).map((s, si) => `<div class="b-list-item"><textarea rows="1" oninput="updateStepText(${i},${si},this.value)" onpaste="handleStepPaste(${i},${si},event)">${escHtml(s)}</textarea><button class="b-icon-btn danger" onclick="removeStepAt(${i},${si})">✕</button></div>`).join('');
+    let rows = (item.steps || []).map((s, si) => `<div class="b-list-item"><textarea rows="1" class="auto-ta" oninput="autoGrow(this);updateStepText(${i},${si},this.value)" onpaste="handleStepPaste(${i},${si},event)">${escHtml(s)}</textarea><button class="b-icon-btn danger" onclick="removeStepAt(${i},${si})">✕</button></div>`).join('');
     container.innerHTML = `<div class="b-field"><label>Title</label><input type="text" value="${escAttr(item.title || '')}" oninput="updateImageField(${i},'title',this.value)" placeholder="e.g. AVERAGEIF() Example"></div>
       <div class="b-field"><label>Before (the problem / setup)</label><textarea rows="2" oninput="updateImageField(${i},'before',this.value)" placeholder="e.g. Find the average marks of students belonging to Physics.">${escHtml(item.before || '')}</textarea></div>
       <div class="b-field"><label>Steps</label>${rows}<button class="b-btn b-btn-outline b-btn-sm" onclick="addStepAt(${i})">+ Add Step</button><div class="b-field-hint">Tip: paste multiple lines into any step box to add them all at once.</div></div>
@@ -615,6 +698,7 @@ function renderBodyItemEditor(item, i, container) {
         <input type="text" value="${escAttr(item.image || '')}" oninput="updateImageField(${i},'image',this.value)">
         <div class="b-upload-row" style="margin-top:8px"><input type="file" accept="image/*" onchange="handleImageUpload(${i},this)"></div>
       </div>`;
+    autoGrowAll(container);
     return;
   }
 }
@@ -654,7 +738,7 @@ function tableEditorHtml(item, i) {
   const headers = item.headers || []; const rows = item.rows || [];
   let html = '<div class="b-field"><label>Table</label><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><tr>';
   headers.forEach((h, ci) => {
-    html += `<td><input type="text" value="${escAttr(h)}" oninput="updateTableHeader(${i},${ci},this.value)"></td>`;
+    html += `<td><textarea rows="1" class="auto-ta" oninput="autoGrow(this);updateTableHeader(${i},${ci},this.value)">${escHtml(h)}</textarea></td>`;
   });
   html += `<td><button class="b-icon-btn" onclick="addTableCol(${i})" title="Add column">+col</button></td></tr><tr>`;
   headers.forEach((_, ci) => {
@@ -663,7 +747,7 @@ function tableEditorHtml(item, i) {
   html += `<td></td></tr>`;
   rows.forEach((r, ri) => {
     html += '<tr>';
-    headers.forEach((_, ci) => { html += `<td><input type="text" value="${escAttr(r[ci] || '')}" oninput="updateTableCell(${i},${ri},${ci},this.value)"></td>`; });
+    headers.forEach((_, ci) => { html += `<td><textarea rows="1" class="auto-ta" oninput="autoGrow(this);updateTableCell(${i},${ri},${ci},this.value)">${escHtml(r[ci] || '')}</textarea></td>`; });
     html += `<td><button class="b-icon-btn danger" onclick="removeTableRow(${i},${ri})" title="Remove row">✕</button></td></tr>`;
   });
   html += '</table></div>';
@@ -713,6 +797,7 @@ function rerenderTableEditor(i) {
   const container = document.getElementById(`bbody-${i}`);
   if (container) container.innerHTML = tableEditorHtml(item, i);
   refreshBodyItemSummary(i);
+  autoGrowAll(container);
   markDirty();
 }
 function addTableCol(i) { const item = getActiveChapterObj().concept.body[i]; item.headers.push(`Column ${item.headers.length + 1}`); (item.rows || []).forEach(r => r.push('')); rerenderTableEditor(i); }
@@ -784,8 +869,8 @@ function renderQuestionsList(chapter) {
     const isOpen = builder.openQuestionId === q.id;
     const card = document.createElement('div');
     card.style.cssText = 'border:1.5px solid #e5e7eb;border-radius:12px;margin-bottom:12px;overflow:hidden';
-    const summary = q.question ? q.question.replace(/\$/g, '').slice(0, 60)
-      : q.type === 'AR' ? (q.assertion || '(empty assertion)').replace(/\$/g, '').slice(0, 60)
+    const summary = q.question ? stripHtml(q.question).replace(/\$/g, '').slice(0, 60)
+      : q.type === 'AR' ? stripHtml(q.assertion || '(empty assertion)').replace(/\$/g, '').slice(0, 60)
       : q.type === 'MATCH' ? `${(q.pairs || []).length} pair(s) to match`
       : '(empty question)';
     card.innerHTML = `
@@ -809,8 +894,9 @@ function deleteQuestion(qid) {
 function findQuestion(qid) { return getActiveChapterObj()?.questions?.find(q => q.id === qid); }
 
 function explanationFieldsHtml(q) {
+  const rtId = `rte-expl-${q.id}`;
   return `
-    <div class="b-field"><label>Explanation</label><textarea rows="2" oninput="updateQuestionField('${q.id}','explanation',this.value)">${escHtml(q.explanation)}</textarea></div>
+    <div class="b-field"><label>Explanation</label>${richTextFieldHtml(rtId, q.explanation || '', { placeholder: 'Why the correct answer is correct…' })}</div>
     <div class="b-field">
       <label>Explanation Image (optional)</label>
       <input type="text" value="${escAttr(q.explanationImage || '')}" oninput="updateQuestionField('${q.id}','explanationImage',this.value)">
@@ -821,6 +907,11 @@ function explanationFieldsHtml(q) {
     </div>
     <div class="b-field"><label>Explanation Video (YouTube URL, optional)</label><input type="text" value="${escAttr(q.explanationVideo || '')}" oninput="updateQuestionField('${q.id}','explanationVideo',this.value)"></div>
     <div class="b-field"><label>Explanation Link (optional)</label><input type="text" value="${escAttr(q.explanationLink || '')}" oninput="updateQuestionField('${q.id}','explanationLink',this.value)"></div>`;
+}
+// Wires the contenteditable "Explanation" box produced by
+// explanationFieldsHtml() — call right after that HTML lands in the DOM.
+function initExplanationRte(q) {
+  initRichTextField(`rte-expl-${q.id}`, (html) => updateQuestionField(q.id, 'explanation', html));
 }
 
 function caseSelectHtml(q) {
@@ -848,7 +939,7 @@ function renderQuestionEditor(q, container) {
       const optImg = q.optionImages[i] || '';
       optsHtml += `<div class="b-opt-row" style="display:flex;align-items:center;gap:8px;margin-bottom:${optImg ? '2px' : '7px'}">
         <span style="width:22px;height:22px;border-radius:6px;background:#f3f4f6;color:#6b7280;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center">${String.fromCharCode(65 + i)}</span>
-        <input type="text" style="flex:1" value="${escAttr(opt)}" oninput="updateOptionText('${q.id}',${i},this.value)" placeholder="Option ${String.fromCharCode(65 + i)}">
+        <textarea rows="1" class="auto-ta" style="flex:1" oninput="autoGrow(this);updateOptionText('${q.id}',${i},this.value)" placeholder="Option ${String.fromCharCode(65 + i)}">${escHtml(opt)}</textarea>
         <input type="${inputType}" name="correct-${q.id}" ${checked ? 'checked' : ''} onchange="toggleOptionCorrect('${q.id}',${i},this.checked)" title="Mark as correct">
         <label class="b-icon-btn" title="Add/replace option image" style="cursor:pointer">🖼<input type="file" accept="image/*" style="display:none" onchange="handleOptionImageUpload('${q.id}',${i},this)"></label>
         <button class="b-icon-btn danger" onclick="removeOption('${q.id}',${i})" title="Remove option">✕</button>
@@ -865,15 +956,17 @@ function renderQuestionEditor(q, container) {
     <div class="b-field"><label>Unit (optional)</label><input type="text" value="${escAttr(q.unit || '')}" oninput="updateNatField('${q.id}','unit',this.value)"></div>`;
   }
   let arHtml = '';
+  const arIds = { assertion: `rte-ar-a-${q.id}`, reason: `rte-ar-r-${q.id}` };
   if (q.type === 'AR') {
     arHtml = `
-      <div class="b-field"><label>Assertion (A)</label><textarea rows="2" oninput="updateQuestionField('${q.id}','assertion',this.value)">${escHtml(q.assertion || '')}</textarea></div>
-      <div class="b-field"><label>Reason (R)</label><textarea rows="2" oninput="updateQuestionField('${q.id}','reason',this.value)">${escHtml(q.reason || '')}</textarea></div>`;
+      <div class="b-field"><label>Assertion (A)</label>${richTextFieldHtml(arIds.assertion, q.assertion || '', { placeholder: 'Assertion…' })}</div>
+      <div class="b-field"><label>Reason (R)</label>${richTextFieldHtml(arIds.reason, q.reason || '', { placeholder: 'Reason…' })}</div>`;
   }
 
+  const qTextId = `rte-q-${q.id}`;
   container.innerHTML = `
     ${caseSelectHtml(q)}
-    <div class="b-field"><label>${q.type === 'AR' ? 'Instructions (optional)' : 'Question Text'}</label><textarea rows="2" oninput="updateQuestionField('${q.id}','question',this.value)">${escHtml(q.question)}</textarea></div>
+    <div class="b-field"><label>${q.type === 'AR' ? 'Instructions (optional)' : 'Question Text'}</label>${richTextFieldHtml(qTextId, q.question || '', { placeholder: q.type === 'AR' ? 'Instructions…' : 'Question text…' })}</div>
     ${arHtml}
     <div class="b-field"><label><input type="checkbox" ${q.latex ? 'checked' : ''} onchange="updateQuestionField('${q.id}','latex',this.checked)" style="width:auto;margin-right:6px"> Enable LaTeX</label></div>
     <div class="b-field">
@@ -890,6 +983,14 @@ function renderQuestionEditor(q, container) {
     </div>
     ${q.type !== 'NAT' ? `<div class="b-field"><label>Options ${(q.type === 'MCQ' || q.type === 'AR') ? '(select the one correct radio)' : '(check all correct boxes)'}</label>${optsHtml}<button class="b-btn b-btn-outline b-btn-sm" onclick="addOption('${q.id}')">+ Add Option</button></div>` : natHtml}
     ${explanationFieldsHtml(q)}`;
+
+  initRichTextField(qTextId, (html) => updateQuestionField(q.id, 'question', html));
+  if (q.type === 'AR') {
+    initRichTextField(arIds.assertion, (html) => updateQuestionField(q.id, 'assertion', html));
+    initRichTextField(arIds.reason, (html) => updateQuestionField(q.id, 'reason', html));
+  }
+  initExplanationRte(q);
+  autoGrowAll(container);
 }
 
 function renderMatchQuestionEditor(q, container) {
@@ -897,15 +998,16 @@ function renderMatchQuestionEditor(q, container) {
   const rows = q.pairs.map((p, i) => `
     <div class="b-list-item" style="display:flex;gap:8px;align-items:center">
       <span style="width:20px;color:#9ca3af;font-size:11px;font-weight:700">${i + 1}</span>
-      <input type="text" style="flex:1" value="${escAttr(p.left)}" oninput="updateMatchPair('${q.id}',${i},'left',this.value)" placeholder="Column A item">
+      <textarea rows="1" class="auto-ta" style="flex:1" oninput="autoGrow(this);updateMatchPair('${q.id}',${i},'left',this.value)" placeholder="Column A item">${escHtml(p.left)}</textarea>
       <span style="color:#9ca3af">↔</span>
-      <input type="text" style="flex:1" value="${escAttr(p.right)}" oninput="updateMatchPair('${q.id}',${i},'right',this.value)" placeholder="Column B item">
+      <textarea rows="1" class="auto-ta" style="flex:1" oninput="autoGrow(this);updateMatchPair('${q.id}',${i},'right',this.value)" placeholder="Column B item">${escHtml(p.right)}</textarea>
       <button class="b-icon-btn danger" onclick="removeMatchPair('${q.id}',${i})">✕</button>
     </div>`).join('');
 
+  const qTextId = `rte-q-${q.id}`;
   container.innerHTML = `
     ${caseSelectHtml(q)}
-    <div class="b-field"><label>Instructions (optional)</label><textarea rows="2" oninput="updateQuestionField('${q.id}','question',this.value)" placeholder="e.g. Match the Accounting Standards with their subject matter">${escHtml(q.question)}</textarea></div>
+    <div class="b-field"><label>Instructions (optional)</label>${richTextFieldHtml(qTextId, q.question || '', { placeholder: 'e.g. Match the Accounting Standards with their subject matter' })}</div>
     <div class="b-field"><label><input type="checkbox" ${q.latex ? 'checked' : ''} onchange="updateQuestionField('${q.id}','latex',this.checked)" style="width:auto;margin-right:6px"> Enable LaTeX</label></div>
     <div class="b-field-row">
       <div class="b-field"><label>Column A Title</label><input type="text" value="${escAttr(q.columnATitle || 'Column A')}" oninput="updateQuestionField('${q.id}','columnATitle',this.value)"></div>
@@ -913,6 +1015,10 @@ function renderMatchQuestionEditor(q, container) {
     </div>
     <div class="b-field"><label>Pairs (each row is one correct match)</label>${rows}<button class="b-btn b-btn-outline b-btn-sm" onclick="addMatchPair('${q.id}')">+ Add Pair</button></div>
     ${explanationFieldsHtml(q)}`;
+
+  initRichTextField(qTextId, (html) => updateQuestionField(q.id, 'question', html));
+  initExplanationRte(q);
+  autoGrowAll(container);
 }
 function updateMatchPair(qid, i, side, val) { const q = findQuestion(qid); if (!q) return; q.pairs[i][side] = val; markDirty(); }
 function addMatchPair(qid) {
@@ -1177,10 +1283,10 @@ async function submitNewSubject() {
 function pvBodyItemHtml(item) {
   const esc = escHtml;
   switch (item.type) {
-    case 'heading': return `<div style="font-size:16px;font-weight:800;color:#4f46e5;margin:18px 0 8px">${esc(item.text || '')}</div>`;
-    case 'paragraph': return `<div style="font-size:13.5px;line-height:1.7;color:#374151;margin-bottom:10px">${esc(item.text || '')}</div>`;
-    case 'note': return `<div style="background:#faf5ff;border-left:3px solid #7c3aed;padding:10px 14px;border-radius:8px;font-size:12.5px;color:#6b21a8;margin-bottom:12px">💡 ${esc(item.text || '')}</div>`;
-    case 'formula': return `<div style="background:#1e1e2e;color:#cdd6f4;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;text-align:center">${esc(item.text || '')}</div>`;
+    case 'heading': return `<div style="font-size:16px;font-weight:800;color:#4f46e5;margin:18px 0 8px">${item.text || ''}</div>`;
+    case 'paragraph': return `<div style="font-size:13.5px;line-height:1.7;color:#374151;margin-bottom:10px">${item.text || ''}</div>`;
+    case 'note': return `<div style="background:#faf5ff;border-left:3px solid #7c3aed;padding:10px 14px;border-radius:8px;font-size:12.5px;color:#6b21a8;margin-bottom:12px">💡 ${item.text || ''}</div>`;
+    case 'formula': return `<div style="background:#1e1e2e;color:#cdd6f4;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;text-align:center">${item.text || ''}</div>`;
     case 'syntax': return `<div style="background:#1e1e2e;color:#a6e3a1;font-family:monospace;padding:12px 14px;border-radius:8px;font-size:12px;white-space:pre-wrap;margin-bottom:12px">${esc(item.code || '')}</div>`;
     case 'list': return `<ul style="margin:0 0 12px 20px;font-size:13px;color:#374151;line-height:1.8">${(item.items || []).map(li => `<li>${esc(li)}</li>`).join('')}</ul>`;
     case 'summary': return `<div style="background:#f0fdfa;border:1.5px solid #99f6e4;border-radius:10px;padding:12px 16px;margin-bottom:12px"><div style="font-size:11px;font-weight:800;color:#0d9488;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">📌 Summary</div><ul style="margin:0 0 0 18px;font-size:13px;color:#374151;line-height:1.8">${(item.items || []).map(li => `<li>${esc(li)}</li>`).join('')}</ul></div>`;
@@ -1258,10 +1364,10 @@ function renderChapterPreviewHtml(chapter) {
       html += `<div style="border:1px solid #e5e7eb;border-radius:10px;padding:12px 14px;margin-bottom:10px"><div style="font-size:11px;color:#9ca3af;margin-bottom:6px">Q${qi + 1} · ${q.type}</div>${qImgAbove ? qImgHtml : ''}`;
 
       if (q.type === 'AR') {
-        html += `<div style="font-size:12.5px;margin-bottom:4px"><strong>Assertion (A):</strong> ${escHtml(q.assertion || '')}</div>`;
-        html += `<div style="font-size:12.5px;margin-bottom:8px"><strong>Reason (R):</strong> ${escHtml(q.reason || '')}</div>`;
+        html += `<div style="font-size:12.5px;margin-bottom:4px"><strong>Assertion (A):</strong> ${q.assertion || ''}</div>`;
+        html += `<div style="font-size:12.5px;margin-bottom:8px"><strong>Reason (R):</strong> ${q.reason || ''}</div>`;
       }
-      if (q.question) html += `<div style="font-size:13.5px;margin-bottom:8px">${escHtml(q.question)}</div>`;
+      if (q.question) html += `<div style="font-size:13.5px;margin-bottom:8px">${q.question}</div>`;
       html += qImgAbove ? '' : qImgHtml;
 
       if (q.type === 'NAT') {
@@ -1282,7 +1388,7 @@ function renderChapterPreviewHtml(chapter) {
       const hasExplanation = q.explanation || q.explanationImage || q.explanationVideo || q.explanationLink;
       if (hasExplanation) {
         html += `<div style="font-size:12px;color:#6b7280;background:#f9fafb;border-radius:8px;padding:8px 10px;margin-top:8px">`;
-        if (q.explanation) html += `💡 ${escHtml(q.explanation)}`;
+        if (q.explanation) html += `💡 ${q.explanation}`;
         if (q.explanationImage) html += `<div style="margin-top:6px"><img src="${escAttr(q.explanationImage)}" style="max-width:100%;max-height:200px;border-radius:6px;object-fit:contain" onerror="this.style.display='none'"></div>`;
         if (q.explanationVideo) {
           const m = (q.explanationVideo || '').match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
